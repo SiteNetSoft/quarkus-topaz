@@ -1,0 +1,11 @@
+{
+  "objects": [
+    {"type": "user", "id": "rick@the-citadel.com", "display_name": "Rick Sanchez",
+     "properties": {"email": "rick@the-citadel.com"}},
+    {"type": "user", "id": "morty@the-citadel.com", "display_name": "Morty Smith",
+     "properties": {"email": "morty@the-citadel.com"}},
+    {"type": "identity", "id": "rick@the-citadel.com"},
+    {"type": "identity", "id": "morty@the-citadel.com"},
+    {"type": "todo", "id": "todo-1", "display_name": "Buy plumbus"}
+  ]
+}
