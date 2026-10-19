@@ -14,6 +14,7 @@ import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.Type;
 import org.sitenetsoft.quarkus.topaz.security.TopazAuthorize;
+import org.sitenetsoft.quarkus.topaz.security.TopazObjectId;
 import org.sitenetsoft.quarkus.topaz.security.TopazResource;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DecisionEvaluator;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultIdentityMapper;
@@ -24,6 +25,7 @@ import org.sitenetsoft.quarkus.topaz.security.runtime.InterceptorSupport;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopDecisionCache;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopResourceMethodInfoResolver;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazAuthorizeInterceptor;
+import org.sitenetsoft.quarkus.topaz.security.runtime.TopazCheckInterceptor;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazEnforcementBuildTimeConfig;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazHttpSecurityPolicy;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazSecurityRecorder;
@@ -55,6 +57,8 @@ class TopazSecurityProcessor {
     private static final DotName TOPAZ_AUTHORIZE = DotName.createSimple(TopazAuthorize.class);
 
     private static final DotName TOPAZ_RESOURCE = DotName.createSimple(TopazResource.class);
+
+    private static final DotName TOPAZ_OBJECT_ID = DotName.createSimple(TopazObjectId.class);
 
     private static final DotName JAXRS_PATH = DotName.createSimple("jakarta.ws.rs.Path");
 
@@ -118,7 +122,7 @@ class TopazSecurityProcessor {
     @BuildStep
     AdditionalBeanBuildItem interceptorBeans() {
         return AdditionalBeanBuildItem.builder()
-                .addBeanClasses(TopazAuthorizeInterceptor.class, InterceptorSupport.class)
+                .addBeanClasses(TopazAuthorizeInterceptor.class, TopazCheckInterceptor.class, InterceptorSupport.class)
                 .setUnremovable()
                 .build();
     }
@@ -137,6 +141,24 @@ class TopazSecurityProcessor {
                 String name = type.name().toString();
                 if (!isJdkType(name)) {
                     types.add(name);
+                }
+            }
+        }
+        if (!types.isEmpty()) {
+            reflective.produce(ReflectiveClassBuildItem.builder(types.toArray(String[]::new)).methods().fields()
+                    .build());
+        }
+    }
+
+    // @TopazCheck reads @TopazObjectId fields and getters of its arguments reflectively.
+    @BuildStep
+    void topazObjectIdReflection(CombinedIndexBuildItem index, BuildProducer<ReflectiveClassBuildItem> reflective) {
+        Set<String> types = new TreeSet<>();
+        for (AnnotationInstance a : index.getIndex().getAnnotations(TOPAZ_OBJECT_ID)) {
+            switch (a.target().kind()) {
+                case FIELD -> types.add(a.target().asField().declaringClass().name().toString());
+                case METHOD -> types.add(a.target().asMethod().declaringClass().name().toString());
+                default -> {
                 }
             }
         }
