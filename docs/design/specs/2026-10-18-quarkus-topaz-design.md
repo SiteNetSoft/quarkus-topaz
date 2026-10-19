@@ -204,7 +204,6 @@ stubs and convenience methods for the common path:
 
 ```java
 Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType, String subjectId);
-Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType, String subjectId, String subjectRelation);
 Uni<List<Boolean>> checks(List<CheckRequest>);
 Uni<Object>  getObject(type, id);   Uni<Void> setObject(Object);   Uni<Void> deleteObject(type, id, withRelations);
 Uni<Relation> getRelation(...);     Uni<Void> setRelation(Relation);  Uni<Void> deleteRelation(...);
