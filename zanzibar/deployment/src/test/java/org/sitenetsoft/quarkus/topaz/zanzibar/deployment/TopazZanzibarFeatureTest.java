@@ -17,8 +17,7 @@ public class TopazZanzibarFeatureTest {
             .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .overrideConfigKey("quarkus.topaz.authorizer.port", "1")
             .overrideConfigKey("quarkus.topaz.directory.port", "1")
-            .overrideConfigKey("quarkus.topaz.plain-text", "true")
-            .overrideConfigKey("quarkus.zanzibar.filter.enabled", "false");
+            .overrideConfigKey("quarkus.topaz.plain-text", "true");
 
     @Inject
     TopazZanzibarConfig config;
