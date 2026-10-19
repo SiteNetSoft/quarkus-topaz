@@ -18,6 +18,7 @@ import org.sitenetsoft.quarkus.topaz.TopazClient;
 import org.sitenetsoft.quarkus.topaz.deployment.TopazBuildTimeConfig;
 import org.testcontainers.utility.DockerImageName;
 
+import aserto.directory.importer.v3.ImportRequest;
 import io.quarkus.deployment.IsDevServicesSupportedByLaunchMode;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -84,6 +85,7 @@ public class DevServicesTopazProcessor {
         Optional<Path> manifest = cfg.manifestLocation()
                 .map(l -> resolver.resolve("manifest-location", l, "manifest.yaml"));
         Optional<Path> data = cfg.dataLocation().map(l -> resolver.resolve("data-location", l, "data"));
+        Optional<List<ImportRequest>> requests = data.map(TopazSeeder::requests);
 
         if (!dockerStatus.isContainerRuntimeAvailable()) {
             LOG.warnf("Dev Services for Topaz needs a container runtime: configure %s and %s, or start Docker/Podman",
@@ -127,7 +129,7 @@ public class DevServicesTopazProcessor {
                 .postStartHook(c -> {
                     Vertx vertx = Vertx.vertx();
                     try (TopazClient client = c.hostClient(vertx)) {
-                        TopazSeeder.seed(client, manifest, data);
+                        TopazSeeder.seed(client, manifest, requests, data);
                     } finally {
                         vertx.close().toCompletionStage().toCompletableFuture().join();
                     }

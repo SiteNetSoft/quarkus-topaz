@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.quarkus.test.QuarkusUnitTest;
 
@@ -60,13 +61,17 @@ public class DevServicesTopazTest {
 
     @Test
     void unknownPolicyPathPropagatesError() {
+        // The error must come from Topaz (INVALID_ARGUMENT E30010 on 0.33.22), not from failing to reach it
         assertThatThrownBy(() -> topaz.authorizer().isAllowed(subject("rick@the-citadel.com"), "todoApp.NOPE",
-                "allowed", Map.of()).await().atMost(ofSeconds(10))).isInstanceOf(StatusRuntimeException.class);
+                "allowed", Map.of()).await().atMost(ofSeconds(10)))
+                .isInstanceOf(StatusRuntimeException.class)
+                .extracting(e -> ((StatusRuntimeException) e).getStatus().getCode())
+                .isNotIn(Status.Code.UNAVAILABLE, Status.Code.DEADLINE_EXCEEDED);
     }
 
     @Test
     void consoleUrlInjected() {
         assertThat(ConfigProvider.getConfig().getOptionalValue("quarkus.topaz.console-url", String.class))
-                .isPresent();
+                .hasValueSatisfying(url -> assertThat(url).matches("^http://[^:]+:\\d+$"));
     }
 }
