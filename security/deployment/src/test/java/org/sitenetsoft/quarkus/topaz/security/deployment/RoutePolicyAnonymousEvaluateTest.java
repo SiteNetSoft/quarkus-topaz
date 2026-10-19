@@ -1,6 +1,7 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,12 @@ public class RoutePolicyAnonymousEvaluateTest {
     @BeforeAll
     static void identities() {
         TestIdentities.register();
+    }
+
+    @Test
+    void anonymousIsEvaluated() {
+        // todoApp.GET.todos.public allows everyone, so a 200 proves the NONE identity reached Topaz
+        given().get("/todos/public").then().statusCode(200).body(equalTo("public"));
     }
 
     @Test
