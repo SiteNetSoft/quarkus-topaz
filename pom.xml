@@ -14,6 +14,7 @@
     <module>runtime</module>
     <module>deployment</module>
     <module>security</module>
+    <module>zanzibar</module>
     <module>integration-tests</module>
   </modules>
 
@@ -23,6 +24,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.40.1</quarkus.version>
     <assertj.version>3.27.7</assertj.version>
+    <quarkus-zanzibar.version>2.15.0</quarkus-zanzibar.version>
     <compiler-plugin.version>3.15.0</compiler-plugin.version>
     <surefire-plugin.version>3.6.0</surefire-plugin.version>
     <topaz.image>ghcr.io/aserto-dev/topaz:0.33.22</topaz.image>
