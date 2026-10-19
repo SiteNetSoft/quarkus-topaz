@@ -1,0 +1,5 @@
+name: quarkus-topaz
+title: Topaz
+version: dev
+nav:
+  - modules/ROOT/nav.adoc

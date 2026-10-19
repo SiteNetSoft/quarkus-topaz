@@ -1,0 +1,49 @@
+= Testing
+
+This page describes how this repository's own tests run.
+
+== Layout
+
+`deployment`:: `QuarkusUnitTest` classes against the Dev Service: beans, global interceptors, health (up, down,
+disabled), TLS misconfiguration, API key enforcement, Dev Service seeding and its failure modes, and the Dev UI
+JSON-RPC service.
+`runtime`:: Plain unit tests of the client against in-process gRPC servers.
+`integration-tests`:: The todo application. `TodoResourceTest` (`@QuarkusTest`) runs with Surefire;
+`TodoResourceIT` runs the same tests with Failsafe against the native executable; it is skipped unless `-Dnative`
+is given.
+
+== Running locally
+
+Tests that start Topaz need a container runtime. With rootless Podman:
+
+[source,shell]
+----
+DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
+JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -T 4 verify
+----
+
+* Java 25 runs the build; the code targets release 21.
+* Use at most `-T 4` and run one heavy build at a time. Test JVMs already run with `-XX:TieredStopAtLevel=1`.
+* Add `-Pdocs` to also build this documentation.
+
+A native run adds the mandatory native-image arguments:
+
+[source,shell]
+----
+DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
+JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -pl integration-tests -am verify -Dnative \
+    -Dquarkus.native.container-build=true \
+    -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+----
+
+To check against an older Topaz, override the Dev Service image:
+
+[source,shell]
+----
+mvn -pl deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21
+----
+
+== CI
+
+GitHub Actions runs `mvn -B -T 4 verify`, the native integration tests, and the deployment tests against the
+previous Topaz release. GitHub runners have Docker, so the Podman variables are not set there.
