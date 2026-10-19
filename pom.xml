@@ -29,6 +29,8 @@
     <pb-directory.tag>v0.34.1</pb-directory.tag>
     <!-- host rule: fork JVMs run C1 only -->
     <test.argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:TieredStopAtLevel=1</test.argLine>
+    <!-- empty default so @{argLine} resolves where nothing (e.g. the Quarkus Maven extension) sets it -->
+    <argLine></argLine>
   </properties>
 
   <dependencyManagement>
@@ -69,9 +71,8 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${surefire-plugin.version}</version>
           <configuration>
-            <argLine>${test.argLine}</argLine>
+            <argLine>@{argLine} ${test.argLine}</argLine>
             <systemPropertyVariables>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
               <maven.home>${maven.home}</maven.home>
             </systemPropertyVariables>
           </configuration>
@@ -80,9 +81,8 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${surefire-plugin.version}</version>
           <configuration>
-            <argLine>${test.argLine}</argLine>
+            <argLine>@{argLine} ${test.argLine}</argLine>
             <systemPropertyVariables>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
               <maven.home>${maven.home}</maven.home>
             </systemPropertyVariables>
           </configuration>
