@@ -6,6 +6,7 @@
      "properties": {"email": "morty@the-citadel.com"}},
     {"type": "identity", "id": "rick@the-citadel.com"},
     {"type": "identity", "id": "morty@the-citadel.com"},
-    {"type": "todo", "id": "todo-1", "display_name": "Buy plumbus"}
+    {"type": "todo", "id": "todo-1", "display_name": "Buy plumbus"},
+    {"type": "todo", "id": "todo-2", "display_name": "Fix portal gun"}
   ]
 }
