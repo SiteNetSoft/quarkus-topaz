@@ -14,5 +14,6 @@
   <modules>
     <module>runtime</module>
     <module>deployment</module>
+    <module>no-rest-tests</module>
   </modules>
 </project>

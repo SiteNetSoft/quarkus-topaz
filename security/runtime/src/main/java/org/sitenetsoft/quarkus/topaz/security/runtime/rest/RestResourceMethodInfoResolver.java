@@ -21,7 +21,8 @@ import io.vertx.ext.web.RoutingContext;
  * <p>
  * Only effective once REST matching has happened, i.e. for policies applied with {@code applies-to=jaxrs} or
  * {@code @AuthorizationPolicy}. Before matching, and on any failure, it returns {@link Optional#empty()}; it never
- * throws. Registered only when the REST capability is present.
+ * throws. Registered only when the REST capability is present; without quarkus-rest the deployment processor excludes
+ * this class from bean discovery (the runtime jar is indexed, so it would otherwise be discovered).
  */
 @Singleton
 public class RestResourceMethodInfoResolver implements ResourceMethodInfoResolver {
@@ -50,8 +51,9 @@ public class RestResourceMethodInfoResolver implements ResourceMethodInfoResolve
             }
             return Optional.of(new ResourceMethodInfo(httpMethod,
                     joinTemplates(template(target.getClassPath()), template(target.getPath())), params));
-        } catch (RuntimeException e) {
-            // Fail closed: the evaluator then maps the raw path, which has no policy.
+        } catch (RuntimeException | LinkageError e) {
+            // Fail closed: the evaluator then maps the raw path, which has no policy. LinkageError covers a
+            // classpath without quarkus-rest, should this class ever be registered there.
             LOG.debug("Could not resolve the REST resource method", e);
             return Optional.empty();
         }
