@@ -66,6 +66,44 @@ class TopazClientTest {
     }
 
     @Test
+    void deadlineStartsAtEachSubscription() throws Exception {
+        java.util.List<Deadline> deadlines = new java.util.concurrent.CopyOnWriteArrayList<>();
+        ServerInterceptor capture = new ServerInterceptor() {
+            @Override
+            public <Q, R> ServerCall.Listener<Q> interceptCall(ServerCall<Q, R> call, Metadata headers,
+                    ServerCallHandler<Q, R> next) {
+                deadlines.add(Context.current().getDeadline());
+                return next.startCall(call, headers);
+            }
+        };
+        String name = "deferred-" + UUID.randomUUID();
+        Server server = InProcessServerBuilder.forName(name).directExecutor()
+                .addService(ServerInterceptors.intercept(new AuthorizerGrpc.AuthorizerImplBase() {
+                    @Override
+                    public void info(InfoRequest request, StreamObserver<InfoResponse> responseObserver) {
+                        responseObserver.onNext(InfoResponse.newBuilder().setVersion("v").build());
+                        responseObserver.onCompleted();
+                    }
+                }, capture)).build().start();
+        ManagedChannel ch = InProcessChannelBuilder.forName(name).directExecutor().build();
+        try (TopazClient client = TopazClient.builder().authorizerChannel(ch).directoryChannel(ch)
+                .deadline(Duration.ofMillis(300)).build()) {
+            io.smallrye.mutiny.Uni<InfoResponse> info = client.authorizer().info();
+            Thread.sleep(400); // longer than the deadline: an eagerly fixed deadline would already be expired
+            assertThat(info.await().atMost(Duration.ofSeconds(5)).getVersion()).isEqualTo("v");
+            Thread.sleep(400);
+            assertThat(info.await().atMost(Duration.ofSeconds(5)).getVersion()).isEqualTo("v");
+        } finally {
+            ch.shutdownNow();
+            server.shutdownNow();
+        }
+        assertThat(deadlines).hasSize(2);
+        assertThat(deadlines.get(1)).isNotNull();
+        assertThat(deadlines.get(1).isExpired()).isFalse();
+        assertThat(deadlines.get(1).timeRemaining(TimeUnit.MILLISECONDS)).isPositive();
+    }
+
+    @Test
     void buildCreatesAndClosesChannels() {
         TopazClient.builder().plainText(true).authorizer("localhost", 1).directory("localhost", 2).build().close();
     }

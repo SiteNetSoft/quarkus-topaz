@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import com.google.protobuf.Struct;
 
@@ -47,12 +48,20 @@ public final class AuthorizerClient {
         return deadline.map(d -> stub.withDeadlineAfter(d.toMillis(), TimeUnit.MILLISECONDS)).orElse(stub);
     }
 
+    /**
+     * Defers stub acquisition to subscription time, so each subscription (including retries and late
+     * subscriptions) gets a deadline that starts when the call is actually made.
+     */
+    private <T> Uni<T> call(Function<MutinyAuthorizerGrpc.MutinyAuthorizerStub, Uni<T>> f) {
+        return Uni.createFrom().deferred(() -> f.apply(stub()));
+    }
+
     Optional<Duration> deadline() {
         return deadline;
     }
 
     public Uni<IsResponse> is(IsRequest r) {
-        return stub().is(r);
+        return call(s -> s.is(r));
     }
 
     public Uni<IsResponse> is(IdentityContext id, String policyPath, List<String> decisions, Struct resource) {
@@ -77,26 +86,26 @@ public final class AuthorizerClient {
     }
 
     public Uni<DecisionTreeResponse> decisionTree(DecisionTreeRequest r) {
-        return stub().decisionTree(r);
+        return call(s -> s.decisionTree(r));
     }
 
     public Uni<QueryResponse> query(QueryRequest r) {
-        return stub().query(r);
+        return call(s -> s.query(r));
     }
 
     public Uni<CompileResponse> compile(CompileRequest r) {
-        return stub().compile(r);
+        return call(s -> s.compile(r));
     }
 
     public Uni<List<Module>> listPolicies() {
-        return stub().listPolicies(ListPoliciesRequest.getDefaultInstance()).map(ListPoliciesResponse::getResultList);
+        return call(s -> s.listPolicies(ListPoliciesRequest.getDefaultInstance())).map(ListPoliciesResponse::getResultList);
     }
 
     public Uni<Module> getPolicy(String id) {
-        return stub().getPolicy(GetPolicyRequest.newBuilder().setId(id).build()).map(GetPolicyResponse::getResult);
+        return call(s -> s.getPolicy(GetPolicyRequest.newBuilder().setId(id).build())).map(GetPolicyResponse::getResult);
     }
 
     public Uni<InfoResponse> info() {
-        return stub().info(InfoRequest.getDefaultInstance());
+        return call(s -> s.info(InfoRequest.getDefaultInstance()));
     }
 }
