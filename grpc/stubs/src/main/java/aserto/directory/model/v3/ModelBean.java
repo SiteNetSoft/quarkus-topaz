@@ -14,7 +14,7 @@ public class ModelBean extends MutinyModelGrpc.ModelImplBase implements Bindable
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.model.v3.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) {
         try {
             return delegate.deleteManifest(request);
         } catch (UnsupportedOperationException e) {
@@ -23,7 +23,7 @@ public class ModelBean extends MutinyModelGrpc.ModelImplBase implements Bindable
     }
 
     @Override
-    public io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+    public io.smallrye.mutiny.Multi<aserto.directory.model.v3.GetManifestResponse> getManifest(aserto.directory.model.v3.GetManifestRequest request) {
         try {
             return delegate.getManifest(request);
         } catch (UnsupportedOperationException e) {
@@ -32,7 +32,7 @@ public class ModelBean extends MutinyModelGrpc.ModelImplBase implements Bindable
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.model.v3.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.SetManifestRequest> request) {
         try {
             return delegate.setManifest(request);
         } catch (UnsupportedOperationException e) {

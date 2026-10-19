@@ -10,5 +10,5 @@ public interface Importer extends MutinyService {
      *  import stream of objects and relations
      * </pre>
      */
-    io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> request);
+    io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportRequest> request);
 }

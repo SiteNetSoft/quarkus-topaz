@@ -14,7 +14,7 @@ public class WriterBean extends MutinyWriterGrpc.WriterImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetObjectResponse> setObject(aserto.directory.writer.v3.SetObjectRequest request) {
         try {
             return delegate.setObject(request);
         } catch (UnsupportedOperationException e) {
@@ -23,7 +23,7 @@ public class WriterBean extends MutinyWriterGrpc.WriterImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) {
         try {
             return delegate.deleteObject(request);
         } catch (UnsupportedOperationException e) {
@@ -32,7 +32,7 @@ public class WriterBean extends MutinyWriterGrpc.WriterImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetRelationResponse> setRelation(aserto.directory.writer.v3.SetRelationRequest request) {
         try {
             return delegate.setRelation(request);
         } catch (UnsupportedOperationException e) {
@@ -41,7 +41,7 @@ public class WriterBean extends MutinyWriterGrpc.WriterImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) {
         try {
             return delegate.deleteRelation(request);
         } catch (UnsupportedOperationException e) {

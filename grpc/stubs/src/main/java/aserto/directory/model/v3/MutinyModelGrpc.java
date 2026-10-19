@@ -40,7 +40,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::deleteManifest);
         }
 
@@ -49,7 +49,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.model.v3.GetManifestResponse> getManifest(aserto.directory.model.v3.GetManifestRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToMany(request, delegateStub::getManifest);
         }
 
@@ -58,7 +58,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.SetManifestRequest> request) {
             return io.quarkus.grpc.stubs.ClientCalls.manyToOne(request, delegateStub::setManifest);
         }
     }
@@ -82,7 +82,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -91,7 +91,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.model.v3.GetManifestResponse> getManifest(aserto.directory.model.v3.GetManifestRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -100,13 +100,13 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set manifest instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.model.v3.SetManifestResponse> setManifest(io.smallrye.mutiny.Multi<aserto.directory.model.v3.SetManifestRequest> request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.model.v3.ModelGrpc.getGetManifestMethod(), asyncServerStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>(this, METHODID_GET_MANIFEST, compression))).addMethod(aserto.directory.model.v3.ModelGrpc.getSetManifestMethod(), asyncClientStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>(this, METHODID_SET_MANIFEST, compression))).addMethod(aserto.directory.model.v3.ModelGrpc.getDeleteManifestMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>(this, METHODID_DELETE_MANIFEST, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.model.v3.ModelGrpc.getGetManifestMethod(), asyncServerStreamingCall(new MethodHandlers<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse>(this, METHODID_GET_MANIFEST, compression))).addMethod(aserto.directory.model.v3.ModelGrpc.getSetManifestMethod(), asyncClientStreamingCall(new MethodHandlers<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse>(this, METHODID_SET_MANIFEST, compression))).addMethod(aserto.directory.model.v3.ModelGrpc.getDeleteManifestMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse>(this, METHODID_DELETE_MANIFEST, compression))).build();
         }
     }
 
@@ -135,10 +135,10 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_GET_MANIFEST:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToMany((aserto.directory.model.v3.ModelOuterClass.GetManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>) responseObserver, compression, serviceImpl::getManifest);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToMany((aserto.directory.model.v3.GetManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.GetManifestResponse>) responseObserver, compression, serviceImpl::getManifest);
                     break;
                 case METHODID_DELETE_MANIFEST:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>) responseObserver, compression, serviceImpl::deleteManifest);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.model.v3.DeleteManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.DeleteManifestResponse>) responseObserver, compression, serviceImpl::deleteManifest);
                     break;
                 default:
                     throw new java.lang.AssertionError();
@@ -150,7 +150,7 @@ public final class MutinyModelGrpc implements io.quarkus.grpc.MutinyGrpc {
         public io.grpc.stub.StreamObserver<Req> invoke(io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_SET_MANIFEST:
-                    return (io.grpc.stub.StreamObserver<Req>) io.quarkus.grpc.stubs.ServerCalls.manyToOne((io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>) responseObserver, serviceImpl::setManifest);
+                    return (io.grpc.stub.StreamObserver<Req>) io.quarkus.grpc.stubs.ServerCalls.manyToOne((io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestResponse>) responseObserver, serviceImpl::setManifest);
                 default:
                     throw new java.lang.AssertionError();
             }

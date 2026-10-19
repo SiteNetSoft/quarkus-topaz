@@ -13,105 +13,105 @@ public final class AuthorizerGrpc {
     public static final java.lang.String SERVICE_NAME = "aserto.authorizer.v2.Authorizer";
 
     // Static method descriptors that strictly reflect the proto.
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> getDecisionTreeMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse> getDecisionTreeMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DecisionTree", requestType = aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> getDecisionTreeMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> getDecisionTreeMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DecisionTree", requestType = aserto.authorizer.v2.DecisionTreeRequest.class, responseType = aserto.authorizer.v2.DecisionTreeResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse> getDecisionTreeMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse> getDecisionTreeMethod;
         if ((getDecisionTreeMethod = AuthorizerGrpc.getDecisionTreeMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getDecisionTreeMethod = AuthorizerGrpc.getDecisionTreeMethod) == null) {
-                    AuthorizerGrpc.getDecisionTreeMethod = getDecisionTreeMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DecisionTree")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("DecisionTree")).build();
+                    AuthorizerGrpc.getDecisionTreeMethod = getDecisionTreeMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DecisionTree")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.DecisionTreeRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.DecisionTreeResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("DecisionTree")).build();
                 }
             }
         }
         return getDecisionTreeMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> getIsMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse> getIsMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Is", requestType = aserto.authorizer.v2.AuthorizerOuterClass.IsRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.IsResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> getIsMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> getIsMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Is", requestType = aserto.authorizer.v2.IsRequest.class, responseType = aserto.authorizer.v2.IsResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse> getIsMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse> getIsMethod;
         if ((getIsMethod = AuthorizerGrpc.getIsMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getIsMethod = AuthorizerGrpc.getIsMethod) == null) {
-                    AuthorizerGrpc.getIsMethod = getIsMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Is")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.IsResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Is")).build();
+                    AuthorizerGrpc.getIsMethod = getIsMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Is")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.IsRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.IsResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Is")).build();
                 }
             }
         }
         return getIsMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> getQueryMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse> getQueryMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Query", requestType = aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> getQueryMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> getQueryMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Query", requestType = aserto.authorizer.v2.QueryRequest.class, responseType = aserto.authorizer.v2.QueryResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse> getQueryMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse> getQueryMethod;
         if ((getQueryMethod = AuthorizerGrpc.getQueryMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getQueryMethod = AuthorizerGrpc.getQueryMethod) == null) {
-                    AuthorizerGrpc.getQueryMethod = getQueryMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Query")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Query")).build();
+                    AuthorizerGrpc.getQueryMethod = getQueryMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Query")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.QueryRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.QueryResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Query")).build();
                 }
             }
         }
         return getQueryMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> getCompileMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse> getCompileMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Compile", requestType = aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> getCompileMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> getCompileMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Compile", requestType = aserto.authorizer.v2.CompileRequest.class, responseType = aserto.authorizer.v2.CompileResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse> getCompileMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse> getCompileMethod;
         if ((getCompileMethod = AuthorizerGrpc.getCompileMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getCompileMethod = AuthorizerGrpc.getCompileMethod) == null) {
-                    AuthorizerGrpc.getCompileMethod = getCompileMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Compile")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Compile")).build();
+                    AuthorizerGrpc.getCompileMethod = getCompileMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Compile")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.CompileRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.CompileResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Compile")).build();
                 }
             }
         }
         return getCompileMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> getListPoliciesMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse> getListPoliciesMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "ListPolicies", requestType = aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> getListPoliciesMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> getListPoliciesMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "ListPolicies", requestType = aserto.authorizer.v2.ListPoliciesRequest.class, responseType = aserto.authorizer.v2.ListPoliciesResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse> getListPoliciesMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse> getListPoliciesMethod;
         if ((getListPoliciesMethod = AuthorizerGrpc.getListPoliciesMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getListPoliciesMethod = AuthorizerGrpc.getListPoliciesMethod) == null) {
-                    AuthorizerGrpc.getListPoliciesMethod = getListPoliciesMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListPolicies")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("ListPolicies")).build();
+                    AuthorizerGrpc.getListPoliciesMethod = getListPoliciesMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListPolicies")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.ListPoliciesRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.ListPoliciesResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("ListPolicies")).build();
                 }
             }
         }
         return getListPoliciesMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getGetPolicyMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse> getGetPolicyMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "GetPolicy", requestType = aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getGetPolicyMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getGetPolicyMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "GetPolicy", requestType = aserto.authorizer.v2.GetPolicyRequest.class, responseType = aserto.authorizer.v2.GetPolicyResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse> getGetPolicyMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse> getGetPolicyMethod;
         if ((getGetPolicyMethod = AuthorizerGrpc.getGetPolicyMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getGetPolicyMethod = AuthorizerGrpc.getGetPolicyMethod) == null) {
-                    AuthorizerGrpc.getGetPolicyMethod = getGetPolicyMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetPolicy")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("GetPolicy")).build();
+                    AuthorizerGrpc.getGetPolicyMethod = getGetPolicyMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetPolicy")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.GetPolicyRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.GetPolicyResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("GetPolicy")).build();
                 }
             }
         }
         return getGetPolicyMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> getInfoMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse> getInfoMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Info", requestType = aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest.class, responseType = aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> getInfoMethod() {
-        io.grpc.MethodDescriptor<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> getInfoMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Info", requestType = aserto.authorizer.v2.InfoRequest.class, responseType = aserto.authorizer.v2.InfoResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse> getInfoMethod() {
+        io.grpc.MethodDescriptor<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse> getInfoMethod;
         if ((getInfoMethod = AuthorizerGrpc.getInfoMethod) == null) {
             synchronized (AuthorizerGrpc.class) {
                 if ((getInfoMethod = AuthorizerGrpc.getInfoMethod) == null) {
-                    AuthorizerGrpc.getInfoMethod = getInfoMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Info")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Info")).build();
+                    AuthorizerGrpc.getInfoMethod = getInfoMethod = io.grpc.MethodDescriptor.<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Info")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.InfoRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.authorizer.v2.InfoResponse.getDefaultInstance())).setSchemaDescriptor(new AuthorizerMethodDescriptorSupplier("Info")).build();
                 }
             }
         }
@@ -180,43 +180,43 @@ public final class AuthorizerGrpc {
 
         /**
          */
-        default void decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> responseObserver) {
+        default void decisionTree(aserto.authorizer.v2.DecisionTreeRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.DecisionTreeResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDecisionTreeMethod(), responseObserver);
         }
 
         /**
          */
-        default void is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> responseObserver) {
+        default void is(aserto.authorizer.v2.IsRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.IsResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getIsMethod(), responseObserver);
         }
 
         /**
          */
-        default void query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> responseObserver) {
+        default void query(aserto.authorizer.v2.QueryRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.QueryResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getQueryMethod(), responseObserver);
         }
 
         /**
          */
-        default void compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> responseObserver) {
+        default void compile(aserto.authorizer.v2.CompileRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.CompileResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getCompileMethod(), responseObserver);
         }
 
         /**
          */
-        default void listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> responseObserver) {
+        default void listPolicies(aserto.authorizer.v2.ListPoliciesRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.ListPoliciesResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getListPoliciesMethod(), responseObserver);
         }
 
         /**
          */
-        default void getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> responseObserver) {
+        default void getPolicy(aserto.authorizer.v2.GetPolicyRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.GetPolicyResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetPolicyMethod(), responseObserver);
         }
 
         /**
          */
-        default void info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> responseObserver) {
+        default void info(aserto.authorizer.v2.InfoRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.InfoResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getInfoMethod(), responseObserver);
         }
     }
@@ -248,43 +248,43 @@ public final class AuthorizerGrpc {
 
         /**
          */
-        public void decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> responseObserver) {
+        public void decisionTree(aserto.authorizer.v2.DecisionTreeRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.DecisionTreeResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getDecisionTreeMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> responseObserver) {
+        public void is(aserto.authorizer.v2.IsRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.IsResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getIsMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> responseObserver) {
+        public void query(aserto.authorizer.v2.QueryRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.QueryResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getQueryMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> responseObserver) {
+        public void compile(aserto.authorizer.v2.CompileRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.CompileResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getCompileMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> responseObserver) {
+        public void listPolicies(aserto.authorizer.v2.ListPoliciesRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.ListPoliciesResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getListPoliciesMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> responseObserver) {
+        public void getPolicy(aserto.authorizer.v2.GetPolicyRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.GetPolicyResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getGetPolicyMethod(), getCallOptions()), request, responseObserver);
         }
 
         /**
          */
-        public void info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> responseObserver) {
+        public void info(aserto.authorizer.v2.InfoRequest request, io.grpc.stub.StreamObserver<aserto.authorizer.v2.InfoResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getInfoMethod(), getCallOptions()), request, responseObserver);
         }
     }
@@ -305,43 +305,43 @@ public final class AuthorizerGrpc {
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.DecisionTreeResponse decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getDecisionTreeMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.IsResponse is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.IsResponse is(aserto.authorizer.v2.IsRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getIsMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.QueryResponse query(aserto.authorizer.v2.QueryRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getQueryMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.CompileResponse compile(aserto.authorizer.v2.CompileRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getCompileMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.ListPoliciesResponse listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getListPoliciesMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.GetPolicyResponse getPolicy(aserto.authorizer.v2.GetPolicyRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getGetPolicyMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) throws io.grpc.StatusException {
+        public aserto.authorizer.v2.InfoResponse info(aserto.authorizer.v2.InfoRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getInfoMethod(), getCallOptions(), request);
         }
     }
@@ -362,43 +362,43 @@ public final class AuthorizerGrpc {
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) {
+        public aserto.authorizer.v2.DecisionTreeResponse decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getDecisionTreeMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.IsResponse is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) {
+        public aserto.authorizer.v2.IsResponse is(aserto.authorizer.v2.IsRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getIsMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) {
+        public aserto.authorizer.v2.QueryResponse query(aserto.authorizer.v2.QueryRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getQueryMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) {
+        public aserto.authorizer.v2.CompileResponse compile(aserto.authorizer.v2.CompileRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getCompileMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) {
+        public aserto.authorizer.v2.ListPoliciesResponse listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getListPoliciesMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) {
+        public aserto.authorizer.v2.GetPolicyResponse getPolicy(aserto.authorizer.v2.GetPolicyRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getGetPolicyMethod(), getCallOptions(), request);
         }
 
         /**
          */
-        public aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) {
+        public aserto.authorizer.v2.InfoResponse info(aserto.authorizer.v2.InfoRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getInfoMethod(), getCallOptions(), request);
         }
     }
@@ -419,43 +419,43 @@ public final class AuthorizerGrpc {
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getDecisionTreeMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.IsResponse> is(aserto.authorizer.v2.IsRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getIsMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.QueryResponse> query(aserto.authorizer.v2.QueryRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getQueryMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.CompileResponse> compile(aserto.authorizer.v2.CompileRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getCompileMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getListPoliciesMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.GetPolicyResponse> getPolicy(aserto.authorizer.v2.GetPolicyRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getGetPolicyMethod(), getCallOptions()), request);
         }
 
         /**
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.authorizer.v2.InfoResponse> info(aserto.authorizer.v2.InfoRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getInfoMethod(), getCallOptions()), request);
         }
     }
@@ -490,25 +490,25 @@ public final class AuthorizerGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_DECISION_TREE:
-                    serviceImpl.decisionTree((aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse>) responseObserver);
+                    serviceImpl.decisionTree((aserto.authorizer.v2.DecisionTreeRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.DecisionTreeResponse>) responseObserver);
                     break;
                 case METHODID_IS:
-                    serviceImpl.is((aserto.authorizer.v2.AuthorizerOuterClass.IsRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse>) responseObserver);
+                    serviceImpl.is((aserto.authorizer.v2.IsRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.IsResponse>) responseObserver);
                     break;
                 case METHODID_QUERY:
-                    serviceImpl.query((aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse>) responseObserver);
+                    serviceImpl.query((aserto.authorizer.v2.QueryRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.QueryResponse>) responseObserver);
                     break;
                 case METHODID_COMPILE:
-                    serviceImpl.compile((aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse>) responseObserver);
+                    serviceImpl.compile((aserto.authorizer.v2.CompileRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.CompileResponse>) responseObserver);
                     break;
                 case METHODID_LIST_POLICIES:
-                    serviceImpl.listPolicies((aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse>) responseObserver);
+                    serviceImpl.listPolicies((aserto.authorizer.v2.ListPoliciesRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.ListPoliciesResponse>) responseObserver);
                     break;
                 case METHODID_GET_POLICY:
-                    serviceImpl.getPolicy((aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse>) responseObserver);
+                    serviceImpl.getPolicy((aserto.authorizer.v2.GetPolicyRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.GetPolicyResponse>) responseObserver);
                     break;
                 case METHODID_INFO:
-                    serviceImpl.info((aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse>) responseObserver);
+                    serviceImpl.info((aserto.authorizer.v2.InfoRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.InfoResponse>) responseObserver);
                     break;
                 default:
                     throw new AssertionError();
@@ -526,7 +526,7 @@ public final class AuthorizerGrpc {
     }
 
     public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getDecisionTreeMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse>(service, METHODID_DECISION_TREE))).addMethod(getIsMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse>(service, METHODID_IS))).addMethod(getQueryMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse>(service, METHODID_QUERY))).addMethod(getCompileMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse>(service, METHODID_COMPILE))).addMethod(getListPoliciesMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse>(service, METHODID_LIST_POLICIES))).addMethod(getGetPolicyMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse>(service, METHODID_GET_POLICY))).addMethod(getInfoMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse>(service, METHODID_INFO))).build();
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getDecisionTreeMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse>(service, METHODID_DECISION_TREE))).addMethod(getIsMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse>(service, METHODID_IS))).addMethod(getQueryMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse>(service, METHODID_QUERY))).addMethod(getCompileMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse>(service, METHODID_COMPILE))).addMethod(getListPoliciesMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse>(service, METHODID_LIST_POLICIES))).addMethod(getGetPolicyMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse>(service, METHODID_GET_POLICY))).addMethod(getInfoMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse>(service, METHODID_INFO))).build();
     }
 
     private static abstract class AuthorizerBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {

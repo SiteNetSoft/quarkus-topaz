@@ -26,7 +26,7 @@ public class ImporterClient implements Importer, MutinyClient<MutinyImporterGrpc
     }
 
     @Override
-    public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> request) {
+    public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportRequest> request) {
         return stub.import_(request);
     }
 }

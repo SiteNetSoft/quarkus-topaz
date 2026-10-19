@@ -14,7 +14,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectResponse> getObject(aserto.directory.reader.v3.ReaderOuterClass.GetObjectRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectResponse> getObject(aserto.directory.reader.v3.GetObjectRequest request) {
         try {
             return delegate.getObject(request);
         } catch (UnsupportedOperationException e) {
@@ -23,7 +23,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.GetObjectManyRequest request) {
         try {
             return delegate.getObjectMany(request);
         } catch (UnsupportedOperationException e) {
@@ -32,7 +32,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectsResponse> getObjects(aserto.directory.reader.v3.ReaderOuterClass.GetObjectsRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectsResponse> getObjects(aserto.directory.reader.v3.GetObjectsRequest request) {
         try {
             return delegate.getObjects(request);
         } catch (UnsupportedOperationException e) {
@@ -41,7 +41,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationResponse> getRelation(aserto.directory.reader.v3.ReaderOuterClass.GetRelationRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationResponse> getRelation(aserto.directory.reader.v3.GetRelationRequest request) {
         try {
             return delegate.getRelation(request);
         } catch (UnsupportedOperationException e) {
@@ -50,7 +50,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationsResponse> getRelations(aserto.directory.reader.v3.ReaderOuterClass.GetRelationsRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationsResponse> getRelations(aserto.directory.reader.v3.GetRelationsRequest request) {
         try {
             return delegate.getRelations(request);
         } catch (UnsupportedOperationException e) {
@@ -59,7 +59,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckResponse> check(aserto.directory.reader.v3.ReaderOuterClass.CheckRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckResponse> check(aserto.directory.reader.v3.CheckRequest request) {
         try {
             return delegate.check(request);
         } catch (UnsupportedOperationException e) {
@@ -68,7 +68,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.ChecksResponse> checks(aserto.directory.reader.v3.ReaderOuterClass.ChecksRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ChecksResponse> checks(aserto.directory.reader.v3.ChecksRequest request) {
         try {
             return delegate.checks(request);
         } catch (UnsupportedOperationException e) {
@@ -77,7 +77,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.CheckPermissionRequest request) {
         try {
             return delegate.checkPermission(request);
         } catch (UnsupportedOperationException e) {
@@ -86,7 +86,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.ReaderOuterClass.CheckRelationRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.CheckRelationRequest request) {
         try {
             return delegate.checkRelation(request);
         } catch (UnsupportedOperationException e) {
@@ -95,7 +95,7 @@ public class ReaderBean extends MutinyReaderGrpc.ReaderImplBase implements Binda
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetGraphResponse> getGraph(aserto.directory.reader.v3.ReaderOuterClass.GetGraphRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetGraphResponse> getGraph(aserto.directory.reader.v3.GetGraphRequest request) {
         try {
             return delegate.getGraph(request);
         } catch (UnsupportedOperationException e) {

@@ -13,45 +13,45 @@ public final class ModelGrpc {
     public static final java.lang.String SERVICE_NAME = "aserto.directory.model.v3.Model";
 
     // Static method descriptors that strictly reflect the proto.
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse> getGetManifestMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "GetManifest", requestType = aserto.directory.model.v3.ModelOuterClass.GetManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.GetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
-    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "GetManifest", requestType = aserto.directory.model.v3.GetManifestRequest.class, responseType = aserto.directory.model.v3.GetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse> getGetManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse> getGetManifestMethod;
         if ((getGetManifestMethod = ModelGrpc.getGetManifestMethod) == null) {
             synchronized (ModelGrpc.class) {
                 if ((getGetManifestMethod = ModelGrpc.getGetManifestMethod) == null) {
-                    ModelGrpc.getGetManifestMethod = getGetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.GetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("GetManifest")).build();
+                    ModelGrpc.getGetManifestMethod = getGetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.GetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.GetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("GetManifest")).build();
                 }
             }
         }
         return getGetManifestMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse> getSetManifestMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetManifest", requestType = aserto.directory.model.v3.ModelOuterClass.SetManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.SetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING)
-    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetManifest", requestType = aserto.directory.model.v3.SetManifestRequest.class, responseType = aserto.directory.model.v3.SetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse> getSetManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse> getSetManifestMethod;
         if ((getSetManifestMethod = ModelGrpc.getSetManifestMethod) == null) {
             synchronized (ModelGrpc.class) {
                 if ((getSetManifestMethod = ModelGrpc.getSetManifestMethod) == null) {
-                    ModelGrpc.getSetManifestMethod = getSetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.SetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.SetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("SetManifest")).build();
+                    ModelGrpc.getSetManifestMethod = getSetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.SetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.SetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("SetManifest")).build();
                 }
             }
         }
         return getSetManifestMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse> getDeleteManifestMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteManifest", requestType = aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteManifest", requestType = aserto.directory.model.v3.DeleteManifestRequest.class, responseType = aserto.directory.model.v3.DeleteManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse> getDeleteManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse> getDeleteManifestMethod;
         if ((getDeleteManifestMethod = ModelGrpc.getDeleteManifestMethod) == null) {
             synchronized (ModelGrpc.class) {
                 if ((getDeleteManifestMethod = ModelGrpc.getDeleteManifestMethod) == null) {
-                    ModelGrpc.getDeleteManifestMethod = getDeleteManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("DeleteManifest")).build();
+                    ModelGrpc.getDeleteManifestMethod = getDeleteManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.DeleteManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.DeleteManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("DeleteManifest")).build();
                 }
             }
         }
@@ -123,7 +123,7 @@ public final class ModelGrpc {
          * get manifest instance
          * </pre>
          */
-        default void getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> responseObserver) {
+        default void getManifest(aserto.directory.model.v3.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.GetManifestResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetManifestMethod(), responseObserver);
         }
 
@@ -132,7 +132,7 @@ public final class ModelGrpc {
          * set manifest instance
          * </pre>
          */
-        default io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> responseObserver) {
+        default io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestResponse> responseObserver) {
             return io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall(getSetManifestMethod(), responseObserver);
         }
 
@@ -141,7 +141,7 @@ public final class ModelGrpc {
          * delete manifest instance
          * </pre>
          */
-        default void deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> responseObserver) {
+        default void deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.DeleteManifestResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteManifestMethod(), responseObserver);
         }
     }
@@ -176,7 +176,7 @@ public final class ModelGrpc {
          * get manifest instance
          * </pre>
          */
-        public void getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> responseObserver) {
+        public void getManifest(aserto.directory.model.v3.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.GetManifestResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncServerStreamingCall(getChannel().newCall(getGetManifestMethod(), getCallOptions()), request, responseObserver);
         }
 
@@ -185,7 +185,7 @@ public final class ModelGrpc {
          * set manifest instance
          * </pre>
          */
-        public io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> responseObserver) {
+        public io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestResponse> responseObserver) {
             return io.grpc.stub.ClientCalls.asyncClientStreamingCall(getChannel().newCall(getSetManifestMethod(), getCallOptions()), responseObserver);
         }
 
@@ -194,7 +194,7 @@ public final class ModelGrpc {
          * delete manifest instance
          * </pre>
          */
-        public void deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> responseObserver) {
+        public void deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.DeleteManifestResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getDeleteManifestMethod(), getCallOptions()), request, responseObserver);
         }
     }
@@ -219,7 +219,7 @@ public final class ModelGrpc {
          * </pre>
          */
         @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
-        public io.grpc.stub.BlockingClientCall<?, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+        public io.grpc.stub.BlockingClientCall<?, aserto.directory.model.v3.GetManifestResponse> getManifest(aserto.directory.model.v3.GetManifestRequest request) {
             return io.grpc.stub.ClientCalls.blockingV2ServerStreamingCall(getChannel(), getGetManifestMethod(), getCallOptions(), request);
         }
 
@@ -229,7 +229,7 @@ public final class ModelGrpc {
          * </pre>
          */
         @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
-        public io.grpc.stub.BlockingClientCall<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> setManifest() {
+        public io.grpc.stub.BlockingClientCall<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse> setManifest() {
             return io.grpc.stub.ClientCalls.blockingClientStreamingCall(getChannel(), getSetManifestMethod(), getCallOptions());
         }
 
@@ -238,7 +238,7 @@ public final class ModelGrpc {
          * delete manifest instance
          * </pre>
          */
-        public aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) throws io.grpc.StatusException {
+        public aserto.directory.model.v3.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getDeleteManifestMethod(), getCallOptions(), request);
         }
     }
@@ -262,7 +262,7 @@ public final class ModelGrpc {
          * get manifest instance
          * </pre>
          */
-        public java.util.Iterator<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+        public java.util.Iterator<aserto.directory.model.v3.GetManifestResponse> getManifest(aserto.directory.model.v3.GetManifestRequest request) {
             return io.grpc.stub.ClientCalls.blockingServerStreamingCall(getChannel(), getGetManifestMethod(), getCallOptions(), request);
         }
 
@@ -271,7 +271,7 @@ public final class ModelGrpc {
          * delete manifest instance
          * </pre>
          */
-        public aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+        public aserto.directory.model.v3.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getDeleteManifestMethod(), getCallOptions(), request);
         }
     }
@@ -295,7 +295,7 @@ public final class ModelGrpc {
          * delete manifest instance
          * </pre>
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.model.v3.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.DeleteManifestRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getDeleteManifestMethod(), getCallOptions()), request);
         }
     }
@@ -322,10 +322,10 @@ public final class ModelGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_GET_MANIFEST:
-                    serviceImpl.getManifest((aserto.directory.model.v3.ModelOuterClass.GetManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>) responseObserver);
+                    serviceImpl.getManifest((aserto.directory.model.v3.GetManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.GetManifestResponse>) responseObserver);
                     break;
                 case METHODID_DELETE_MANIFEST:
-                    serviceImpl.deleteManifest((aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>) responseObserver);
+                    serviceImpl.deleteManifest((aserto.directory.model.v3.DeleteManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.DeleteManifestResponse>) responseObserver);
                     break;
                 default:
                     throw new AssertionError();
@@ -337,7 +337,7 @@ public final class ModelGrpc {
         public io.grpc.stub.StreamObserver<Req> invoke(io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_SET_MANIFEST:
-                    return (io.grpc.stub.StreamObserver<Req>) serviceImpl.setManifest((io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>) responseObserver);
+                    return (io.grpc.stub.StreamObserver<Req>) serviceImpl.setManifest((io.grpc.stub.StreamObserver<aserto.directory.model.v3.SetManifestResponse>) responseObserver);
                 default:
                     throw new AssertionError();
             }
@@ -345,7 +345,7 @@ public final class ModelGrpc {
     }
 
     public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getGetManifestMethod(), io.grpc.stub.ServerCalls.asyncServerStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>(service, METHODID_GET_MANIFEST))).addMethod(getSetManifestMethod(), io.grpc.stub.ServerCalls.asyncClientStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>(service, METHODID_SET_MANIFEST))).addMethod(getDeleteManifestMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>(service, METHODID_DELETE_MANIFEST))).build();
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getGetManifestMethod(), io.grpc.stub.ServerCalls.asyncServerStreamingCall(new MethodHandlers<aserto.directory.model.v3.GetManifestRequest, aserto.directory.model.v3.GetManifestResponse>(service, METHODID_GET_MANIFEST))).addMethod(getSetManifestMethod(), io.grpc.stub.ServerCalls.asyncClientStreamingCall(new MethodHandlers<aserto.directory.model.v3.SetManifestRequest, aserto.directory.model.v3.SetManifestResponse>(service, METHODID_SET_MANIFEST))).addMethod(getDeleteManifestMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.model.v3.DeleteManifestRequest, aserto.directory.model.v3.DeleteManifestResponse>(service, METHODID_DELETE_MANIFEST))).build();
     }
 
     private static abstract class ModelBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {

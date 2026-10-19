@@ -38,6 +38,11 @@ buf_export "buf.build/aserto-dev/directory:${PB_DIRECTORY_TAG}"
 rm -rf "${PROTO_DIR}/google"
 rm -rf "${PROTO_DIR}"/aserto/directory/*/v2
 
+# Topaz protos ship without java_multiple_files; we want top-level Java classes (idempotent).
+find "${PROTO_DIR}" -name '*.proto' -print0 | while IFS= read -r -d '' f; do
+  grep -q '^option java_multiple_files' "$f" || sed -i '0,/^package .*;/s//&\noption java_multiple_files = true;/' "$f"
+done
+
 echo "Generating gRPC stubs"
 mvn -Pgenerate -pl grpc/generator clean package
 

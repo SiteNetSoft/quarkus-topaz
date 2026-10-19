@@ -26,7 +26,7 @@ public class ExporterClient implements Exporter, MutinyClient<MutinyExporterGrpc
     }
 
     @Override
-    public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request) {
+    public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request) {
         return stub.export(request);
     }
 }

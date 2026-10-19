@@ -10,26 +10,26 @@ public interface Writer extends MutinyService {
      *  set object instance
      * </pre>
      */
-    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request);
+    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetObjectResponse> setObject(aserto.directory.writer.v3.SetObjectRequest request);
 
     /**
      * <pre>
      *  delete object instance
      * </pre>
      */
-    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request);
+    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request);
 
     /**
      * <pre>
      *  set relation instance
      * </pre>
      */
-    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request);
+    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetRelationResponse> setRelation(aserto.directory.writer.v3.SetRelationRequest request);
 
     /**
      * <pre>
      *  delete relation instance
      * </pre>
      */
-    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request);
+    io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request);
 }

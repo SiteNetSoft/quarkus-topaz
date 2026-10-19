@@ -13,15 +13,15 @@ public final class ImporterGrpc {
     public static final java.lang.String SERVICE_NAME = "aserto.directory.importer.v3.Importer";
 
     // Static method descriptors that strictly reflect the proto.
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> getImportMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse> getImportMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Import", requestType = aserto.directory.importer.v3.ImporterOuterClass.ImportRequest.class, responseType = aserto.directory.importer.v3.ImporterOuterClass.ImportResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
-    public static io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> getImportMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> getImportMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Import", requestType = aserto.directory.importer.v3.ImportRequest.class, responseType = aserto.directory.importer.v3.ImportResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse> getImportMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse> getImportMethod;
         if ((getImportMethod = ImporterGrpc.getImportMethod) == null) {
             synchronized (ImporterGrpc.class) {
                 if ((getImportMethod = ImporterGrpc.getImportMethod) == null) {
-                    ImporterGrpc.getImportMethod = getImportMethod = io.grpc.MethodDescriptor.<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Import")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.importer.v3.ImporterOuterClass.ImportRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.importer.v3.ImporterOuterClass.ImportResponse.getDefaultInstance())).setSchemaDescriptor(new ImporterMethodDescriptorSupplier("Import")).build();
+                    ImporterGrpc.getImportMethod = getImportMethod = io.grpc.MethodDescriptor.<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Import")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.importer.v3.ImportRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.importer.v3.ImportResponse.getDefaultInstance())).setSchemaDescriptor(new ImporterMethodDescriptorSupplier("Import")).build();
                 }
             }
         }
@@ -93,7 +93,7 @@ public final class ImporterGrpc {
          * import stream of objects and relations
          * </pre>
          */
-        default io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> import_(io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> responseObserver) {
+        default io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportRequest> import_(io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportResponse> responseObserver) {
             return io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall(getImportMethod(), responseObserver);
         }
     }
@@ -128,7 +128,7 @@ public final class ImporterGrpc {
          * import stream of objects and relations
          * </pre>
          */
-        public io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> import_(io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> responseObserver) {
+        public io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportRequest> import_(io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportResponse> responseObserver) {
             return io.grpc.stub.ClientCalls.asyncBidiStreamingCall(getChannel().newCall(getImportMethod(), getCallOptions()), responseObserver);
         }
     }
@@ -153,7 +153,7 @@ public final class ImporterGrpc {
          * </pre>
          */
         @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
-        public io.grpc.stub.BlockingClientCall<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_() {
+        public io.grpc.stub.BlockingClientCall<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse> import_() {
             return io.grpc.stub.ClientCalls.blockingBidiStreamingCall(getChannel(), getImportMethod(), getCallOptions());
         }
     }
@@ -215,7 +215,7 @@ public final class ImporterGrpc {
         public io.grpc.stub.StreamObserver<Req> invoke(io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_IMPORT:
-                    return (io.grpc.stub.StreamObserver<Req>) serviceImpl.import_((io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse>) responseObserver);
+                    return (io.grpc.stub.StreamObserver<Req>) serviceImpl.import_((io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportResponse>) responseObserver);
                 default:
                     throw new AssertionError();
             }
@@ -223,7 +223,7 @@ public final class ImporterGrpc {
     }
 
     public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getImportMethod(), io.grpc.stub.ServerCalls.asyncBidiStreamingCall(new MethodHandlers<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse>(service, METHODID_IMPORT))).build();
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getImportMethod(), io.grpc.stub.ServerCalls.asyncBidiStreamingCall(new MethodHandlers<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse>(service, METHODID_IMPORT))).build();
     }
 
     private static abstract class ImporterBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
