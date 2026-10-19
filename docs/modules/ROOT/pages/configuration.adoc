@@ -15,3 +15,10 @@ include::includes/quarkus-topaz.adoc[leveloffset=+1]
 The `quarkus.topaz.enforcement.*` properties come from `quarkus-topaz-security`; see xref:security.adoc[Security].
 
 include::includes/quarkus-topaz-security.adoc[leveloffset=+1]
+
+== Zanzibar connector
+
+The `quarkus.topaz.zanzibar.*` property comes from `quarkus-topaz-zanzibar`; see
+xref:zanzibar-connector.adoc[Zanzibar connector].
+
+include::includes/quarkus-topaz-zanzibar.adoc[leveloffset=+1]

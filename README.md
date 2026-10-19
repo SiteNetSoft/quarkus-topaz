@@ -30,6 +30,16 @@ Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP
 </dependency>
 ```
 
+Quarkus-zanzibar users can use `quarkus-topaz-zanzibar`: it supplies the `RelationshipManager` backed by the Topaz Directory, so `@FGARelation` and the other quarkus-zanzibar annotations are answered by Topaz. Adding it enables quarkus-zanzibar's filter, which denies unannotated REST endpoints by default. See [Zanzibar connector](docs/modules/ROOT/pages/zanzibar-connector.adoc).
+
+```xml
+<dependency>
+    <groupId>org.sitenetsoft</groupId>
+    <artifactId>quarkus-topaz-zanzibar</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
 ## Quick start
 
 Put a Rego policy, a directory manifest and seed data under `src/main/resources/topaz/` and point the Dev Service at them:
