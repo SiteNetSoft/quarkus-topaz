@@ -112,13 +112,21 @@ Rules:
   `quarkus-grpc-common` alone would cost more than it saves. With no `@GrpcService` beans the gRPC
   server does not start, so client-only consumers see no behavioural change.
 - Package roots: `org.sitenetsoft.quarkus.topaz`, `.topaz.security`, `.topaz.zanzibar`,
-  `.topaz.deployment` and so on. Generated stubs keep their proto packages (`com.aserto.authorizer.v2`,
-  `com.aserto.directory.reader.v3`, ...) as the protos declare them.
+  `.topaz.deployment` and so on. Generated stubs keep their proto packages. The Topaz protos declare no `java_package`, so the
+  classes land in `aserto.authorizer.v2`, `aserto.authorizer.v2.api`, `aserto.directory.common.v3`,
+  `aserto.directory.reader.v3`, `aserto.directory.writer.v3`, `aserto.directory.model.v3`,
+  `aserto.directory.importer.v3`, `aserto.directory.exporter.v3`. Google API protos (`google/api/*`)
+  are not generated; they resolve to the BOM-managed `com.google.api.grpc:proto-google-common-protos`
+  through `quarkus.generate-code.grpc.scan-for-imports`. The grpc-gateway OpenAPI option protos the
+  Topaz files import are exported and generated alongside (package
+  `grpc.gateway.protoc_gen_openapiv2.options`), as quarkus-authzed-client does.
 
 ### Code generation flow
 
-`bin/generate.sh` runs `buf export buf.build/aserto-dev/authorizer:<tag>` and
-`buf export buf.build/aserto-dev/directory:<tag>` into `grpc/generator/src/main/proto`, then
+`bin/generate.sh` runs `buf export` (via the `bufbuild/buf` container image, so no local buf install
+is needed) for `buf.build/aserto-dev/authorizer:<tag>`, `buf.build/aserto-dev/directory:<tag>` and
+`buf.build/grpc-ecosystem/grpc-gateway` into `grpc/generator/src/main/proto`, deletes the exported
+`google/` tree and any `aserto/directory/*/v2` directories, then
 `mvn -Pgenerate -pl grpc/generator package`, then copies `target/generated-sources/grpc` into
 `grpc/stubs/src/main/java`. Pinned tags live in `.github/project.yml`-style properties in the root
 pom. A `generate.yml` workflow reruns it and opens a PR on demand. Consumers never run protoc. This is
