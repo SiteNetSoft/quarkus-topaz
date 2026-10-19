@@ -1,0 +1,18 @@
+name: "Topaz Security"
+description: "Policy enforcement for Quarkus HTTP endpoints backed by the Topaz authorizer"
+artifactId: "quarkus-topaz-security"
+metadata:
+  keywords:
+    - "topaz"
+    - "aserto"
+    - "authorization"
+    - "rebac"
+    - "opa"
+    - "rego"
+    - "zanzibar"
+  categories:
+    - "security"
+  status: "preview"
+  config:
+    - "quarkus.topaz.enforcement."
+  guide: "https://sitenetsoft.github.io/quarkus-topaz/"
