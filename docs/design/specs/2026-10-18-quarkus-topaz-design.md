@@ -451,16 +451,24 @@ root points at the `ai-skills` Quarkus and skill-authoring graphs and records th
 
 ## 11. Risks and spikes before the plan
 
-1. **Plaintext gRPC in the Topaz container.** Topaz enables TLS on gRPC by default with generated
-   certs. The config supports listeners without certs, but this must be confirmed on 0.33.22 before the
-   Dev Service design is final. Fallback: let Topaz generate certs into a bind-mounted `/certs`
-   directory and register its CA through `TlsCertificateBuildItem` so the client trusts it
-   automatically. Half-day spike.
-2. **Vert.x gRPC client with Mutiny stubs on 3.40.1.** `GrpcClientChannel` exists in
-   `vertx-grpc-client` 4.5.x and `quarkus-grpc` uses it when `use-quarkus-grpc-client=true`; confirm
-   bidi streaming (Importer) and server streaming (Exporter, GetManifest) work through it. Fallback:
-   `NettyChannelBuilder` behind the same recorder interface, with TLS converted from the registry's
-   `SSLContext`. Half-day spike, can share the Dev Service spike's container.
+1. **Plaintext gRPC in the Topaz container.** Confirmed on 0.33.22, 2026-10-18 (spike test
+   `TopazPlaintextSpikeTest`). Omitting the `certs` block under each service's `grpc` (and `gateway`)
+   gives a plaintext listener; no TLS flag is needed. The one catch is `remote_directory`: it must
+   set `no_tls: true` and `insecure: false` explicitly, because `insecure` defaults to true and
+   Topaz exits at startup with "insecure and no_tls options are mutually exclusive". Working keys:
+   `api.services.<reader|writer|model|importer|exporter>.grpc.listen_address: "0.0.0.0:9292"`,
+   `api.services.authorizer.grpc.listen_address: "0.0.0.0:8282"` (no `certs`), and
+   `remote_directory: {address: "0.0.0.0:9292", insecure: false, no_tls: true}`. The
+   `Wait.forListeningPorts(8282, 9292)` strategy works under rootless Podman. The certs fallback is
+   not needed.
+2. **Vert.x gRPC client with Mutiny stubs on 3.40.1.** Confirmed on 0.33.22, 2026-10-18.
+   `new GrpcClientChannel(GrpcClient.client(vertx), SocketAddress.inetSocketAddress(port, host))`
+   with the generated stubs handled unary (`Authorizer.Info`, `Reader.Check`), client streaming
+   (`Model.SetManifest`), server streaming (`Model.GetManifest`) and bidi streaming
+   (`Importer.Import`) over plaintext. Caveat for later tasks: reads right after a write can lag
+   briefly. `GetManifest` immediately after `SetManifest` returned only the metadata message once,
+   and the body on the next attempt about 250 ms later, so tests should retry rather than assume
+   read-your-writes for the manifest. The `NettyChannelBuilder` fallback is not needed.
 3. **Identity resolution.** For `SUB` and `JWT` identity types Topaz requires the user to exist in
    the directory and errors otherwise. The security docs must say this loudly, and the integration test
    must cover the "authenticated but unknown to Topaz" case as a deny.

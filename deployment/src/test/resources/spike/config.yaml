@@ -1,0 +1,67 @@
+version: 2
+logging:
+  prod: true
+  log_level: info
+directory:
+  db_path: /db/topaz.db
+remote_directory:
+  address: "0.0.0.0:9292"
+  insecure: false
+  no_tls: true
+auth:
+  options:
+    default:
+      enable_api_key: false
+      enable_anonymous: true
+api:
+  health:
+    listen_address: "0.0.0.0:9494"
+  services:
+    reader:
+      grpc:
+        listen_address: "0.0.0.0:9292"
+      gateway:
+        listen_address: "0.0.0.0:9393"
+        http: true
+    writer:
+      grpc:
+        listen_address: "0.0.0.0:9292"
+      gateway:
+        listen_address: "0.0.0.0:9393"
+        http: true
+    model:
+      grpc:
+        listen_address: "0.0.0.0:9292"
+      gateway:
+        listen_address: "0.0.0.0:9393"
+        http: true
+    importer:
+      grpc:
+        listen_address: "0.0.0.0:9292"
+      gateway:
+        listen_address: "0.0.0.0:9393"
+        http: true
+    exporter:
+      grpc:
+        listen_address: "0.0.0.0:9292"
+      gateway:
+        listen_address: "0.0.0.0:9393"
+        http: true
+    authorizer:
+      grpc:
+        listen_address: "0.0.0.0:8282"
+      gateway:
+        listen_address: "0.0.0.0:8383"
+        http: true
+    console:
+      grpc:
+        listen_address: "0.0.0.0:8081"
+      gateway:
+        listen_address: "0.0.0.0:8080"
+        http: true
+opa:
+  instance_id: "-"
+  graceful_shutdown_period_seconds: 2
+  local_bundles:
+    paths: ["/policies"]
+    skip_verification: true
