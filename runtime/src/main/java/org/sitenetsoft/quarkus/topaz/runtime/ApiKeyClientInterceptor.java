@@ -24,7 +24,7 @@ public final class ApiKeyClientInterceptor implements ClientInterceptor {
     private final Optional<String> tenantId;
 
     public ApiKeyClientInterceptor(String apiKey, Optional<String> tenantId) {
-        this.authorization = "basic " + apiKey;
+        this.authorization = "basic " + java.util.Objects.requireNonNull(apiKey, "apiKey");
         this.tenantId = tenantId;
     }
 

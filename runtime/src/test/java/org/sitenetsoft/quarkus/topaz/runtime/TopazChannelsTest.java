@@ -6,7 +6,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.Test;
+
+import io.vertx.core.Vertx;
+import java.util.List;
 
 import io.quarkus.tls.TlsConfiguration;
 import io.vertx.core.net.KeyStoreOptions;
@@ -60,5 +65,30 @@ class TopazChannelsTest {
                 Optional.empty(), Optional.of(withoutTrust()))).isFalse();
         assertThat(TopazChannels.useTls(settings(Optional.empty(), Optional.empty()),
                 Optional.empty(), Optional.empty())).isFalse();
+    }
+
+    @Test
+    void createThrowsWhenTlsForcedButNoConfig() {
+        assertThatThrownBy(() -> TopazChannels.create(mock(Vertx.class), settings(Optional.of(false), Optional.empty()),
+                Optional.empty(), List.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("localhost:8282");
+    }
+
+    @Test
+    void createThrowsWhenNamedTlsMissing() {
+        assertThatThrownBy(() -> TopazChannels.create(mock(Vertx.class), settings(Optional.empty(), Optional.of("mytls")),
+                Optional.empty(), List.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("mytls");
+    }
+
+    @Test
+    void createPlainTextIgnoresTlsConfig() {
+        Vertx vertx = Vertx.vertx();
+        try (TopazChannels.ManagedChannelHolder h = TopazChannels.create(vertx, settings(Optional.of(true), Optional.of("n")),
+                Optional.of(withTrustStore()), List.of())) {
+            assertThat(h).isNotNull();
+        } finally {
+            vertx.close();
+        }
     }
 }
