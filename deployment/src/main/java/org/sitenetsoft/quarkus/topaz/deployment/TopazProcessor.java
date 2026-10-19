@@ -1,7 +1,5 @@
 package org.sitenetsoft.quarkus.topaz.deployment;
 
-import java.util.function.Supplier;
-
 import jakarta.inject.Singleton;
 
 import org.sitenetsoft.quarkus.topaz.AuthorizerClient;
@@ -18,7 +16,9 @@ import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
+import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.tls.deployment.spi.TlsRegistryBuildItem;
+import io.quarkus.vertx.deployment.VertxBuildItem;
 
 class TopazProcessor {
 
@@ -42,14 +42,14 @@ class TopazProcessor {
     // The client classes are final, so they cannot be client-proxied: @Singleton instead of @ApplicationScoped.
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void beans(TopazRecorder recorder, TlsRegistryBuildItem tls,
+    void beans(TopazRecorder recorder, VertxBuildItem vertx, TlsRegistryBuildItem tls,
             ShutdownContextBuildItem shutdown, BuildProducer<SyntheticBeanBuildItem> beans) {
-        Supplier<TopazClient> client = recorder.createClient(tls.registry(), shutdown);
+        RuntimeValue<TopazClient> client = recorder.createClient(vertx.getVertx(), tls.registry(), shutdown);
         beans.produce(SyntheticBeanBuildItem.configure(TopazClient.class).scope(Singleton.class)
-                .setRuntimeInit().unremovable().supplier(client).done());
+                .setRuntimeInit().unremovable().runtimeValue(client).done());
         beans.produce(SyntheticBeanBuildItem.configure(AuthorizerClient.class).scope(Singleton.class)
-                .setRuntimeInit().unremovable().supplier(recorder.authorizer(client)).done());
+                .setRuntimeInit().unremovable().runtimeValue(recorder.authorizer(client)).done());
         beans.produce(SyntheticBeanBuildItem.configure(DirectoryClient.class).scope(Singleton.class)
-                .setRuntimeInit().unremovable().supplier(recorder.directory(client)).done());
+                .setRuntimeInit().unremovable().runtimeValue(recorder.directory(client)).done());
     }
 }

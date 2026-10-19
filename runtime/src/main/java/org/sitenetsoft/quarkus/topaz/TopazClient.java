@@ -81,7 +81,8 @@ public final class TopazClient implements AutoCloseable {
 
         private ResolvedServiceSettings authorizerSettings = defaults("localhost", 8282);
         private ResolvedServiceSettings directorySettings = defaults("localhost", 9292);
-        private Optional<TlsConfiguration> tls = Optional.empty();
+        private Optional<TlsConfiguration> authorizerTls = Optional.empty();
+        private Optional<TlsConfiguration> directoryTls = Optional.empty();
         private Optional<String> tenantId = Optional.empty();
         private Vertx vertx;
         private List<ClientInterceptor> interceptors = List.of();
@@ -153,8 +154,10 @@ public final class TopazClient implements AutoCloseable {
             return this;
         }
 
+        /** TLS configuration for both services. */
         public Builder tlsConfiguration(TlsConfiguration tls) {
-            this.tls = Optional.ofNullable(tls);
+            this.authorizerTls = Optional.ofNullable(tls);
+            this.directoryTls = this.authorizerTls;
             return this;
         }
 
@@ -182,12 +185,13 @@ public final class TopazClient implements AutoCloseable {
             return this;
         }
 
-        /** Replaces both services' settings and the TLS configuration at once (used by the recorder). */
-        public Builder settings(ResolvedServiceSettings authorizer, ResolvedServiceSettings directory,
-                Optional<TlsConfiguration> tls) {
+        /** Replaces both services' settings and their TLS configurations at once (used by the recorder). */
+        public Builder settings(ResolvedServiceSettings authorizer, Optional<TlsConfiguration> authorizerTls,
+                ResolvedServiceSettings directory, Optional<TlsConfiguration> directoryTls) {
             this.authorizerSettings = Objects.requireNonNull(authorizer, "authorizer");
+            this.authorizerTls = Objects.requireNonNull(authorizerTls, "authorizerTls");
             this.directorySettings = Objects.requireNonNull(directory, "directory");
-            this.tls = Objects.requireNonNull(tls, "tls");
+            this.directoryTls = Objects.requireNonNull(directoryTls, "directoryTls");
             return this;
         }
 
@@ -200,8 +204,8 @@ public final class TopazClient implements AutoCloseable {
                     owned = Vertx.vertx();
                     v = owned;
                 }
-                Channel authz = channel(authorizerChannel, authorizerSettings, v, holders);
-                Channel dir = channel(directoryChannel, directorySettings, v, holders);
+                Channel authz = channel(authorizerChannel, authorizerSettings, authorizerTls, v, holders);
+                Channel dir = channel(directoryChannel, directorySettings, directoryTls, v, holders);
                 return new TopazClient(new AuthorizerClient(authz, authorizerSettings.deadline()),
                         new DirectoryClient(dir, directorySettings.deadline()), List.copyOf(holders), owned);
             } catch (RuntimeException e) {
@@ -210,7 +214,8 @@ public final class TopazClient implements AutoCloseable {
             }
         }
 
-        private Channel channel(Channel given, ResolvedServiceSettings s, Vertx v, List<ManagedChannelHolder> holders) {
+        private Channel channel(Channel given, ResolvedServiceSettings s, Optional<TlsConfiguration> tls, Vertx v,
+                List<ManagedChannelHolder> holders) {
             List<ClientInterceptor> all = new ArrayList<>();
             s.apiKey().ifPresent(k -> all.add(new ApiKeyClientInterceptor(k, tenantId)));
             all.addAll(interceptors);

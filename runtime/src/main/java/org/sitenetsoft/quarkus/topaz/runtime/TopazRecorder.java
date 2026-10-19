@@ -8,7 +8,12 @@ import org.sitenetsoft.quarkus.topaz.AuthorizerClient;
 import org.sitenetsoft.quarkus.topaz.DirectoryClient;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
+import io.grpc.MethodDescriptor;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.InstanceHandle;
 import io.quarkus.grpc.runtime.GrpcClientInterceptorContainer;
@@ -28,66 +33,31 @@ public class TopazRecorder {
         this.runtimeConfig = runtimeConfig;
     }
 
-    /**
-     * Returns a memoizing supplier: the client is built on first use, because the Vert.x bean is not yet
-     * initialized while RUNTIME_INIT recorders run.
-     */
-    public Supplier<TopazClient> createClient(Supplier<TlsConfigurationRegistry> tls, ShutdownContext shutdown) {
-        return new Supplier<>() {
-            private volatile TopazClient instance;
-
-            @Override
-            public TopazClient get() {
-                TopazClient c = instance;
-                if (c == null) {
-                    synchronized (this) {
-                        c = instance;
-                        if (c == null) {
-                            c = build(tls, shutdown);
-                            instance = c;
-                        }
-                    }
-                }
-                return c;
-            }
-        };
-    }
-
-    private TopazClient build(Supplier<TlsConfigurationRegistry> tls, ShutdownContext shutdown) {
+    public RuntimeValue<TopazClient> createClient(RuntimeValue<Vertx> vertx, Supplier<TlsConfigurationRegistry> tls,
+            ShutdownContext shutdown) {
         TopazConfig config = runtimeConfig.getValue();
         ResolvedServiceSettings authorizer = ResolvedServiceSettings.resolve(config, config.authorizer(), 8282);
         ResolvedServiceSettings directory = ResolvedServiceSettings.resolve(config, config.directory(), 9292);
         TlsConfigurationRegistry registry = tls.get();
-
-        // TopazClient.Builder.settings takes a single TlsConfiguration for both services. Use the authorizer's;
-        // fall back to the directory's when the authorizer does not use TLS.
         Optional<TlsConfiguration> authorizerTls = resolveTls(authorizer, registry);
         Optional<TlsConfiguration> directoryTls = resolveTls(directory, registry);
-        Optional<TlsConfiguration> chosen = authorizerTls.isPresent() ? authorizerTls : directoryTls;
-
-        Vertx vertx = Arc.container().instance(Vertx.class).get();
-        InstanceHandle<GrpcClientInterceptorContainer> container = Arc.container()
-                .instance(GrpcClientInterceptorContainer.class);
-        List<ClientInterceptor> interceptors = container.isAvailable()
-                ? container.get().getSortedGlobalInterceptors()
-                : List.of();
 
         TopazClient.Builder builder = TopazClient.builder()
-                .settings(authorizer, directory, chosen)
-                .vertx(vertx)
-                .interceptors(interceptors);
+                .settings(authorizer, authorizerTls, directory, directoryTls)
+                .vertx(vertx.getValue())
+                .interceptors(List.of(new LazyGlobalInterceptors()));
         config.tenantId().ifPresent(builder::tenantId);
         TopazClient client = builder.build();
         shutdown.addShutdownTask(client::close);
-        return client;
+        return new RuntimeValue<>(client);
     }
 
-    public Supplier<AuthorizerClient> authorizer(Supplier<TopazClient> client) {
-        return () -> client.get().authorizer();
+    public RuntimeValue<AuthorizerClient> authorizer(RuntimeValue<TopazClient> client) {
+        return new RuntimeValue<>(client.getValue().authorizer());
     }
 
-    public Supplier<DirectoryClient> directory(Supplier<TopazClient> client) {
-        return () -> client.get().directory();
+    public RuntimeValue<DirectoryClient> directory(RuntimeValue<TopazClient> client) {
+        return new RuntimeValue<>(client.getValue().directory());
     }
 
     private static Optional<TlsConfiguration> resolveTls(ResolvedServiceSettings s, TlsConfigurationRegistry registry) {
@@ -108,5 +78,27 @@ public class TopazRecorder {
             return named.isPresent() ? named : def;
         }
         return Optional.empty();
+    }
+
+    /**
+     * Applies Quarkus gRPC's global client interceptors. They are resolved on first call because the interceptor
+     * storage bean is not initialized yet while this recorder runs.
+     */
+    static final class LazyGlobalInterceptors implements ClientInterceptor {
+        private volatile List<ClientInterceptor> resolved;
+
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
+                CallOptions options, Channel next) {
+            List<ClientInterceptor> list = resolved;
+            if (list == null) {
+                InstanceHandle<GrpcClientInterceptorContainer> container = Arc.container()
+                        .instance(GrpcClientInterceptorContainer.class);
+                list = container.isAvailable() ? container.get().getSortedGlobalInterceptors() : List.of();
+                resolved = list;
+            }
+            return list.isEmpty() ? next.newCall(method, options)
+                    : ClientInterceptors.intercept(next, list).newCall(method, options);
+        }
     }
 }
