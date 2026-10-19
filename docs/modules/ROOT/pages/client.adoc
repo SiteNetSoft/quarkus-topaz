@@ -55,13 +55,17 @@ for you.
 
 |`none()` |Anonymous.
 |`subject(String)` |A subject (user key, email, ...) that Topaz resolves through the directory.
-|`jwt(String)` |A JWT that the authorizer validates and resolves.
+|`jwt(String)` |A JWT whose `sub` claim Topaz resolves through the directory. Topaz does not validate the token.
 |`manual(String)` |An identity passed to the policy as is, without directory resolution.
 |===
 
 For `subject` and `jwt`, the identity must exist in the directory as an `identity` object with an `identifier`
 relation to a `user`; otherwise Topaz answers `NOT_FOUND` (error `E30017`). The quick start's manifest and data show
 that shape.
+
+Topaz does not validate the token passed to `jwt(...)`: it does not check the signature, it parses the token and
+resolves its `sub` claim through the directory. Authenticate the request in your application (e.g. quarkus-oidc)
+before forwarding the token; pass the raw token only so Topaz can read its subject.
 
 [[is-allowed]]
 == `isAllowed` fails closed
@@ -92,7 +96,8 @@ configured per service through `quarkus.topaz.authorizer.tls-configuration-name`
 `quarkus.topaz.directory.tls-configuration-name`, falling back to `quarkus.topaz.tls-configuration-name`, each
 naming a configuration of the Quarkus TLS registry. With no name set, the registry's default TLS configuration is
 used when it defines a trust store or trust-all; otherwise the channel is plaintext. `plain-text=false` requires
-TLS: startup fails if no TLS configuration applies, as it does for a name the registry does not know.
+TLS: with no named configuration and no usable registry default, the channel uses TLS with the JVM default trust
+store; it never falls back to plaintext. A TLS configuration name the registry does not know fails startup.
 
 `quarkus.topaz.api-key` (or the per-service `api-key`) is sent as `authorization: basic <key>` on every call.
 `quarkus.topaz.tenant-id` adds an `aserto-tenant-id` header for legacy Aserto deployments; Topaz ignores it.
@@ -100,7 +105,9 @@ TLS: startup fails if no TLS configuration applies, as it does for a name the re
 == Blocking facade
 
 `topaz.blocking()` exposes `authorizer()` and `directory()` with the same methods returning plain values. It shares
-the channels of the reactive client. Each call waits at most the configured deadline, or 30 seconds without one.
+the channels of the reactive client. Each call waits at most the configured deadline plus one second (so the gRPC
+deadline fires first), or 30 seconds without one. Failures, including an exceeded wait, are thrown as
+`io.grpc.StatusRuntimeException` (`DEADLINE_EXCEEDED` for a timeout).
 Call it from worker threads only, never from the event loop.
 
 [source,java]

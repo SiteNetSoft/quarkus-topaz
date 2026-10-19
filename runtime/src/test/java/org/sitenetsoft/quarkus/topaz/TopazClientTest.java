@@ -1,7 +1,6 @@
 package org.sitenetsoft.quarkus.topaz;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -109,11 +108,12 @@ class TopazClientTest {
     }
 
     @Test
-    void buildFailsClosedWithoutTlsAndDoesNotCloseCallerVertx() {
+    void buildWithTlsForcedAndNoConfigUsesJvmTrustAndDoesNotCloseCallerVertx() {
         Vertx vertx = Vertx.vertx();
         try {
-            assertThatThrownBy(() -> TopazClient.builder().vertx(vertx).plainText(false).build())
-                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("localhost:8282");
+            TopazClient client = TopazClient.builder().vertx(vertx).plainText(false).build();
+            assertThat(client).isNotNull();
+            client.close();
             CountDownLatch ran = new CountDownLatch(1);
             vertx.runOnContext(x -> ran.countDown());
             assertThat(ran.await(5, TimeUnit.SECONDS)).isTrue();

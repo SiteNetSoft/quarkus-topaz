@@ -73,11 +73,17 @@ public class TopazRecorder {
                         + ":" + s.port() + " was not found");
             }
         }
-        Optional<TlsConfiguration> def = registry.getDefault();
-        if (TopazChannels.useTls(s, named, def)) {
-            return named.isPresent() ? named : def;
+        if (named.isPresent()) {
+            return named;
         }
-        return Optional.empty();
+        // The registry default is used only if it is usable (trust store or trust-all); otherwise TLS, when
+        // required by plain-text=false, falls back to the JVM default trust in TopazChannels.
+        Optional<TlsConfiguration> def = registry.getDefault();
+        return usable(def) ? def : Optional.empty();
+    }
+
+    private static boolean usable(Optional<TlsConfiguration> def) {
+        return def.isPresent() && (def.get().getTrustStoreOptions() != null || def.get().isTrustAll());
     }
 
     /**
@@ -94,8 +100,13 @@ public class TopazRecorder {
             if (list == null) {
                 InstanceHandle<GrpcClientInterceptorContainer> container = Arc.container()
                         .instance(GrpcClientInterceptorContainer.class);
-                list = container.isAvailable() ? container.get().getSortedGlobalInterceptors() : List.of();
-                resolved = list;
+                if (container.isAvailable()) {
+                    list = container.get().getSortedGlobalInterceptors();
+                    resolved = list;
+                } else {
+                    // Not available yet: no global interceptors for this call, retry on the next one.
+                    list = List.of();
+                }
             }
             return list.isEmpty() ? next.newCall(method, options)
                     : ClientInterceptors.intercept(next, list).newCall(method, options);

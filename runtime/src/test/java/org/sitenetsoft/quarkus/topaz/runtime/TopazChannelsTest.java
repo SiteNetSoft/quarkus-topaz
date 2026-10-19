@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClientOptions;
 import java.util.List;
 
 import io.quarkus.tls.TlsConfiguration;
@@ -68,10 +69,31 @@ class TopazChannelsTest {
     }
 
     @Test
-    void createThrowsWhenTlsForcedButNoConfig() {
-        assertThatThrownBy(() -> TopazChannels.create(mock(Vertx.class), settings(Optional.of(false), Optional.empty()),
-                Optional.empty(), List.of()))
-                .isInstanceOf(IllegalStateException.class).hasMessageContaining("localhost:8282");
+    void tlsForcedWithoutConfigUsesTlsWithJvmDefaultTrust() {
+        HttpClientOptions http = TopazChannels.transportOptions(settings(Optional.of(false), Optional.empty()),
+                Optional.empty());
+        assertThat(http.isSsl()).isTrue();
+        assertThat(http.isUseAlpn()).isTrue();
+        assertThat(http.getTrustOptions()).isNull();
+        assertThat(http.isTrustAll()).isFalse();
+    }
+
+    @Test
+    void createWithTlsForcedButNoConfigBuildsTlsChannel() {
+        Vertx vertx = Vertx.vertx();
+        try (TopazChannels.ManagedChannelHolder h = TopazChannels.create(vertx,
+                settings(Optional.of(false), Optional.empty()), Optional.empty(), List.of())) {
+            assertThat(h).isNotNull();
+        } finally {
+            vertx.close();
+        }
+    }
+
+    @Test
+    void unsetPlainTextWithoutConfigIsPlaintext() {
+        HttpClientOptions http = TopazChannels.transportOptions(settings(Optional.empty(), Optional.empty()),
+                Optional.empty());
+        assertThat(http.isSsl()).isFalse();
     }
 
     @Test

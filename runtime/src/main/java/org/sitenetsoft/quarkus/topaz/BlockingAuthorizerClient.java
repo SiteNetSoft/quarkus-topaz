@@ -20,7 +20,8 @@ import aserto.authorizer.v2.api.Module;
 import io.smallrye.mutiny.Uni;
 
 /**
- * Blocking view of {@link AuthorizerClient}. Each call waits at most the configured deadline (30 s if none).
+ * Blocking view of {@link AuthorizerClient}. Each call waits at most the configured deadline plus one second (30 s if none);
+ * failures, including an exceeded wait, surface as {@link io.grpc.StatusRuntimeException}.
  * Must not be called on an event-loop thread.
  */
 public final class BlockingAuthorizerClient {
@@ -30,11 +31,11 @@ public final class BlockingAuthorizerClient {
 
     BlockingAuthorizerClient(AuthorizerClient delegate) {
         this.delegate = delegate;
-        this.timeout = delegate.deadline().orElse(BlockingTopazClient.DEFAULT_TIMEOUT);
+        this.timeout = BlockingTopazClient.waitFor(delegate.deadline());
     }
 
     private <T> T await(Uni<T> uni) {
-        return uni.await().atMost(timeout);
+        return BlockingTopazClient.await(uni, timeout);
     }
 
     public IsResponse is(IsRequest r) {
