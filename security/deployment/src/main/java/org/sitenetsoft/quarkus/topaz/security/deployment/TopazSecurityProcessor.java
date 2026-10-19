@@ -28,6 +28,7 @@ import org.sitenetsoft.quarkus.topaz.security.runtime.TopazAuthorizeInterceptor;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazCheckInterceptor;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazEnforcementBuildTimeConfig;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazHttpSecurityPolicy;
+import org.sitenetsoft.quarkus.topaz.security.runtime.TopazPermissionAugmentor;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazSecurityRecorder;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
@@ -108,6 +109,22 @@ class TopazSecurityProcessor {
             BuildProducer<RequireBodyHandlerBuildItem> bodyHandler) {
         if (buildTimeConfig.readBody()) {
             bodyHandler.produce(new RequireBodyHandlerBuildItem());
+        }
+    }
+
+    // The @PermissionsAllowed bridge is opt-in. The runtime jar is indexed, so when disabled the augmentor must be
+    // excluded explicitly or bean discovery would still install it.
+    @BuildStep
+    void permissionAugmentor(TopazEnforcementBuildTimeConfig buildTimeConfig,
+            BuildProducer<AdditionalBeanBuildItem> beans,
+            BuildProducer<ExcludedTypeBuildItem> excluded) {
+        if (buildTimeConfig.permissions().enabled()) {
+            beans.produce(AdditionalBeanBuildItem.builder()
+                    .addBeanClasses(TopazPermissionAugmentor.class)
+                    .setUnremovable()
+                    .build());
+        } else {
+            excluded.produce(new ExcludedTypeBuildItem(TopazPermissionAugmentor.class.getName()));
         }
     }
 
