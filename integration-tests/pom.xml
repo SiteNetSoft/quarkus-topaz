@@ -22,8 +22,17 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.sitenetsoft</groupId>
+      <artifactId>quarkus-topaz-security</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-jackson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-elytron-security-properties-file</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -39,10 +48,23 @@
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Ensure the deployment module is built before this one in the reactor -->
+    <!-- Ensure the deployment modules are built before this one in the reactor -->
     <dependency>
       <groupId>org.sitenetsoft</groupId>
       <artifactId>quarkus-topaz-deployment</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.sitenetsoft</groupId>
+      <artifactId>quarkus-topaz-security-deployment</artifactId>
       <version>${project.version}</version>
       <type>pom</type>
       <scope>test</scope>
