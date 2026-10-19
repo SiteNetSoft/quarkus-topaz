@@ -73,10 +73,25 @@ public class TopazAuthorizeTest {
     }
 
     @Test
-    void derivedPathFromRequest() {
+    void pojoResourceOwnerPermitted() {
         given().auth().preemptive().basic("rick@the-citadel.com", "rick")
+                .contentType("application/json").body("{\"id\":\"todo-1\",\"note\":\"x\"}")
+                .post("/service/ref").then().statusCode(200).body(equalTo("deleted todo-1"));
+    }
+
+    @Test
+    void pojoResourceNonOwnerForbidden() {
+        given().auth().preemptive().basic("morty@the-citadel.com", "morty")
+                .contentType("application/json").body("{\"id\":\"todo-1\",\"note\":\"x\"}")
+                .post("/service/ref").then().statusCode(403);
+    }
+
+    @Test
+    void derivedPathFromRequest() {
+        // derived.rego permits only morty; todo.rego (todoApp.GET.todos) would permit rick, so a dropped segment fails
+        given().auth().preemptive().basic("morty@the-citadel.com", "morty")
                 .get("/todos/derived").then().statusCode(200).body(equalTo("derived"));
-        given().auth().preemptive().basic("summer@the-citadel.com", "summer")
+        given().auth().preemptive().basic("rick@the-citadel.com", "rick")
                 .get("/todos/derived").then().statusCode(403);
     }
 }

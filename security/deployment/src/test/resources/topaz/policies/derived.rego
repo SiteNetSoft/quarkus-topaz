@@ -5,5 +5,5 @@ import future.keywords.if
 default allowed = false
 
 allowed if {
-	input.user.id != ""
+	input.user.id == "morty@the-citadel.com"
 }

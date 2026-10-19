@@ -1,8 +1,10 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -25,15 +27,23 @@ public class ServiceResource {
     }
 
     @DELETE
-    @Path("reactive/{id}")
-    public Uni<String> deleteReactive(@PathParam("id") String id) {
-        return service.deleteReactive(id);
+    @Path("reactive/{todo}")
+    public Uni<String> deleteReactive(@PathParam("todo") String todo) {
+        return service.deleteReactive(todo);
     }
 
     @DELETE
-    @Path("blocking/{id}")
+    @Path("blocking/{todo}")
     @Blocking
-    public String deleteBlocking(@PathParam("id") String id) {
-        return service.deleteBlocking(id);
+    public String deleteBlocking(@PathParam("todo") String todo) {
+        return service.deleteBlocking(todo);
+    }
+
+    @POST
+    @Path("ref")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Blocking
+    public String deleteRef(SecuredService.TodoRef ref) {
+        return service.deleteRef(ref);
     }
 }
