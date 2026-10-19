@@ -1,15 +1,29 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
+import java.util.Set;
+import java.util.TreeSet;
+
+import jakarta.enterprise.inject.spi.DeploymentException;
+
 import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationValue;
+import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
+import org.jboss.jandex.MethodParameterInfo;
+import org.jboss.jandex.Type;
+import org.sitenetsoft.quarkus.topaz.security.TopazAuthorize;
+import org.sitenetsoft.quarkus.topaz.security.TopazResource;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DecisionEvaluator;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultIdentityMapper;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultPolicyPathMapper;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultResourceContextMapper;
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultSubjectMapper;
+import org.sitenetsoft.quarkus.topaz.security.runtime.InterceptorSupport;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopDecisionCache;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopResourceMethodInfoResolver;
+import org.sitenetsoft.quarkus.topaz.security.runtime.TopazAuthorizeInterceptor;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazEnforcementBuildTimeConfig;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazHttpSecurityPolicy;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazSecurityRecorder;
@@ -26,6 +40,7 @@ import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.vertx.deployment.VertxBuildItem;
 import io.quarkus.vertx.http.deployment.RequireBodyHandlerBuildItem;
 import io.quarkus.vertx.http.runtime.security.HttpSecurityPolicy;
@@ -36,6 +51,14 @@ class TopazSecurityProcessor {
 
     private static final DotName AUTHORIZATION_POLICY = DotName
             .createSimple("io.quarkus.vertx.http.security.AuthorizationPolicy");
+
+    private static final DotName TOPAZ_AUTHORIZE = DotName.createSimple(TopazAuthorize.class);
+
+    private static final DotName TOPAZ_RESOURCE = DotName.createSimple(TopazResource.class);
+
+    private static final DotName JAXRS_PATH = DotName.createSimple("jakarta.ws.rs.Path");
+
+    private static final DotName INTERCEPTOR = DotName.createSimple("jakarta.interceptor.Interceptor");
 
     private static final String REST_RESOLVER = "org.sitenetsoft.quarkus.topaz.security.runtime.rest"
             + ".RestResourceMethodInfoResolver";
@@ -92,6 +115,41 @@ class TopazSecurityProcessor {
                 .build();
     }
 
+    @BuildStep
+    AdditionalBeanBuildItem interceptorBeans() {
+        return AdditionalBeanBuildItem.builder()
+                .addBeanClasses(TopazAuthorizeInterceptor.class, InterceptorSupport.class)
+                .setUnremovable()
+                .build();
+    }
+
+    // @TopazResource arguments are converted with Jackson, which reads their properties reflectively.
+    @BuildStep
+    void topazResourceReflection(CombinedIndexBuildItem index, BuildProducer<ReflectiveClassBuildItem> reflective) {
+        Set<String> types = new TreeSet<>();
+        for (AnnotationInstance a : index.getIndex().getAnnotations(TOPAZ_RESOURCE)) {
+            if (a.target().kind() != AnnotationTarget.Kind.METHOD_PARAMETER) {
+                continue;
+            }
+            MethodParameterInfo parameter = a.target().asMethodParameter();
+            Type type = parameter.method().parameterType(parameter.position());
+            if (type.kind() == Type.Kind.CLASS || type.kind() == Type.Kind.PARAMETERIZED_TYPE) {
+                String name = type.name().toString();
+                if (!isJdkType(name)) {
+                    types.add(name);
+                }
+            }
+        }
+        if (!types.isEmpty()) {
+            reflective.produce(ReflectiveClassBuildItem.builder(types.toArray(String[]::new)).methods().fields()
+                    .build());
+        }
+    }
+
+    private static boolean isJdkType(String name) {
+        return name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("jdk.");
+    }
+
     // Named policies are looked up among the HttpSecurityPolicy beans at runtime, so none may be removed.
     @BuildStep
     UnremovableBeanBuildItem unremovablePolicies() {
@@ -102,7 +160,50 @@ class TopazSecurityProcessor {
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
     void validate(TopazSecurityRecorder recorder, CombinedIndexBuildItem index, VertxBuildItem vertx) {
-        recorder.validate(annotationUsesTopazPolicy(index));
+        boolean derivedPath = derivedTopazAuthorizePath(index.getIndex());
+        recorder.validate(annotationUsesTopazPolicy(index) || derivedPath);
+    }
+
+    // A @TopazAuthorize without a path derives it from the matched JAX-RS resource method, so it must sit on one.
+    private static boolean derivedTopazAuthorizePath(IndexView index) {
+        boolean derived = false;
+        for (AnnotationInstance a : index.getAnnotations(TOPAZ_AUTHORIZE)) {
+            AnnotationValue path = a.value("path");
+            if (path != null && !path.asString().isEmpty()) {
+                continue;
+            }
+            ClassInfo declaring = switch (a.target().kind()) {
+                case METHOD -> a.target().asMethod().declaringClass();
+                case CLASS -> a.target().asClass();
+                default -> null;
+            };
+            // the binding on an interceptor class selects the interceptor, it does not secure anything
+            if (declaring == null || declaring.hasDeclaredAnnotation(INTERCEPTOR)) {
+                continue;
+            }
+            if (!isJaxrsResource(index, declaring)) {
+                throw new DeploymentException("@TopazAuthorize without a path on " + a.target()
+                        + " in " + declaring.name() + ": the policy path can only be derived on a JAX-RS resource"
+                        + " (a class annotated @Path); set path explicitly");
+            }
+            derived = true;
+        }
+        return derived;
+    }
+
+    private static boolean isJaxrsResource(IndexView index, ClassInfo type) {
+        for (ClassInfo c = type; c != null; c = c.superName() == null ? null : index.getClassByName(c.superName())) {
+            if (c.hasDeclaredAnnotation(JAXRS_PATH)) {
+                return true;
+            }
+            if (c.enclosingClass() != null) {
+                ClassInfo enclosing = index.getClassByName(c.enclosingClass());
+                if (enclosing != null && enclosing.hasDeclaredAnnotation(JAXRS_PATH)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean annotationUsesTopazPolicy(CombinedIndexBuildItem index) {

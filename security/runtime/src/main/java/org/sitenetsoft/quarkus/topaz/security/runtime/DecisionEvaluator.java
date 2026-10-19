@@ -121,23 +121,39 @@ public final class DecisionEvaluator {
      * @return the outcome; never a failure
      */
     public Uni<Outcome> evaluate(IdentityContext identity, String policyPath, Struct resource) {
+        return evaluate(identity, policyPath, config.decision(), config.additionalDecisions().orElse(List.of()),
+                resource);
+    }
+
+    /**
+     * Evaluates the given decision and extra decisions.
+     *
+     * @param identity the identity context sent to the authorizer
+     * @param policyPath the policy path
+     * @param decision the decision that must be true for {@link Outcome#permitted()}
+     * @param extraDecisions further decisions to request, may be empty
+     * @param resource the resource context, may be {@code null}
+     * @return the outcome; never a failure
+     */
+    public Uni<Outcome> evaluate(IdentityContext identity, String policyPath, String decision,
+            List<String> extraDecisions, Struct resource) {
         List<String> decisions;
         Map<String, String> keys = new LinkedHashMap<>();
         Map<String, Boolean> cached = new LinkedHashMap<>();
         try {
-            decisions = decisions();
+            decisions = decisions(Objects.requireNonNull(decision, "decision"), extraDecisions);
             String resourceJson = JSON.print(resource == null ? Struct.getDefaultInstance() : resource);
-            for (String decision : decisions) {
-                String key = identity.getType() + "|" + identity.getIdentity() + "|" + policyPath + "|" + decision
+            for (String d : decisions) {
+                String key = identity.getType() + "|" + identity.getIdentity() + "|" + policyPath + "|" + d
                         + "|" + resourceJson;
-                keys.put(decision, key);
-                cache.get(key).ifPresent(v -> cached.put(decision, v));
+                keys.put(d, key);
+                cache.get(key).ifPresent(v -> cached.put(d, v));
             }
         } catch (InvalidProtocolBufferException | RuntimeException e) {
             return Uni.createFrom().item(deny(policyPath, describe(identity), e));
         }
         if (cached.size() == decisions.size()) {
-            return Uni.createFrom().item(new Outcome(cached.get(config.decision()), Map.copyOf(cached)));
+            return Uni.createFrom().item(new Outcome(cached.get(decision), Map.copyOf(cached)));
         }
         // deferred: the client builds the request synchronously, and evaluate must never throw
         return Uni.createFrom().deferred(() -> authorizer.is(identity, policyPath, decisions, resource))
@@ -147,12 +163,12 @@ public final class DecisionEvaluator {
                     for (Decision d : response.getDecisionsList()) {
                         returned.put(d.getDecision(), d.getIs());
                     }
-                    Boolean permitted = returned.get(config.decision());
+                    Boolean permitted = returned.get(decision);
                     if (permitted == null) {
-                        throw new IllegalStateException("response lacks decision '" + config.decision() + "'");
+                        throw new IllegalStateException("response lacks decision '" + decision + "'");
                     }
-                    returned.forEach((decision, value) -> {
-                        String key = keys.get(decision);
+                    returned.forEach((name, value) -> {
+                        String key = keys.get(name);
                         if (key != null) {
                             cache.put(key, value);
                         }
@@ -162,10 +178,12 @@ public final class DecisionEvaluator {
                 .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
     }
 
-    private List<String> decisions() {
+    private static List<String> decisions(String decision, List<String> extraDecisions) {
         Set<String> decisions = new LinkedHashSet<>();
-        decisions.add(config.decision());
-        config.additionalDecisions().ifPresent(decisions::addAll);
+        decisions.add(decision);
+        if (extraDecisions != null) {
+            decisions.addAll(extraDecisions);
+        }
         return new ArrayList<>(decisions);
     }
 
