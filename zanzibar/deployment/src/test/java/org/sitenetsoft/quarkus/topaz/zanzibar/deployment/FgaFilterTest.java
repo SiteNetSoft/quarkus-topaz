@@ -21,7 +21,13 @@ public class FgaFilterTest {
                             TestIdentityController.class)
                     .addAsResource("topaz", "topaz"))
             .overrideConfigKey("quarkus.http.auth.basic", "true")
-            // the test identities carry a single role, which the default extractor would mistake for a user type
+            // quarkus.zanzibar.extract-user-type-from-roles defaults to true: when the user type is not in the principal name and
+            // the identity has exactly one role, DefaultUserExtractor.extractUserTypeFromRoles takes that role as the Topaz
+            // subject type. TestIdentityController.add(user, password) without roles builds the identity with the role set
+            // {null}, so Optional.of(null) throws an NPE (every request answers 500). That is specific to this test helper.
+            // A real application with a single-role user is not hit by the NPE, but the role name (say "admin") would become
+            // the subject type of the check, which is a misconfiguration for Topaz (the subject type is a directory object
+            // type such as "user", not a role). Applications should leave this false or use @FGAUserType.
             .overrideConfigKey("quarkus.zanzibar.extract-user-type-from-roles", "false")
             .overrideConfigKey("quarkus.topaz.devservices.policy.directory", "classpath:topaz/policies")
             .overrideConfigKey("quarkus.topaz.devservices.manifest-location", "classpath:topaz/manifest.yaml")
