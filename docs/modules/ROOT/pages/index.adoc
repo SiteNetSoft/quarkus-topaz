@@ -1,0 +1,77 @@
+= Quarkus Topaz
+include::./includes/attributes.adoc[]
+
+https://github.com/aserto-dev/topaz[Topaz] is an open-source authorizer: an OPA policy engine (Rego) next to a
+Zanzibar-style directory of objects and relations, both served over gRPC. This extension gives a Quarkus
+application a reactive client for both services, a Dev Service that starts a Topaz container seeded with your
+policies and data, a readiness health check and a Dev UI card.
+
+The client talks to Topaz through the Vert.x gRPC client and Mutiny stubs generated from the pinned Topaz protos.
+It does not depend on the Aserto Java SDK.
+
+== Installation
+
+Add the runtime artifact; the deployment artifact is resolved by Quarkus.
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>org.sitenetsoft</groupId>
+    <artifactId>quarkus-topaz</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+== Quick start
+
+This is the todo application from this repository's `integration-tests` module, cut down to one endpoint. Put a
+policy, a directory manifest and seed data under `src/main/resources/topaz/` and point the Dev Service at them:
+
+[source,properties]
+----
+quarkus.topaz.devservices.policy.directory=classpath:topaz/policies
+quarkus.topaz.devservices.manifest-location=classpath:topaz/manifest.yaml
+quarkus.topaz.devservices.data-location=classpath:topaz/data
+----
+
+The policy `topaz/policies/todo_delete.rego` allows a delete when the caller owns the todo:
+
+[source,rego]
+----
+package todoApp.DELETE.todos.__id
+
+import future.keywords.if
+
+default allowed = false
+
+allowed if {
+	ds.check({"object_type": "todo", "object_id": input.resource.id, "relation": "owner",
+	          "subject_type": "user", "subject_id": input.user.id})
+}
+----
+
+Inject `TopazClient` and ask for the decision:
+
+[source,java]
+----
+@Inject
+TopazClient topaz;
+
+@GET
+@Path("/todos/{id}/can-delete")
+public Uni<Boolean> canDelete(@PathParam("id") String id, @QueryParam("user") String user) {
+    return topaz.authorizer().isAllowed(IdentityContexts.subject(user), "todoApp.DELETE.todos.__id",
+            "allowed", Map.of("id", id));
+}
+----
+
+`quarkus dev` starts Topaz {topaz-image}, loads the manifest and data, and configures the client. The full
+manifest and data files are in `integration-tests/src/main/resources/topaz/`.
+
+== Where to go next
+
+* xref:client.adoc[Client]: the API, identity contexts and the fail-closed rules.
+* xref:dev-services.adoc[Dev Services]: policies, manifest, data and shared containers.
+* xref:health-and-tracing.adoc[Health and tracing] and xref:dev-ui.adoc[Dev UI].
+* xref:native.adoc[Native] and xref:testing.adoc[Testing].
+* xref:configuration.adoc[Configuration reference].

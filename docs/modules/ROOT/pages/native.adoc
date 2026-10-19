@@ -1,0 +1,20 @@
+= Native
+
+The extension needs no native configuration from you. It indexes the generated gRPC stubs, so Quarkus gRPC
+registers their protobuf classes for reflection, and enables SSL support in the native image for TLS connections
+to Topaz. The CI native job checks this with the todo application.
+
+Build the integration tests' todo application natively with a container build:
+
+[source,shell]
+----
+mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true \
+    -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+----
+
+The `additional-build-args` keep the native-image compiler at C1 and eight threads. This repository uses them
+everywhere because full-parallelism builds have proven unstable on its build hosts; they cost build time, not
+correctness. If your project already sets `quarkus.native.additional-build-args`, append to its value.
+
+`@QuarkusIntegrationTest` classes run against the native executable. To seed or inspect Topaz from the test JVM, use
+xref:client.adoc#building-a-client-outside-cdi[`TopazClient.builder()`], which does not need CDI.
