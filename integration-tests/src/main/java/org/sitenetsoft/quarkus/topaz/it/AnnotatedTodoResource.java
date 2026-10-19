@@ -1,6 +1,7 @@
 package org.sitenetsoft.quarkus.topaz.it;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -17,6 +18,7 @@ import org.sitenetsoft.quarkus.topaz.security.TopazCheck;
 import org.sitenetsoft.quarkus.topaz.security.TopazObjectId;
 
 import io.quarkus.security.identity.SecurityIdentityAugmentor;
+import io.quarkus.vertx.http.runtime.security.HttpSecurityPolicy;
 
 /**
  * Guarded by the interceptors instead of the route policy ({@code /annotated} is outside its paths).
@@ -28,6 +30,10 @@ public class AnnotatedTodoResource {
     @Inject
     @Any
     Instance<SecurityIdentityAugmentor> augmentors;
+
+    @Inject
+    @Any
+    Instance<HttpSecurityPolicy> policies;
 
     @GET
     @Path("todos")
@@ -43,10 +49,17 @@ public class AnnotatedTodoResource {
         // no-op: the test asserts the authorization outcome, not the deletion
     }
 
-    /** Bean classes of the installed augmentors, so tests (including the native IT) can assert which are present. */
+    /**
+     * Test-only, unauthenticated introspection endpoint: the bean classes of the installed augmentors and HTTP security
+     * policies, so tests (including the native IT, which cannot use Arc) can assert which are present.
+     */
     @GET
     @Path("augmentors")
-    public List<String> augmentors() {
-        return augmentors.handlesStream().map(h -> h.getBean().getBeanClass().getName()).sorted().toList();
+    public Map<String, List<String>> augmentors() {
+        return Map.of("augmentors", beanClasses(augmentors), "policies", beanClasses(policies));
+    }
+
+    private static List<String> beanClasses(Instance<?> beans) {
+        return beans.handlesStream().map(h -> h.getBean().getBeanClass().getName()).sorted().toList();
     }
 }
