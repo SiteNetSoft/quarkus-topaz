@@ -10,6 +10,7 @@
   <name>Topaz - Parent</name>
 
   <modules>
+    <module>grpc</module>
     <module>runtime</module>
     <module>deployment</module>
   </modules>

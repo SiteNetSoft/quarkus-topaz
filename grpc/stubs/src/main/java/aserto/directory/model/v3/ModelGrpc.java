@@ -1,0 +1,401 @@
+package aserto.directory.model.v3;
+
+import static io.grpc.MethodDescriptor.generateFullMethodName;
+
+/**
+ */
+@io.grpc.stub.annotations.GrpcGenerated
+public final class ModelGrpc {
+
+    private ModelGrpc() {
+    }
+
+    public static final java.lang.String SERVICE_NAME = "aserto.directory.model.v3.Model";
+
+    // Static method descriptors that strictly reflect the proto.
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod;
+
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "GetManifest", requestType = aserto.directory.model.v3.ModelOuterClass.GetManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.GetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getGetManifestMethod;
+        if ((getGetManifestMethod = ModelGrpc.getGetManifestMethod) == null) {
+            synchronized (ModelGrpc.class) {
+                if ((getGetManifestMethod = ModelGrpc.getGetManifestMethod) == null) {
+                    ModelGrpc.getGetManifestMethod = getGetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.GetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("GetManifest")).build();
+                }
+            }
+        }
+        return getGetManifestMethod;
+    }
+
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod;
+
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetManifest", requestType = aserto.directory.model.v3.ModelOuterClass.SetManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.SetManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> getSetManifestMethod;
+        if ((getSetManifestMethod = ModelGrpc.getSetManifestMethod) == null) {
+            synchronized (ModelGrpc.class) {
+                if ((getSetManifestMethod = ModelGrpc.getSetManifestMethod) == null) {
+                    ModelGrpc.getSetManifestMethod = getSetManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.CLIENT_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.SetManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.SetManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("SetManifest")).build();
+                }
+            }
+        }
+        return getSetManifestMethod;
+    }
+
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod;
+
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteManifest", requestType = aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest.class, responseType = aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> getDeleteManifestMethod;
+        if ((getDeleteManifestMethod = ModelGrpc.getDeleteManifestMethod) == null) {
+            synchronized (ModelGrpc.class) {
+                if ((getDeleteManifestMethod = ModelGrpc.getDeleteManifestMethod) == null) {
+                    ModelGrpc.getDeleteManifestMethod = getDeleteManifestMethod = io.grpc.MethodDescriptor.<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteManifest")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse.getDefaultInstance())).setSchemaDescriptor(new ModelMethodDescriptorSupplier("DeleteManifest")).build();
+                }
+            }
+        }
+        return getDeleteManifestMethod;
+    }
+
+    /**
+     * Creates a new async stub that supports all call types for the service
+     */
+    public static ModelStub newStub(io.grpc.Channel channel) {
+        io.grpc.stub.AbstractStub.StubFactory<ModelStub> factory = new io.grpc.stub.AbstractStub.StubFactory<ModelStub>() {
+
+            @java.lang.Override
+            public ModelStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+                return new ModelStub(channel, callOptions);
+            }
+        };
+        return ModelStub.newStub(factory, channel);
+    }
+
+    /**
+     * Creates a new blocking-style stub that supports all types of calls on the service
+     */
+    public static ModelBlockingV2Stub newBlockingV2Stub(io.grpc.Channel channel) {
+        io.grpc.stub.AbstractStub.StubFactory<ModelBlockingV2Stub> factory = new io.grpc.stub.AbstractStub.StubFactory<ModelBlockingV2Stub>() {
+
+            @java.lang.Override
+            public ModelBlockingV2Stub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+                return new ModelBlockingV2Stub(channel, callOptions);
+            }
+        };
+        return ModelBlockingV2Stub.newStub(factory, channel);
+    }
+
+    /**
+     * Creates a new blocking-style stub that supports unary and streaming output calls on the service
+     */
+    public static ModelBlockingStub newBlockingStub(io.grpc.Channel channel) {
+        io.grpc.stub.AbstractStub.StubFactory<ModelBlockingStub> factory = new io.grpc.stub.AbstractStub.StubFactory<ModelBlockingStub>() {
+
+            @java.lang.Override
+            public ModelBlockingStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+                return new ModelBlockingStub(channel, callOptions);
+            }
+        };
+        return ModelBlockingStub.newStub(factory, channel);
+    }
+
+    /**
+     * Creates a new ListenableFuture-style stub that supports unary calls on the service
+     */
+    public static ModelFutureStub newFutureStub(io.grpc.Channel channel) {
+        io.grpc.stub.AbstractStub.StubFactory<ModelFutureStub> factory = new io.grpc.stub.AbstractStub.StubFactory<ModelFutureStub>() {
+
+            @java.lang.Override
+            public ModelFutureStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+                return new ModelFutureStub(channel, callOptions);
+            }
+        };
+        return ModelFutureStub.newStub(factory, channel);
+    }
+
+    /**
+     */
+    public interface AsyncService {
+
+        /**
+         * <pre>
+         * get manifest instance
+         * </pre>
+         */
+        default void getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> responseObserver) {
+            io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetManifestMethod(), responseObserver);
+        }
+
+        /**
+         * <pre>
+         * set manifest instance
+         * </pre>
+         */
+        default io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> responseObserver) {
+            return io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall(getSetManifestMethod(), responseObserver);
+        }
+
+        /**
+         * <pre>
+         * delete manifest instance
+         * </pre>
+         */
+        default void deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> responseObserver) {
+            io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteManifestMethod(), responseObserver);
+        }
+    }
+
+    /**
+     * Base class for the server implementation of the service Model.
+     */
+    public static abstract class ModelImplBase implements io.grpc.BindableService, AsyncService {
+
+        @java.lang.Override
+        public io.grpc.ServerServiceDefinition bindService() {
+            return ModelGrpc.bindService(this);
+        }
+    }
+
+    /**
+     * A stub to allow clients to do asynchronous rpc calls to service Model.
+     */
+    public static class ModelStub extends io.grpc.stub.AbstractAsyncStub<ModelStub> {
+
+        private ModelStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            super(channel, callOptions);
+        }
+
+        @java.lang.Override
+        protected ModelStub build(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            return new ModelStub(channel, callOptions);
+        }
+
+        /**
+         * <pre>
+         * get manifest instance
+         * </pre>
+         */
+        public void getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> responseObserver) {
+            io.grpc.stub.ClientCalls.asyncServerStreamingCall(getChannel().newCall(getGetManifestMethod(), getCallOptions()), request, responseObserver);
+        }
+
+        /**
+         * <pre>
+         * set manifest instance
+         * </pre>
+         */
+        public io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest> setManifest(io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> responseObserver) {
+            return io.grpc.stub.ClientCalls.asyncClientStreamingCall(getChannel().newCall(getSetManifestMethod(), getCallOptions()), responseObserver);
+        }
+
+        /**
+         * <pre>
+         * delete manifest instance
+         * </pre>
+         */
+        public void deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request, io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> responseObserver) {
+            io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getDeleteManifestMethod(), getCallOptions()), request, responseObserver);
+        }
+    }
+
+    /**
+     * A stub to allow clients to do synchronous rpc calls to service Model.
+     */
+    public static class ModelBlockingV2Stub extends io.grpc.stub.AbstractBlockingStub<ModelBlockingV2Stub> {
+
+        private ModelBlockingV2Stub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            super(channel, callOptions);
+        }
+
+        @java.lang.Override
+        protected ModelBlockingV2Stub build(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            return new ModelBlockingV2Stub(channel, callOptions);
+        }
+
+        /**
+         * <pre>
+         * get manifest instance
+         * </pre>
+         */
+        @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
+        public io.grpc.stub.BlockingClientCall<?, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+            return io.grpc.stub.ClientCalls.blockingV2ServerStreamingCall(getChannel(), getGetManifestMethod(), getCallOptions(), request);
+        }
+
+        /**
+         * <pre>
+         * set manifest instance
+         * </pre>
+         */
+        @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
+        public io.grpc.stub.BlockingClientCall<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse> setManifest() {
+            return io.grpc.stub.ClientCalls.blockingClientStreamingCall(getChannel(), getSetManifestMethod(), getCallOptions());
+        }
+
+        /**
+         * <pre>
+         * delete manifest instance
+         * </pre>
+         */
+        public aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) throws io.grpc.StatusException {
+            return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getDeleteManifestMethod(), getCallOptions(), request);
+        }
+    }
+
+    /**
+     * A stub to allow clients to do limited synchronous rpc calls to service Model.
+     */
+    public static class ModelBlockingStub extends io.grpc.stub.AbstractBlockingStub<ModelBlockingStub> {
+
+        private ModelBlockingStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            super(channel, callOptions);
+        }
+
+        @java.lang.Override
+        protected ModelBlockingStub build(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            return new ModelBlockingStub(channel, callOptions);
+        }
+
+        /**
+         * <pre>
+         * get manifest instance
+         * </pre>
+         */
+        public java.util.Iterator<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse> getManifest(aserto.directory.model.v3.ModelOuterClass.GetManifestRequest request) {
+            return io.grpc.stub.ClientCalls.blockingServerStreamingCall(getChannel(), getGetManifestMethod(), getCallOptions(), request);
+        }
+
+        /**
+         * <pre>
+         * delete manifest instance
+         * </pre>
+         */
+        public aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+            return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getDeleteManifestMethod(), getCallOptions(), request);
+        }
+    }
+
+    /**
+     * A stub to allow clients to do ListenableFuture-style rpc calls to service Model.
+     */
+    public static class ModelFutureStub extends io.grpc.stub.AbstractFutureStub<ModelFutureStub> {
+
+        private ModelFutureStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            super(channel, callOptions);
+        }
+
+        @java.lang.Override
+        protected ModelFutureStub build(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+            return new ModelFutureStub(channel, callOptions);
+        }
+
+        /**
+         * <pre>
+         * delete manifest instance
+         * </pre>
+         */
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse> deleteManifest(aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest request) {
+            return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getDeleteManifestMethod(), getCallOptions()), request);
+        }
+    }
+
+    private static final int METHODID_GET_MANIFEST = 0;
+
+    private static final int METHODID_DELETE_MANIFEST = 1;
+
+    private static final int METHODID_SET_MANIFEST = 2;
+
+    private static final class MethodHandlers<Req, Resp> implements io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>, io.grpc.stub.ServerCalls.ServerStreamingMethod<Req, Resp>, io.grpc.stub.ServerCalls.ClientStreamingMethod<Req, Resp>, io.grpc.stub.ServerCalls.BidiStreamingMethod<Req, Resp> {
+
+        private final AsyncService serviceImpl;
+
+        private final int methodId;
+
+        MethodHandlers(AsyncService serviceImpl, int methodId) {
+            this.serviceImpl = serviceImpl;
+            this.methodId = methodId;
+        }
+
+        @java.lang.Override
+        @java.lang.SuppressWarnings("unchecked")
+        public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
+            switch(methodId) {
+                case METHODID_GET_MANIFEST:
+                    serviceImpl.getManifest((aserto.directory.model.v3.ModelOuterClass.GetManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>) responseObserver);
+                    break;
+                case METHODID_DELETE_MANIFEST:
+                    serviceImpl.deleteManifest((aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>) responseObserver);
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
+
+        @java.lang.Override
+        @java.lang.SuppressWarnings("unchecked")
+        public io.grpc.stub.StreamObserver<Req> invoke(io.grpc.stub.StreamObserver<Resp> responseObserver) {
+            switch(methodId) {
+                case METHODID_SET_MANIFEST:
+                    return (io.grpc.stub.StreamObserver<Req>) serviceImpl.setManifest((io.grpc.stub.StreamObserver<aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>) responseObserver);
+                default:
+                    throw new AssertionError();
+            }
+        }
+    }
+
+    public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getGetManifestMethod(), io.grpc.stub.ServerCalls.asyncServerStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.GetManifestRequest, aserto.directory.model.v3.ModelOuterClass.GetManifestResponse>(service, METHODID_GET_MANIFEST))).addMethod(getSetManifestMethod(), io.grpc.stub.ServerCalls.asyncClientStreamingCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.SetManifestRequest, aserto.directory.model.v3.ModelOuterClass.SetManifestResponse>(service, METHODID_SET_MANIFEST))).addMethod(getDeleteManifestMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.model.v3.ModelOuterClass.DeleteManifestRequest, aserto.directory.model.v3.ModelOuterClass.DeleteManifestResponse>(service, METHODID_DELETE_MANIFEST))).build();
+    }
+
+    private static abstract class ModelBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
+
+        ModelBaseDescriptorSupplier() {
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
+            return aserto.directory.model.v3.ModelOuterClass.getDescriptor();
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Descriptors.ServiceDescriptor getServiceDescriptor() {
+            return getFileDescriptor().findServiceByName("Model");
+        }
+    }
+
+    private static final class ModelFileDescriptorSupplier extends ModelBaseDescriptorSupplier {
+
+        ModelFileDescriptorSupplier() {
+        }
+    }
+
+    private static final class ModelMethodDescriptorSupplier extends ModelBaseDescriptorSupplier implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
+
+        private final java.lang.String methodName;
+
+        ModelMethodDescriptorSupplier(java.lang.String methodName) {
+            this.methodName = methodName;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Descriptors.MethodDescriptor getMethodDescriptor() {
+            return getServiceDescriptor().findMethodByName(methodName);
+        }
+    }
+
+    private static volatile io.grpc.ServiceDescriptor serviceDescriptor;
+
+    public static io.grpc.ServiceDescriptor getServiceDescriptor() {
+        io.grpc.ServiceDescriptor result = serviceDescriptor;
+        if (result == null) {
+            synchronized (ModelGrpc.class) {
+                result = serviceDescriptor;
+                if (result == null) {
+                    serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME).setSchemaDescriptor(new ModelFileDescriptorSupplier()).addMethod(getGetManifestMethod()).addMethod(getSetManifestMethod()).addMethod(getDeleteManifestMethod()).build();
+                }
+            }
+        }
+        return result;
+    }
+}

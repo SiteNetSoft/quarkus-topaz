@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sitenetsoft</groupId>
+    <artifactId>quarkus-topaz-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>quarkus-topaz-grpc-parent</artifactId>
+  <packaging>pom</packaging>
+  <name>Topaz - gRPC - Parent</name>
+
+  <modules>
+    <module>stubs</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>generate</id>
+      <modules>
+        <module>generator</module>
+      </modules>
+    </profile>
+  </profiles>
+</project>
