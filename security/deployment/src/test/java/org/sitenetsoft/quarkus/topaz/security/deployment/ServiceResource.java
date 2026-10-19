@@ -67,4 +67,10 @@ public class ServiceResource {
     public String deleteFixed() {
         return service.deleteFixed();
     }
+
+    @DELETE
+    @Path("owned-blank")
+    public Uni<String> deleteOwnedBlank() {
+        return service.deleteOwned("");
+    }
 }

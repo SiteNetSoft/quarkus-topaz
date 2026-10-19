@@ -75,4 +75,10 @@ public class TopazCheckTest {
         given().auth().preemptive().basic("summer@the-citadel.com", "summer")
                 .delete("/service/owned/todo-1").then().statusCode(403);
     }
+
+    @Test
+    void blankObjectIdForbidden() {
+        given().auth().preemptive().basic("rick@the-citadel.com", "rick")
+                .delete("/service/owned-blank").then().statusCode(403);
+    }
 }
