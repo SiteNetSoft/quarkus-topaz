@@ -7,7 +7,11 @@ import org.sitenetsoft.quarkus.topaz.DirectoryClient;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 import org.sitenetsoft.quarkus.topaz.runtime.TopazRecorder;
 
+import org.sitenetsoft.quarkus.topaz.runtime.health.TopazHealthCheck;
+
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
+import io.quarkus.deployment.Capabilities;
+import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
@@ -17,6 +21,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import io.quarkus.tls.deployment.spi.TlsRegistryBuildItem;
 import io.quarkus.vertx.deployment.VertxBuildItem;
 
@@ -51,5 +56,13 @@ class TopazProcessor {
                 .setRuntimeInit().unremovable().runtimeValue(recorder.authorizer(client)).done());
         beans.produce(SyntheticBeanBuildItem.configure(DirectoryClient.class).scope(Singleton.class)
                 .setRuntimeInit().unremovable().runtimeValue(recorder.directory(client)).done());
+    }
+
+    @BuildStep
+    void healthCheck(Capabilities capabilities, TopazBuildTimeConfig buildTimeConfig,
+            BuildProducer<HealthBuildItem> health) {
+        if (capabilities.isPresent(Capability.SMALLRYE_HEALTH)) {
+            health.produce(new HealthBuildItem(TopazHealthCheck.class.getName(), buildTimeConfig.health().enabled()));
+        }
     }
 }
