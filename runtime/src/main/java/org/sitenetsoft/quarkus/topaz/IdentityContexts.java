@@ -21,7 +21,11 @@ public final class IdentityContexts {
         return of(IdentityType.IDENTITY_TYPE_SUB, subject);
     }
 
-    /** Caller identified by a JWT that the authorizer validates. */
+    /**
+     * Caller identified by a JWT. Topaz does not validate the token: it does not check the signature, it parses the
+     * token and resolves its {@code sub} claim through the directory. Authenticate the request in your application
+     * (e.g. quarkus-oidc) before forwarding the token; pass the raw token only so Topaz can read its subject.
+     */
     public static IdentityContext jwt(String token) {
         return of(IdentityType.IDENTITY_TYPE_JWT, token);
     }
