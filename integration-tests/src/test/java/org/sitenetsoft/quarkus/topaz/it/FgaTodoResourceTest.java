@@ -55,12 +55,13 @@ public class FgaTodoResourceTest {
     }
 
     @Test
+    // todo-3 is this test's own object: TodoResourceTest leaves morty as an owner of todo-2, so test order must not matter
     void shareAndUnshare() {
-        morty().get("/fga/todos/todo-2").then().statusCode(403);
-        rick().put("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
-        morty().get("/fga/todos/todo-2").then().statusCode(200);
-        rick().delete("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
-        morty().get("/fga/todos/todo-2").then().statusCode(403);
+        morty().get("/fga/todos/todo-3").then().statusCode(403);
+        rick().put("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-3").then().statusCode(200);
+        rick().delete("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-3").then().statusCode(403);
     }
 
     @Test
