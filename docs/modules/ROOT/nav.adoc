@@ -1,5 +1,6 @@
 * xref:index.adoc[Quarkus Topaz]
 * xref:client.adoc[Client]
+* xref:security.adoc[Security]
 * xref:dev-services.adoc[Dev Services]
 * xref:health-and-tracing.adoc[Health and tracing]
 * xref:dev-ui.adoc[Dev UI]

@@ -1,0 +1,312 @@
+= Security
+include::./includes/attributes.adoc[]
+
+`quarkus-topaz-security` enforces Topaz decisions in a Quarkus application. It offers four enforcement points, which
+all fail closed:
+
+* a named HTTP security policy, `topaz`, applied to routes;
+* the `@TopazAuthorize` interceptor, which evaluates a Rego policy before a CDI bean method runs;
+* the `@TopazCheck` interceptor, which checks a directory relation before a CDI bean method runs;
+* an opt-in bridge from `@PermissionsAllowed` to Topaz policies and relations.
+
+Topaz decides; it does not authenticate. Configure an authentication mechanism (OIDC, JWT, basic, ...) first. In
+particular, Topaz does not validate a JWT it receives: it only reads its `sub` claim.
+
+== Installation
+
+Add the security artifact. It brings `quarkus-topaz` (the client and the Dev Service) with it.
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>org.sitenetsoft</groupId>
+    <artifactId>quarkus-topaz-security</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+The extension works with or without `quarkus-rest`, which it does not bring in (it is a `provided` dependency). With
+Quarkus REST, the policy path and the resource context are derived from the matched resource method; without it, from
+the raw request path, and `@TopazAuthorize` needs an explicit `path`.
+
+== Route-level enforcement
+
+Bind the `topaz` policy to paths in `application.properties`:
+
+[source,properties]
+----
+quarkus.topaz.enforcement.policy-root=todoApp
+quarkus.http.auth.permission.secured.paths=/secured/*
+quarkus.http.auth.permission.secured.policy=topaz
+quarkus.http.auth.permission.secured.applies-to=jaxrs
+----
+
+or on a Quarkus REST resource class or method:
+
+[source,java]
+----
+@Path("/secured/todos")
+@AuthorizationPolicy(name = "topaz")
+public class SecuredTodoResource {
+    ...
+}
+----
+
+Each request on a bound route is evaluated against a Rego package named after the request. The configured decision
+(`allowed` by default) must be `true`; anything else is a 403.
+
+Use `applies-to=jaxrs` with Quarkus REST. Without it the policy runs before the request is matched to a resource
+method, so no path template is known: the raw request path is mapped, path parameters end up literally in the policy
+path, Topaz finds no such policy, and the request is denied with a WARN log naming the path.
+`@AuthorizationPolicy` always runs after matching.
+
+The application fails to start when the `topaz` policy is bound, by configuration or annotation, and
+`quarkus.topaz.enforcement.policy-root` is not set.
+
+=== Policy paths
+
+The default `PolicyPathMapper` builds `<policy-root>.<METHOD>.<path>`: each `/` becomes `.`, and a template
+parameter `+{name}+` (or `+{name:regex}+`) becomes `+__name+`. After matching, the path is the full JAX-RS template
+of the resource method (class `@Path` joined with method `@Path`); before matching, it is the request path with
+`quarkus.http.root-path` removed. With `policy-root=todoApp`:
+
+[cols="2,2,3"]
+|===
+|Request |Mode |Policy path
+
+|`GET /secured/todos` |`applies-to=jaxrs` or `@AuthorizationPolicy` |`todoApp.GET.secured.todos`
+|`DELETE /secured/todos/todo-1` on `+@Path("{id}")+` |`applies-to=jaxrs` or `@AuthorizationPolicy`
+|`+todoApp.DELETE.secured.todos.__id+`
+|`DELETE /secured/todos/todo-1` |before matching (no `applies-to=jaxrs`) |`todoApp.DELETE.secured.todos.todo-1`:
+no such policy, denied
+|===
+
+The matching Rego package for the delete route, from this repository's `integration-tests`:
+
+[source,rego]
+----
+package todoApp.DELETE.secured.todos.__id
+
+import future.keywords.if
+
+default allowed = false
+
+allowed if {
+	ds.check({
+		"object_type": "todo",
+		"object_id": input.resource.id,
+		"relation": "owner",
+		"subject_type": "user",
+		"subject_id": input.user.id,
+	})
+}
+----
+
+=== Identity
+
+The default `IdentityMapper` turns the Quarkus `SecurityIdentity` into the identity context sent to Topaz:
+
+[cols="2,2,3"]
+|===
+|Caller |Identity context |Notes
+
+|Anonymous |`IDENTITY_TYPE_NONE` |Only with `quarkus.topaz.enforcement.anonymous=evaluate`. With the default, `deny`,
+an anonymous request gets 401 before any call to Topaz.
+|Identity carrying a `TokenCredential` (OIDC, JWT) |`IDENTITY_TYPE_JWT` with the raw token |Topaz reads the `sub`
+claim and does not validate the token.
+|Any other identity |`IDENTITY_TYPE_SUB` with the principal name |
+|===
+
+For `SUB` and `JWT`, Topaz resolves the caller through the directory: an `identity` object whose id is the subject,
+with an `identifier` relation to a `user`. The policy sees that user as `input.user`. Users must exist in the directory;
+an unknown user is a Topaz `NOT_FOUND` error (E30017), and the request is denied. The `integration-tests` manifest
+declares:
+
+[source,yaml]
+----
+types:
+  user: {}
+  identity:
+    relations:
+      identifier: user
+----
+
+=== Resource context
+
+The default `ResourceContextMapper` sends the path parameters of the matched resource method, then the query
+parameters (a single value as a string, repeated values as a list), as `input.resource`. A path parameter wins over a
+query parameter of the same name. Before matching there are no path parameters.
+
+=== Decisions and failures
+
+`quarkus.topaz.enforcement.decision` names the decision that must be `true`. `additional-decisions` are requested in
+the same call; when that list is not empty, a permitted identity carries the attribute `topaz.decisions`, a
+`Map<String, Boolean>` of every returned decision:
+
+[source,java]
+----
+@Inject
+SecurityIdentity identity;
+
+Map<String, Boolean> decisions = identity.getAttribute("topaz.decisions"); // e.g. {allowed=true, visible=true}
+----
+
+`quarkus.topaz.enforcement.timeout` (5s by default) bounds the whole evaluation, including the mappers. A Topaz error,
+a timeout, an unknown user, an unknown policy path, a response without the decision, or a failing mapper denies the
+request and logs a WARN naming the policy path. An error never permits.
+
+== `@TopazAuthorize`
+
+`@TopazAuthorize` evaluates a policy before a CDI bean method runs (or every business method, on a class):
+
+[source,java]
+----
+@GET
+@Path("todos")
+@TopazAuthorize(path = "todoApp.GET.todos")
+public List<String> list() { ... }
+
+@PUT
+@Path("todos/{id}")
+@TopazAuthorize(decision = "allowed", decisions = { "audited" })
+public Todo update(@PathParam("id") String id, @TopazResource("todo") Todo todo) { ... }
+----
+
+* `path`: the policy path. When empty it is derived from the current request with the `PolicyPathMapper`, which
+requires a JAX-RS resource (a class annotated `@Path`, checked at build time) and
+`quarkus.topaz.enforcement.policy-root` (checked at startup).
+* `decision`: the decision that must be `true`; empty means `quarkus.topaz.enforcement.decision`.
+* `decisions`: further decisions to request; empty means `quarkus.topaz.enforcement.additional-decisions`.
+
+The resource context is the `ResourceContextMapper` output for the current request (empty outside one), overlaid with
+the arguments annotated `@TopazResource("key")`. An argument is converted with Jackson: strings, numbers, booleans,
+maps and lists pass through, other objects become maps of their properties. It replaces a mapper key of the same name.
+
+A deny, an error or a timeout is a 403 (`ForbiddenException`); an anonymous caller is a 401 unless
+`anonymous=evaluate`. A method returning `Uni` or `Multi` is checked on subscription. Any other method, including one
+returning `CompletionStage`, waits for the decision, so it must run on a worker thread; on the event loop it fails
+with `IllegalStateException`.
+
+== `@TopazCheck`
+
+`@TopazCheck` checks a directory relation (or permission) between the caller and an object before a CDI bean method
+runs:
+
+[source,java]
+----
+@DELETE
+@Path("todos/{id}")
+@TopazCheck(objectType = "todo", relation = "owner")
+public void delete(@TopazObjectId @PathParam("id") String id) { ... }
+
+@TopazCheck(objectType = "todo", relation = "can_delete")
+public void archive(TodoRef ref) { ... }   // TodoRef has a field or getter annotated @TopazObjectId
+----
+
+The subject is the caller mapped by the `SubjectMapper`, with type `subjectType` (`user` by default). The object id is
+`objectId` when set; otherwise the argument annotated `@TopazObjectId`; otherwise the `@TopazObjectId` field or
+getter of the first argument whose declared parameter type (or a superclass of it) declares one. The value is
+converted with `toString()`.
+
+An anonymous caller is always a 401, whatever `anonymous` says: a relation check needs a subject. A failed check, a
+directory error or a timeout is a 403. So is a misconfiguration found at call time (no object id source,
+`@TopazObjectId` on two parameters, a null or blank id), with a WARN. Dispatch on `Uni`, `Multi` and blocking methods
+is as for `@TopazAuthorize`.
+
+Both interceptors run at priority `Interceptor.Priority.PLATFORM_BEFORE + 210`, after the Quarkus security
+interceptors (`@RolesAllowed`, `@Authenticated`, ...).
+
+== `@PermissionsAllowed` bridge
+
+With `quarkus.topaz.enforcement.permissions.enabled=true` (build time, off by default), `@PermissionsAllowed` is
+answered by Topaz for every authenticated identity:
+
+[source,java]
+----
+@GET
+@PermissionsAllowed("todoApp.GET.todos")
+public List<String> list() { ... }
+
+@DELETE
+@Path("{id}")
+@PermissionsAllowed(value = "todo#owner", permission = TopazRelation.class, params = "id")
+public void delete(@PathParam("id") String id) { ... }
+----
+
+* A plain permission name (a `StringPermission`) is evaluated as a policy path, with the configured decision and an
+empty resource context. Policy paths are not checked against `policy-root`.
+* A `TopazRelation` is a directory check. Its name is `objectType#relation` or `objectType#relation@subjectType`
+(subject type `user` by default). Its object id is its constructor parameter `id`, which Quarkus matches by name: the
+secured method needs a parameter named `id`, or `params` names the parameter (or a `param.property` expression whose
+last segment is `id`) that supplies it. A malformed name or a missing id is a 403.
+
+Anonymous callers are not augmented, so they get a 401. An error or a timeout denies. Quarkus grants a permission when
+any permission held by the identity implies it, so a `StringPermission` of the same name granted by another
+`SecurityIdentityAugmentor` (or by role mapping) bypasses Topaz for that name. A `TopazRelation` cannot be bypassed:
+its `implies` is always `false`, so only the Topaz check grants it.
+
+== Customizing
+
+Each step is a CDI bean of an interface in `org.sitenetsoft.quarkus.topaz.security`. The defaults are `@DefaultBean`,
+so a bean of the interface in the application replaces them:
+
+[cols="1,3"]
+|===
+|Interface |Default
+
+|`IdentityMapper` |Anonymous → `IDENTITY_TYPE_NONE`, `TokenCredential` → `IDENTITY_TYPE_JWT`, otherwise
+`IDENTITY_TYPE_SUB` with the principal name.
+|`PolicyPathMapper` |`<policy-root>.<METHOD>.<path>`, see <<policy-paths>>.
+|`ResourceContextMapper` |Path parameters, then query parameters; a path parameter wins.
+|`SubjectMapper` |The subject for `@TopazCheck` and `TopazRelation`: the JWT `sub` claim when the principal is a
+MicroProfile `JsonWebToken`, the principal name otherwise. A token without `sub` is rejected (401 from
+`@TopazCheck`, 403 from the bridge).
+|`ResourceMethodInfoResolver` |The matched Quarkus REST resource method (HTTP method, full path template, path
+parameters); nothing without Quarkus REST or before matching.
+|`DecisionCache` |Caches nothing.
+|===
+
+[source,java]
+----
+@Singleton
+public class TenantPolicyPathMapper implements PolicyPathMapper {
+
+    @Override
+    public String map(RoutingContext request, Optional<ResourceMethodInfo> method) {
+        String tenant = request.request().getHeader("X-Tenant");
+        return "tenants." + tenant + "." + request.request().method().name();
+    }
+}
+----
+
+A mapper that fails, returns `null` or exceeds the timeout denies the request. Set
+`quarkus.topaz.enforcement.read-body=true` when a custom mapper reads the request body; it installs the body handler
+so that `RoutingContext.body()` is available. The default mappers do not read the body.
+
+=== Decision cache
+
+`DecisionCache` has `get(key)` and `put(key, allowed)`. Keys have the form
+`identityType|identity|policyPath|decision|resourceJson`. Only successful decisions are stored; errors are never
+cached. The cache applies to the route policy, `@TopazAuthorize` and plain `@PermissionsAllowed` names, not to
+relation checks. Any expiry and size bounds are up to the implementation.
+
+== Configuration
+
+[cols="2,3"]
+|===
+|Property |Meaning
+
+|`quarkus.topaz.enforcement.policy-root` |The Rego package prefix of derived policy paths. Required at startup when
+the `topaz` policy is bound or a `@TopazAuthorize` without `path` exists.
+|`quarkus.topaz.enforcement.decision` |The decision that must be `true`. Default `allowed`.
+|`quarkus.topaz.enforcement.additional-decisions` |Further decisions requested in the same call; exposed as the
+`topaz.decisions` attribute by the route policy.
+|`quarkus.topaz.enforcement.anonymous` |`deny` (default): 401 without a call. `evaluate`: evaluated as
+`IDENTITY_TYPE_NONE`. `@TopazCheck` always rejects anonymous callers.
+|`quarkus.topaz.enforcement.timeout` |Deadline of one evaluation, mappers included. Default `5s`.
+|`quarkus.topaz.enforcement.read-body` |Build time. Installs the body handler for custom mappers. Default `false`.
+|`quarkus.topaz.enforcement.permissions.enabled` |Build time. Enables the `@PermissionsAllowed` bridge. Default
+`false`.
+|===
+
+The full reference is in xref:configuration.adoc[Configuration reference].

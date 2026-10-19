@@ -1,9 +1,17 @@
 = Configuration reference
 
 Runtime properties configure the connection to Topaz. Properties marked with a lock are fixed at build time: the
-health check switch and the Dev Service settings.
+health check switch, the Dev Service settings, and the security `read-body` and `permissions.enabled` switches.
 
 `api-key`, `tls-configuration-name`, `plain-text` and `deadline` can be set once under `quarkus.topaz.*` and
 overridden per service under `quarkus.topaz.authorizer.*` or `quarkus.topaz.directory.*`.
 
+== Client, Dev Service and health
+
 include::includes/quarkus-topaz.adoc[leveloffset=+1]
+
+== Security
+
+The `quarkus.topaz.enforcement.*` properties come from `quarkus-topaz-security`; see xref:security.adoc[Security].
+
+include::includes/quarkus-topaz-security.adoc[leveloffset=+1]

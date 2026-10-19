@@ -20,6 +20,16 @@ Gradle:
 implementation 'org.sitenetsoft:quarkus-topaz:0.1.0-SNAPSHOT'
 ```
 
+Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP security policy for routes (policy paths derived from the request, e.g. `todoApp.DELETE.todos.__id`), `@TopazAuthorize` and `@TopazCheck` interceptors for CDI bean methods, and an opt-in `@PermissionsAllowed` bridge. Every error denies. See [Security](docs/modules/ROOT/pages/security.adoc).
+
+```xml
+<dependency>
+    <groupId>org.sitenetsoft</groupId>
+    <artifactId>quarkus-topaz-security</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
 ## Quick start
 
 Put a Rego policy, a directory manifest and seed data under `src/main/resources/topaz/` and point the Dev Service at them:
