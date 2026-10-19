@@ -29,6 +29,11 @@
       <artifactId>quarkus-topaz-security-deployment</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.sitenetsoft</groupId>
+      <artifactId>quarkus-topaz-zanzibar-deployment</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
