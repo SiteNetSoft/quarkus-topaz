@@ -21,8 +21,9 @@ import jakarta.interceptor.InterceptorBinding;
  * The resource context is the {@link ResourceContextMapper} output for the current HTTP request (empty outside one),
  * overlaid with the method arguments annotated {@link TopazResource}.
  * <p>
- * A method returning {@code Uni} or {@code Multi} is checked on subscription. Any other method blocks until the decision
- * arrives, so it must run on a worker thread; on the event loop it fails with {@code IllegalStateException}.
+ * A method returning {@code Uni} or {@code Multi} is checked on subscription. Any other method, including one returning
+ * {@code CompletionStage}, is treated as blocking: it waits for the decision before running, so it must run on a worker
+ * thread; on the event loop it fails with {@code IllegalStateException}.
  */
 @InterceptorBinding
 @Inherited
@@ -45,8 +46,8 @@ public @interface TopazAuthorize {
     String decision() default "";
 
     /**
-     * Further decisions to request alongside {@link #decision()}. Empty means
-     * {@code quarkus.topaz.enforcement.additional-decisions}.
+     * Further decisions to request alongside {@link #decision()}. When empty, the configured
+     * {@code quarkus.topaz.enforcement.additional-decisions} are requested instead.
      */
     @Nonbinding
     String[] decisions() default {};

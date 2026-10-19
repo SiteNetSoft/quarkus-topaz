@@ -10,6 +10,9 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class SecuredService {
 
+    public record TodoRef(String id, String note) {
+    }
+
     @TopazAuthorize(path = "todoApp.DELETE.todos.__id")
     public Uni<String> deleteReactive(@TopazResource("id") String id) {
         return Uni.createFrom().item("deleted " + id);
@@ -18,6 +21,11 @@ public class SecuredService {
     @TopazAuthorize(path = "todoApp.DELETE.todos.__id")
     public String deleteBlocking(@TopazResource("id") String id) {
         return "deleted " + id;
+    }
+
+    @TopazAuthorize(path = "todoApp.DELETE.todos.ref")
+    public String deleteRef(@TopazResource("todo") TodoRef ref) {
+        return "deleted " + ref.id();
     }
 
     @TopazAuthorize(path = "todoApp.GET.todos", decision = "allowed")

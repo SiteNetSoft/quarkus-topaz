@@ -71,14 +71,13 @@ public class TopazAuthorizeInterceptor {
         Uni<SecurityIdentity> identity = support.identity();
         Object[] args = ctx.getParameters();
         Method method = ctx.getMethod();
-        Uni<Void> check = identity.chain(id -> {
+        // failClosed covers the identity lookup too: a failing or hanging identity denies within the timeout
+        Uni<Void> check = InterceptorSupport.failClosed(identity.chain(id -> {
             if (id.isAnonymous() && config.anonymous() == TopazEnforcementConfig.Anonymous.DENY) {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
-            return InterceptorSupport.failClosed(
-                    Uni.createFrom().deferred(() -> authorize(binding, id, request, method, args)),
-                    method.getDeclaringClass().getName() + "#" + method.getName(), config.timeout());
-        });
+            return authorize(binding, id, request, method, args);
+        }), method.getDeclaringClass().getName() + "#" + method.getName(), config.timeout());
         return InterceptorSupport.dispatch(ctx, check, config.timeout());
     }
 
