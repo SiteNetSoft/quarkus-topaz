@@ -1,5 +1,6 @@
 package org.sitenetsoft.quarkus.topaz.security.runtime;
 
+import java.util.Locale;
 import java.util.StringJoiner;
 
 /**
@@ -15,12 +16,12 @@ public final class PolicyPaths {
      * {@code {name:regex}} become {@code __name}; leading, trailing and empty segments are dropped.
      *
      * @param root the policy root, e.g. {@code todoApp}
-     * @param httpMethod the HTTP method, e.g. {@code GET}
+     * @param httpMethod the HTTP method, e.g. {@code GET}; upper-cased
      * @param path a path or path template, e.g. {@code /todos/{id}}
      * @return the policy path, e.g. {@code todoApp.GET.todos.__id}
      */
     public static String of(String root, String httpMethod, String path) {
-        StringJoiner joined = new StringJoiner(".").add(root).add(httpMethod);
+        StringJoiner joined = new StringJoiner(".").add(root).add(httpMethod.toUpperCase(Locale.ROOT));
         for (String segment : path.split("/")) {
             String s = segment.trim();
             if (s.isEmpty()) {

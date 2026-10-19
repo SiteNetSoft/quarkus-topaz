@@ -60,7 +60,6 @@ class DefaultResourceContextMapperTest {
         HttpServerRequest request = mock(HttpServerRequest.class);
         when(ctx.request()).thenReturn(request);
         when(ctx.queryParams()).thenReturn(query);
-        when(request.params()).thenReturn(query);
         return ctx;
     }
 }
