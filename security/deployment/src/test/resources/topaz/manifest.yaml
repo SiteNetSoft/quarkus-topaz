@@ -1,0 +1,13 @@
+model:
+  version: 3
+types:
+  user: {}
+  # Topaz resolves an IDENTITY_TYPE_SUB caller through identity:<sub>#identifier@user:<id>
+  identity:
+    relations:
+      identifier: user
+  todo:
+    relations:
+      owner: user
+    permissions:
+      can_delete: owner
