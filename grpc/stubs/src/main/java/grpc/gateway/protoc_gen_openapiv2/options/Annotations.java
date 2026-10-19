@@ -43,7 +43,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.FileOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.FileOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Swagger> openapiv2Swagger = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Swagger.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Swagger.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.FileOptions, grpc.gateway.protoc_gen_openapiv2.options.Swagger> openapiv2Swagger = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Swagger.class, grpc.gateway.protoc_gen_openapiv2.options.Swagger.getDefaultInstance());
 
     public static final int OPENAPIV2_OPERATION_FIELD_NUMBER = 1042;
 
@@ -57,7 +57,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.MethodOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.MethodOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Operation> openapiv2Operation = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Operation.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Operation.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.MethodOptions, grpc.gateway.protoc_gen_openapiv2.options.Operation> openapiv2Operation = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Operation.class, grpc.gateway.protoc_gen_openapiv2.options.Operation.getDefaultInstance());
 
     public static final int OPENAPIV2_SCHEMA_FIELD_NUMBER = 1042;
 
@@ -71,7 +71,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.MessageOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.MessageOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Schema> openapiv2Schema = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Schema.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Schema.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.MessageOptions, grpc.gateway.protoc_gen_openapiv2.options.Schema> openapiv2Schema = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Schema.class, grpc.gateway.protoc_gen_openapiv2.options.Schema.getDefaultInstance());
 
     public static final int OPENAPIV2_ENUM_FIELD_NUMBER = 1042;
 
@@ -85,7 +85,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.EnumOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.EnumOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.EnumSchema> openapiv2Enum = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.EnumSchema.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.EnumSchema.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.EnumOptions, grpc.gateway.protoc_gen_openapiv2.options.EnumSchema> openapiv2Enum = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.EnumSchema.class, grpc.gateway.protoc_gen_openapiv2.options.EnumSchema.getDefaultInstance());
 
     public static final int OPENAPIV2_TAG_FIELD_NUMBER = 1042;
 
@@ -99,7 +99,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.ServiceOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.ServiceOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Tag> openapiv2Tag = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Tag.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.Tag.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.ServiceOptions, grpc.gateway.protoc_gen_openapiv2.options.Tag> openapiv2Tag = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Tag.class, grpc.gateway.protoc_gen_openapiv2.options.Tag.getDefaultInstance());
 
     public static final int OPENAPIV2_FIELD_FIELD_NUMBER = 1042;
 
@@ -113,7 +113,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
      *
      * <code>extend .google.protobuf.FieldOptions { ... }</code>
      */
-    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.FieldOptions, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.JSONSchema> openapiv2Field = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.JSONSchema.class, grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.JSONSchema.getDefaultInstance());
+    public static final com.google.protobuf.GeneratedMessage.GeneratedExtension<com.google.protobuf.DescriptorProtos.FieldOptions, grpc.gateway.protoc_gen_openapiv2.options.JSONSchema> openapiv2Field = com.google.protobuf.GeneratedMessage.newFileScopedGeneratedExtension(grpc.gateway.protoc_gen_openapiv2.options.JSONSchema.class, grpc.gateway.protoc_gen_openapiv2.options.JSONSchema.getDefaultInstance());
 
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
         return descriptor;
@@ -122,7 +122,7 @@ public final class Annotations extends com.google.protobuf.GeneratedFile {
     private static final com.google.protobuf.Descriptors.FileDescriptor descriptor;
 
     static {
-        java.lang.String[] descriptorData = { "\n.protoc-gen-openapiv2/options/annotatio" + "ns.proto\022)grpc.gateway.protoc_gen_openap" + "iv2.options\032 google/protobuf/descriptor." + "proto\032,protoc-gen-openapiv2/options/open" + "apiv2.proto:l\n\021openapiv2_swagger\022\034.googl" + "e.protobuf.FileOptions\030\222\010 \001(\01322.grpc.gat" + "eway.protoc_gen_openapiv2.options.Swagge" + "r:r\n\023openapiv2_operation\022\036.google.protob" + "uf.MethodOptions\030\222\010 \001(\01324.grpc.gateway.p" + "rotoc_gen_openapiv2.options.Operation:m\n" + "\020openapiv2_schema\022\037.google.protobuf.Mess" + "ageOptions\030\222\010 \001(\01321.grpc.gateway.protoc_" + "gen_openapiv2.options.Schema:l\n\016openapiv" + "2_enum\022\034.google.protobuf.EnumOptions\030\222\010 " + "\001(\01325.grpc.gateway.protoc_gen_openapiv2." + "options.EnumSchema:g\n\ropenapiv2_tag\022\037.go" + "ogle.protobuf.ServiceOptions\030\222\010 \001(\0132..gr" + "pc.gateway.protoc_gen_openapiv2.options." + "Tag:n\n\017openapiv2_field\022\035.google.protobuf" + ".FieldOptions\030\222\010 \001(\01325.grpc.gateway.prot" + "oc_gen_openapiv2.options.JSONSchemaBHZFg" + "ithub.com/grpc-ecosystem/grpc-gateway/v2" + "/protoc-gen-openapiv2/optionsb\006proto3" };
+        java.lang.String[] descriptorData = { "\n.protoc-gen-openapiv2/options/annotatio" + "ns.proto\022)grpc.gateway.protoc_gen_openap" + "iv2.options\032 google/protobuf/descriptor." + "proto\032,protoc-gen-openapiv2/options/open" + "apiv2.proto:l\n\021openapiv2_swagger\022\034.googl" + "e.protobuf.FileOptions\030\222\010 \001(\01322.grpc.gat" + "eway.protoc_gen_openapiv2.options.Swagge" + "r:r\n\023openapiv2_operation\022\036.google.protob" + "uf.MethodOptions\030\222\010 \001(\01324.grpc.gateway.p" + "rotoc_gen_openapiv2.options.Operation:m\n" + "\020openapiv2_schema\022\037.google.protobuf.Mess" + "ageOptions\030\222\010 \001(\01321.grpc.gateway.protoc_" + "gen_openapiv2.options.Schema:l\n\016openapiv" + "2_enum\022\034.google.protobuf.EnumOptions\030\222\010 " + "\001(\01325.grpc.gateway.protoc_gen_openapiv2." + "options.EnumSchema:g\n\ropenapiv2_tag\022\037.go" + "ogle.protobuf.ServiceOptions\030\222\010 \001(\0132..gr" + "pc.gateway.protoc_gen_openapiv2.options." + "Tag:n\n\017openapiv2_field\022\035.google.protobuf" + ".FieldOptions\030\222\010 \001(\01325.grpc.gateway.prot" + "oc_gen_openapiv2.options.JSONSchemaBJP\001Z" + "Fgithub.com/grpc-ecosystem/grpc-gateway/" + "v2/protoc-gen-openapiv2/optionsb\006proto3" };
         descriptor = com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData, new com.google.protobuf.Descriptors.FileDescriptor[] { com.google.protobuf.DescriptorProtos.getDescriptor(), grpc.gateway.protoc_gen_openapiv2.options.Openapiv2.getDescriptor() });
         openapiv2Swagger.internalInit(descriptor.getExtension(0));
         openapiv2Operation.internalInit(descriptor.getExtension(1));

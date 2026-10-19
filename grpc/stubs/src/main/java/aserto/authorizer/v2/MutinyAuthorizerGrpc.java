@@ -35,31 +35,31 @@ public final class MutinyAuthorizerGrpc implements io.quarkus.grpc.MutinyGrpc {
             return new MutinyAuthorizerStub(channel, callOptions);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::decisionTree);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.IsResponse> is(aserto.authorizer.v2.IsRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::is);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.QueryResponse> query(aserto.authorizer.v2.QueryRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::query);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.CompileResponse> compile(aserto.authorizer.v2.CompileRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::compile);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::listPolicies);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.GetPolicyResponse> getPolicy(aserto.authorizer.v2.GetPolicyRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getPolicy);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.InfoResponse> info(aserto.authorizer.v2.InfoRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::info);
         }
     }
@@ -78,37 +78,37 @@ public final class MutinyAuthorizerGrpc implements io.quarkus.grpc.MutinyGrpc {
             return this;
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.IsResponse> is(aserto.authorizer.v2.IsRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.QueryResponse> query(aserto.authorizer.v2.QueryRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.CompileResponse> compile(aserto.authorizer.v2.CompileRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.GetPolicyResponse> getPolicy(aserto.authorizer.v2.GetPolicyRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
-        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.authorizer.v2.InfoResponse> info(aserto.authorizer.v2.InfoRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getDecisionTreeMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest, aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse>(this, METHODID_DECISION_TREE, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getIsMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.IsRequest, aserto.authorizer.v2.AuthorizerOuterClass.IsResponse>(this, METHODID_IS, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getQueryMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest, aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse>(this, METHODID_QUERY, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getCompileMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest, aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse>(this, METHODID_COMPILE, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getListPoliciesMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest, aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse>(this, METHODID_LIST_POLICIES, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getGetPolicyMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest, aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse>(this, METHODID_GET_POLICY, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getInfoMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest, aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse>(this, METHODID_INFO, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getDecisionTreeMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.DecisionTreeRequest, aserto.authorizer.v2.DecisionTreeResponse>(this, METHODID_DECISION_TREE, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getIsMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.IsRequest, aserto.authorizer.v2.IsResponse>(this, METHODID_IS, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getQueryMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.QueryRequest, aserto.authorizer.v2.QueryResponse>(this, METHODID_QUERY, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getCompileMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.CompileRequest, aserto.authorizer.v2.CompileResponse>(this, METHODID_COMPILE, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getListPoliciesMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.ListPoliciesRequest, aserto.authorizer.v2.ListPoliciesResponse>(this, METHODID_LIST_POLICIES, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getGetPolicyMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.GetPolicyRequest, aserto.authorizer.v2.GetPolicyResponse>(this, METHODID_GET_POLICY, compression))).addMethod(aserto.authorizer.v2.AuthorizerGrpc.getInfoMethod(), asyncUnaryCall(new MethodHandlers<aserto.authorizer.v2.InfoRequest, aserto.authorizer.v2.InfoResponse>(this, METHODID_INFO, compression))).build();
         }
     }
 
@@ -145,25 +145,25 @@ public final class MutinyAuthorizerGrpc implements io.quarkus.grpc.MutinyGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_DECISION_TREE:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse>) responseObserver, compression, serviceImpl::decisionTree);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.DecisionTreeRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.DecisionTreeResponse>) responseObserver, compression, serviceImpl::decisionTree);
                     break;
                 case METHODID_IS:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.IsRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse>) responseObserver, compression, serviceImpl::is);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.IsRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.IsResponse>) responseObserver, compression, serviceImpl::is);
                     break;
                 case METHODID_QUERY:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse>) responseObserver, compression, serviceImpl::query);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.QueryRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.QueryResponse>) responseObserver, compression, serviceImpl::query);
                     break;
                 case METHODID_COMPILE:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse>) responseObserver, compression, serviceImpl::compile);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.CompileRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.CompileResponse>) responseObserver, compression, serviceImpl::compile);
                     break;
                 case METHODID_LIST_POLICIES:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse>) responseObserver, compression, serviceImpl::listPolicies);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.ListPoliciesRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.ListPoliciesResponse>) responseObserver, compression, serviceImpl::listPolicies);
                     break;
                 case METHODID_GET_POLICY:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse>) responseObserver, compression, serviceImpl::getPolicy);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.GetPolicyRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.GetPolicyResponse>) responseObserver, compression, serviceImpl::getPolicy);
                     break;
                 case METHODID_INFO:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse>) responseObserver, compression, serviceImpl::info);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.authorizer.v2.InfoRequest) request, (io.grpc.stub.StreamObserver<aserto.authorizer.v2.InfoResponse>) responseObserver, compression, serviceImpl::info);
                     break;
                 default:
                     throw new java.lang.AssertionError();

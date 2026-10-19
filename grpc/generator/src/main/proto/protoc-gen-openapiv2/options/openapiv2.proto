@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package grpc.gateway.protoc_gen_openapiv2.options;
+option java_multiple_files = true;
 
 import "google/protobuf/struct.proto";
 

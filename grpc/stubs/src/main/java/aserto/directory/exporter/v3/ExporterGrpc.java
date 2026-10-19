@@ -13,15 +13,15 @@ public final class ExporterGrpc {
     public static final java.lang.String SERVICE_NAME = "aserto.directory.exporter.v3.Exporter";
 
     // Static method descriptors that strictly reflect the proto.
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> getExportMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse> getExportMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Export", requestType = aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest.class, responseType = aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
-    public static io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> getExportMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> getExportMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "Export", requestType = aserto.directory.exporter.v3.ExportRequest.class, responseType = aserto.directory.exporter.v3.ExportResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+    public static io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse> getExportMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse> getExportMethod;
         if ((getExportMethod = ExporterGrpc.getExportMethod) == null) {
             synchronized (ExporterGrpc.class) {
                 if ((getExportMethod = ExporterGrpc.getExportMethod) == null) {
-                    ExporterGrpc.getExportMethod = getExportMethod = io.grpc.MethodDescriptor.<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Export")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse.getDefaultInstance())).setSchemaDescriptor(new ExporterMethodDescriptorSupplier("Export")).build();
+                    ExporterGrpc.getExportMethod = getExportMethod = io.grpc.MethodDescriptor.<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING).setFullMethodName(generateFullMethodName(SERVICE_NAME, "Export")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.exporter.v3.ExportRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.exporter.v3.ExportResponse.getDefaultInstance())).setSchemaDescriptor(new ExporterMethodDescriptorSupplier("Export")).build();
                 }
             }
         }
@@ -93,7 +93,7 @@ public final class ExporterGrpc {
          * export objects and relations as a stream
          * </pre>
          */
-        default void export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request, io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> responseObserver) {
+        default void export(aserto.directory.exporter.v3.ExportRequest request, io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExportResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getExportMethod(), responseObserver);
         }
     }
@@ -128,7 +128,7 @@ public final class ExporterGrpc {
          * export objects and relations as a stream
          * </pre>
          */
-        public void export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request, io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> responseObserver) {
+        public void export(aserto.directory.exporter.v3.ExportRequest request, io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExportResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncServerStreamingCall(getChannel().newCall(getExportMethod(), getCallOptions()), request, responseObserver);
         }
     }
@@ -153,7 +153,7 @@ public final class ExporterGrpc {
          * </pre>
          */
         @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
-        public io.grpc.stub.BlockingClientCall<?, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request) {
+        public io.grpc.stub.BlockingClientCall<?, aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request) {
             return io.grpc.stub.ClientCalls.blockingV2ServerStreamingCall(getChannel(), getExportMethod(), getCallOptions(), request);
         }
     }
@@ -177,7 +177,7 @@ public final class ExporterGrpc {
          * export objects and relations as a stream
          * </pre>
          */
-        public java.util.Iterator<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request) {
+        public java.util.Iterator<aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request) {
             return io.grpc.stub.ClientCalls.blockingServerStreamingCall(getChannel(), getExportMethod(), getCallOptions(), request);
         }
     }
@@ -215,7 +215,7 @@ public final class ExporterGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_EXPORT:
-                    serviceImpl.export((aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse>) responseObserver);
+                    serviceImpl.export((aserto.directory.exporter.v3.ExportRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExportResponse>) responseObserver);
                     break;
                 default:
                     throw new AssertionError();
@@ -233,7 +233,7 @@ public final class ExporterGrpc {
     }
 
     public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getExportMethod(), io.grpc.stub.ServerCalls.asyncServerStreamingCall(new MethodHandlers<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse>(service, METHODID_EXPORT))).build();
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getExportMethod(), io.grpc.stub.ServerCalls.asyncServerStreamingCall(new MethodHandlers<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse>(service, METHODID_EXPORT))).build();
     }
 
     private static abstract class ExporterBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {

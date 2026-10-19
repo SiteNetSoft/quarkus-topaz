@@ -13,60 +13,60 @@ public final class WriterGrpc {
     public static final java.lang.String SERVICE_NAME = "aserto.directory.writer.v3.Writer";
 
     // Static method descriptors that strictly reflect the proto.
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> getSetObjectMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse> getSetObjectMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetObject", requestType = aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest.class, responseType = aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> getSetObjectMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> getSetObjectMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetObject", requestType = aserto.directory.writer.v3.SetObjectRequest.class, responseType = aserto.directory.writer.v3.SetObjectResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse> getSetObjectMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse> getSetObjectMethod;
         if ((getSetObjectMethod = WriterGrpc.getSetObjectMethod) == null) {
             synchronized (WriterGrpc.class) {
                 if ((getSetObjectMethod = WriterGrpc.getSetObjectMethod) == null) {
-                    WriterGrpc.getSetObjectMethod = getSetObjectMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetObject")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("SetObject")).build();
+                    WriterGrpc.getSetObjectMethod = getSetObjectMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetObject")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.SetObjectRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.SetObjectResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("SetObject")).build();
                 }
             }
         }
         return getSetObjectMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> getDeleteObjectMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse> getDeleteObjectMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteObject", requestType = aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest.class, responseType = aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> getDeleteObjectMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> getDeleteObjectMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteObject", requestType = aserto.directory.writer.v3.DeleteObjectRequest.class, responseType = aserto.directory.writer.v3.DeleteObjectResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse> getDeleteObjectMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse> getDeleteObjectMethod;
         if ((getDeleteObjectMethod = WriterGrpc.getDeleteObjectMethod) == null) {
             synchronized (WriterGrpc.class) {
                 if ((getDeleteObjectMethod = WriterGrpc.getDeleteObjectMethod) == null) {
-                    WriterGrpc.getDeleteObjectMethod = getDeleteObjectMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteObject")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("DeleteObject")).build();
+                    WriterGrpc.getDeleteObjectMethod = getDeleteObjectMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteObject")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.DeleteObjectRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.DeleteObjectResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("DeleteObject")).build();
                 }
             }
         }
         return getDeleteObjectMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> getSetRelationMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse> getSetRelationMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetRelation", requestType = aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest.class, responseType = aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> getSetRelationMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> getSetRelationMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "SetRelation", requestType = aserto.directory.writer.v3.SetRelationRequest.class, responseType = aserto.directory.writer.v3.SetRelationResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse> getSetRelationMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse> getSetRelationMethod;
         if ((getSetRelationMethod = WriterGrpc.getSetRelationMethod) == null) {
             synchronized (WriterGrpc.class) {
                 if ((getSetRelationMethod = WriterGrpc.getSetRelationMethod) == null) {
-                    WriterGrpc.getSetRelationMethod = getSetRelationMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetRelation")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("SetRelation")).build();
+                    WriterGrpc.getSetRelationMethod = getSetRelationMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetRelation")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.SetRelationRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.SetRelationResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("SetRelation")).build();
                 }
             }
         }
         return getSetRelationMethod;
     }
 
-    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> getDeleteRelationMethod;
+    private static volatile io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse> getDeleteRelationMethod;
 
-    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteRelation", requestType = aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest.class, responseType = aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> getDeleteRelationMethod() {
-        io.grpc.MethodDescriptor<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> getDeleteRelationMethod;
+    @io.grpc.stub.annotations.RpcMethod(fullMethodName = SERVICE_NAME + '/' + "DeleteRelation", requestType = aserto.directory.writer.v3.DeleteRelationRequest.class, responseType = aserto.directory.writer.v3.DeleteRelationResponse.class, methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+    public static io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse> getDeleteRelationMethod() {
+        io.grpc.MethodDescriptor<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse> getDeleteRelationMethod;
         if ((getDeleteRelationMethod = WriterGrpc.getDeleteRelationMethod) == null) {
             synchronized (WriterGrpc.class) {
                 if ((getDeleteRelationMethod = WriterGrpc.getDeleteRelationMethod) == null) {
-                    WriterGrpc.getDeleteRelationMethod = getDeleteRelationMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteRelation")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("DeleteRelation")).build();
+                    WriterGrpc.getDeleteRelationMethod = getDeleteRelationMethod = io.grpc.MethodDescriptor.<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse>newBuilder().setType(io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteRelation")).setSampledToLocalTracing(true).setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.DeleteRelationRequest.getDefaultInstance())).setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(aserto.directory.writer.v3.DeleteRelationResponse.getDefaultInstance())).setSchemaDescriptor(new WriterMethodDescriptorSupplier("DeleteRelation")).build();
                 }
             }
         }
@@ -138,7 +138,7 @@ public final class WriterGrpc {
          * set object instance
          * </pre>
          */
-        default void setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> responseObserver) {
+        default void setObject(aserto.directory.writer.v3.SetObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetObjectResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getSetObjectMethod(), responseObserver);
         }
 
@@ -147,7 +147,7 @@ public final class WriterGrpc {
          * delete object instance
          * </pre>
          */
-        default void deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> responseObserver) {
+        default void deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteObjectResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteObjectMethod(), responseObserver);
         }
 
@@ -156,7 +156,7 @@ public final class WriterGrpc {
          * set relation instance
          * </pre>
          */
-        default void setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> responseObserver) {
+        default void setRelation(aserto.directory.writer.v3.SetRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetRelationResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getSetRelationMethod(), responseObserver);
         }
 
@@ -165,7 +165,7 @@ public final class WriterGrpc {
          * delete relation instance
          * </pre>
          */
-        default void deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> responseObserver) {
+        default void deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteRelationResponse> responseObserver) {
             io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteRelationMethod(), responseObserver);
         }
     }
@@ -200,7 +200,7 @@ public final class WriterGrpc {
          * set object instance
          * </pre>
          */
-        public void setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> responseObserver) {
+        public void setObject(aserto.directory.writer.v3.SetObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetObjectResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getSetObjectMethod(), getCallOptions()), request, responseObserver);
         }
 
@@ -209,7 +209,7 @@ public final class WriterGrpc {
          * delete object instance
          * </pre>
          */
-        public void deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> responseObserver) {
+        public void deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteObjectResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getDeleteObjectMethod(), getCallOptions()), request, responseObserver);
         }
 
@@ -218,7 +218,7 @@ public final class WriterGrpc {
          * set relation instance
          * </pre>
          */
-        public void setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> responseObserver) {
+        public void setRelation(aserto.directory.writer.v3.SetRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetRelationResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getSetRelationMethod(), getCallOptions()), request, responseObserver);
         }
 
@@ -227,7 +227,7 @@ public final class WriterGrpc {
          * delete relation instance
          * </pre>
          */
-        public void deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> responseObserver) {
+        public void deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request, io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteRelationResponse> responseObserver) {
             io.grpc.stub.ClientCalls.asyncUnaryCall(getChannel().newCall(getDeleteRelationMethod(), getCallOptions()), request, responseObserver);
         }
     }
@@ -251,7 +251,7 @@ public final class WriterGrpc {
          * set object instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) throws io.grpc.StatusException {
+        public aserto.directory.writer.v3.SetObjectResponse setObject(aserto.directory.writer.v3.SetObjectRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getSetObjectMethod(), getCallOptions(), request);
         }
 
@@ -260,7 +260,7 @@ public final class WriterGrpc {
          * delete object instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) throws io.grpc.StatusException {
+        public aserto.directory.writer.v3.DeleteObjectResponse deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getDeleteObjectMethod(), getCallOptions(), request);
         }
 
@@ -269,7 +269,7 @@ public final class WriterGrpc {
          * set relation instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) throws io.grpc.StatusException {
+        public aserto.directory.writer.v3.SetRelationResponse setRelation(aserto.directory.writer.v3.SetRelationRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getSetRelationMethod(), getCallOptions(), request);
         }
 
@@ -278,7 +278,7 @@ public final class WriterGrpc {
          * delete relation instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) throws io.grpc.StatusException {
+        public aserto.directory.writer.v3.DeleteRelationResponse deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) throws io.grpc.StatusException {
             return io.grpc.stub.ClientCalls.blockingV2UnaryCall(getChannel(), getDeleteRelationMethod(), getCallOptions(), request);
         }
     }
@@ -302,7 +302,7 @@ public final class WriterGrpc {
          * set object instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) {
+        public aserto.directory.writer.v3.SetObjectResponse setObject(aserto.directory.writer.v3.SetObjectRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getSetObjectMethod(), getCallOptions(), request);
         }
 
@@ -311,7 +311,7 @@ public final class WriterGrpc {
          * delete object instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) {
+        public aserto.directory.writer.v3.DeleteObjectResponse deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getDeleteObjectMethod(), getCallOptions(), request);
         }
 
@@ -320,7 +320,7 @@ public final class WriterGrpc {
          * set relation instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) {
+        public aserto.directory.writer.v3.SetRelationResponse setRelation(aserto.directory.writer.v3.SetRelationRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getSetRelationMethod(), getCallOptions(), request);
         }
 
@@ -329,7 +329,7 @@ public final class WriterGrpc {
          * delete relation instance
          * </pre>
          */
-        public aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) {
+        public aserto.directory.writer.v3.DeleteRelationResponse deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) {
             return io.grpc.stub.ClientCalls.blockingUnaryCall(getChannel(), getDeleteRelationMethod(), getCallOptions(), request);
         }
     }
@@ -353,7 +353,7 @@ public final class WriterGrpc {
          * set object instance
          * </pre>
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.SetObjectResponse> setObject(aserto.directory.writer.v3.SetObjectRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getSetObjectMethod(), getCallOptions()), request);
         }
 
@@ -362,7 +362,7 @@ public final class WriterGrpc {
          * delete object instance
          * </pre>
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getDeleteObjectMethod(), getCallOptions()), request);
         }
 
@@ -371,7 +371,7 @@ public final class WriterGrpc {
          * set relation instance
          * </pre>
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.SetRelationResponse> setRelation(aserto.directory.writer.v3.SetRelationRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getSetRelationMethod(), getCallOptions()), request);
         }
 
@@ -380,7 +380,7 @@ public final class WriterGrpc {
          * delete relation instance
          * </pre>
          */
-        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) {
+        public com.google.common.util.concurrent.ListenableFuture<aserto.directory.writer.v3.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) {
             return io.grpc.stub.ClientCalls.futureUnaryCall(getChannel().newCall(getDeleteRelationMethod(), getCallOptions()), request);
         }
     }
@@ -409,16 +409,16 @@ public final class WriterGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_SET_OBJECT:
-                    serviceImpl.setObject((aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse>) responseObserver);
+                    serviceImpl.setObject((aserto.directory.writer.v3.SetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetObjectResponse>) responseObserver);
                     break;
                 case METHODID_DELETE_OBJECT:
-                    serviceImpl.deleteObject((aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse>) responseObserver);
+                    serviceImpl.deleteObject((aserto.directory.writer.v3.DeleteObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteObjectResponse>) responseObserver);
                     break;
                 case METHODID_SET_RELATION:
-                    serviceImpl.setRelation((aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse>) responseObserver);
+                    serviceImpl.setRelation((aserto.directory.writer.v3.SetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetRelationResponse>) responseObserver);
                     break;
                 case METHODID_DELETE_RELATION:
-                    serviceImpl.deleteRelation((aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse>) responseObserver);
+                    serviceImpl.deleteRelation((aserto.directory.writer.v3.DeleteRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteRelationResponse>) responseObserver);
                     break;
                 default:
                     throw new AssertionError();
@@ -436,7 +436,7 @@ public final class WriterGrpc {
     }
 
     public static io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getSetObjectMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse>(service, METHODID_SET_OBJECT))).addMethod(getDeleteObjectMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse>(service, METHODID_DELETE_OBJECT))).addMethod(getSetRelationMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse>(service, METHODID_SET_RELATION))).addMethod(getDeleteRelationMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse>(service, METHODID_DELETE_RELATION))).build();
+        return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(getSetObjectMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse>(service, METHODID_SET_OBJECT))).addMethod(getDeleteObjectMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse>(service, METHODID_DELETE_OBJECT))).addMethod(getSetRelationMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse>(service, METHODID_SET_RELATION))).addMethod(getDeleteRelationMethod(), io.grpc.stub.ServerCalls.asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse>(service, METHODID_DELETE_RELATION))).build();
     }
 
     private static abstract class WriterBaseDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {

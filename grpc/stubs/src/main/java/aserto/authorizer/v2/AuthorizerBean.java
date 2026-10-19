@@ -14,7 +14,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.AuthorizerOuterClass.DecisionTreeRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.DecisionTreeResponse> decisionTree(aserto.authorizer.v2.DecisionTreeRequest request) {
         try {
             return delegate.decisionTree(request);
         } catch (UnsupportedOperationException e) {
@@ -23,7 +23,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.IsResponse> is(aserto.authorizer.v2.AuthorizerOuterClass.IsRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.IsResponse> is(aserto.authorizer.v2.IsRequest request) {
         try {
             return delegate.is(request);
         } catch (UnsupportedOperationException e) {
@@ -32,7 +32,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.QueryResponse> query(aserto.authorizer.v2.AuthorizerOuterClass.QueryRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.QueryResponse> query(aserto.authorizer.v2.QueryRequest request) {
         try {
             return delegate.query(request);
         } catch (UnsupportedOperationException e) {
@@ -41,7 +41,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.CompileResponse> compile(aserto.authorizer.v2.AuthorizerOuterClass.CompileRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.CompileResponse> compile(aserto.authorizer.v2.CompileRequest request) {
         try {
             return delegate.compile(request);
         } catch (UnsupportedOperationException e) {
@@ -50,7 +50,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.AuthorizerOuterClass.ListPoliciesRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.ListPoliciesResponse> listPolicies(aserto.authorizer.v2.ListPoliciesRequest request) {
         try {
             return delegate.listPolicies(request);
         } catch (UnsupportedOperationException e) {
@@ -59,7 +59,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyResponse> getPolicy(aserto.authorizer.v2.AuthorizerOuterClass.GetPolicyRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.GetPolicyResponse> getPolicy(aserto.authorizer.v2.GetPolicyRequest request) {
         try {
             return delegate.getPolicy(request);
         } catch (UnsupportedOperationException e) {
@@ -68,7 +68,7 @@ public class AuthorizerBean extends MutinyAuthorizerGrpc.AuthorizerImplBase impl
     }
 
     @Override
-    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.AuthorizerOuterClass.InfoResponse> info(aserto.authorizer.v2.AuthorizerOuterClass.InfoRequest request) {
+    public io.smallrye.mutiny.Uni<aserto.authorizer.v2.InfoResponse> info(aserto.authorizer.v2.InfoRequest request) {
         try {
             return delegate.info(request);
         } catch (UnsupportedOperationException e) {

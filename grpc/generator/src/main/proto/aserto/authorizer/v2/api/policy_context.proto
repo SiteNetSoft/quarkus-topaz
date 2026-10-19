@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package aserto.authorizer.v2.api;
+option java_multiple_files = true;
 
 option csharp_namespace = "Aserto.Authorizer.V2.API";
 option go_package = "github.com/aserto-dev/go-authorizer/aserto/authorizer/v2/api;api";

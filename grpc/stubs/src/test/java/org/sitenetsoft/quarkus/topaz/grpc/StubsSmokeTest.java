@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import aserto.authorizer.v2.AuthorizerGrpc;
-import aserto.authorizer.v2.AuthorizerOuterClass.IsRequest;
+import aserto.authorizer.v2.IsRequest;
 import aserto.authorizer.v2.MutinyAuthorizerGrpc;
-import aserto.authorizer.v2.api.PolicyContextOuterClass.PolicyContext;
+import aserto.authorizer.v2.api.PolicyContext;
 import aserto.directory.exporter.v3.ExporterGrpc;
 import aserto.directory.exporter.v3.MutinyExporterGrpc;
 import aserto.directory.importer.v3.ImporterGrpc;

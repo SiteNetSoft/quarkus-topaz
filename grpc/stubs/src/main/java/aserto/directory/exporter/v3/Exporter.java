@@ -10,5 +10,5 @@ public interface Exporter extends MutinyService {
      *  export objects and relations as a stream
      * </pre>
      */
-    io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request);
+    io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request);
 }

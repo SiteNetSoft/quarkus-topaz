@@ -40,7 +40,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set object instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetObjectResponse> setObject(aserto.directory.writer.v3.SetObjectRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::setObject);
         }
 
@@ -49,7 +49,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete object instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::deleteObject);
         }
 
@@ -58,7 +58,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set relation instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetRelationResponse> setRelation(aserto.directory.writer.v3.SetRelationRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::setRelation);
         }
 
@@ -67,7 +67,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete relation instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::deleteRelation);
         }
     }
@@ -91,7 +91,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set object instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse> setObject(aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetObjectResponse> setObject(aserto.directory.writer.v3.SetObjectRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -100,7 +100,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete object instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteObjectResponse> deleteObject(aserto.directory.writer.v3.DeleteObjectRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -109,7 +109,7 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  set relation instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse> setRelation(aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.SetRelationResponse> setRelation(aserto.directory.writer.v3.SetRelationRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -118,13 +118,13 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  delete relation instance
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.writer.v3.DeleteRelationResponse> deleteRelation(aserto.directory.writer.v3.DeleteRelationRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.writer.v3.WriterGrpc.getSetObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest, aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse>(this, METHODID_SET_OBJECT, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getDeleteObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse>(this, METHODID_DELETE_OBJECT, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getSetRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest, aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse>(this, METHODID_SET_RELATION, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getDeleteRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest, aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse>(this, METHODID_DELETE_RELATION, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.writer.v3.WriterGrpc.getSetObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.SetObjectRequest, aserto.directory.writer.v3.SetObjectResponse>(this, METHODID_SET_OBJECT, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getDeleteObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.DeleteObjectRequest, aserto.directory.writer.v3.DeleteObjectResponse>(this, METHODID_DELETE_OBJECT, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getSetRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.SetRelationRequest, aserto.directory.writer.v3.SetRelationResponse>(this, METHODID_SET_RELATION, compression))).addMethod(aserto.directory.writer.v3.WriterGrpc.getDeleteRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.writer.v3.DeleteRelationRequest, aserto.directory.writer.v3.DeleteRelationResponse>(this, METHODID_DELETE_RELATION, compression))).build();
         }
     }
 
@@ -155,16 +155,16 @@ public final class MutinyWriterGrpc implements io.quarkus.grpc.MutinyGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_SET_OBJECT:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.WriterOuterClass.SetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetObjectResponse>) responseObserver, compression, serviceImpl::setObject);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.SetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetObjectResponse>) responseObserver, compression, serviceImpl::setObject);
                     break;
                 case METHODID_DELETE_OBJECT:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.WriterOuterClass.DeleteObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteObjectResponse>) responseObserver, compression, serviceImpl::deleteObject);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.DeleteObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteObjectResponse>) responseObserver, compression, serviceImpl::deleteObject);
                     break;
                 case METHODID_SET_RELATION:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.WriterOuterClass.SetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.SetRelationResponse>) responseObserver, compression, serviceImpl::setRelation);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.SetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.SetRelationResponse>) responseObserver, compression, serviceImpl::setRelation);
                     break;
                 case METHODID_DELETE_RELATION:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.WriterOuterClass.DeleteRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.WriterOuterClass.DeleteRelationResponse>) responseObserver, compression, serviceImpl::deleteRelation);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.writer.v3.DeleteRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.writer.v3.DeleteRelationResponse>) responseObserver, compression, serviceImpl::deleteRelation);
                     break;
                 default:
                     throw new java.lang.AssertionError();

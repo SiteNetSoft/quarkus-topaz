@@ -40,7 +40,7 @@ public final class MutinyExporterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  export objects and relations as a stream
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToMany(request, delegateStub::export);
         }
     }
@@ -64,13 +64,13 @@ public final class MutinyExporterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  export objects and relations as a stream
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse> export(aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.exporter.v3.ExportResponse> export(aserto.directory.exporter.v3.ExportRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.exporter.v3.ExporterGrpc.getExportMethod(), asyncServerStreamingCall(new MethodHandlers<aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest, aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse>(this, METHODID_EXPORT, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.exporter.v3.ExporterGrpc.getExportMethod(), asyncServerStreamingCall(new MethodHandlers<aserto.directory.exporter.v3.ExportRequest, aserto.directory.exporter.v3.ExportResponse>(this, METHODID_EXPORT, compression))).build();
         }
     }
 
@@ -95,7 +95,7 @@ public final class MutinyExporterGrpc implements io.quarkus.grpc.MutinyGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_EXPORT:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToMany((aserto.directory.exporter.v3.ExporterOuterClass.ExportRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExporterOuterClass.ExportResponse>) responseObserver, compression, serviceImpl::export);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToMany((aserto.directory.exporter.v3.ExportRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.exporter.v3.ExportResponse>) responseObserver, compression, serviceImpl::export);
                     break;
                 default:
                     throw new java.lang.AssertionError();

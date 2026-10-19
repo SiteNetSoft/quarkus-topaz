@@ -14,7 +14,7 @@ public class ImporterBean extends MutinyImporterGrpc.ImporterImplBase implements
     }
 
     @Override
-    public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> request) {
+    public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportRequest> request) {
         try {
             return delegate.import_(request);
         } catch (UnsupportedOperationException e) {

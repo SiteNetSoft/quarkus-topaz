@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package aserto.directory.common.v3;
+option java_multiple_files = true;
 
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";

@@ -40,7 +40,7 @@ public final class MutinyImporterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  import stream of objects and relations
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportRequest> request) {
             return io.quarkus.grpc.stubs.ClientCalls.manyToMany(request, delegateStub::import_);
         }
     }
@@ -64,13 +64,13 @@ public final class MutinyImporterGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  import stream of objects and relations
          * </pre>
          */
-        public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest> request) {
+        public io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportResponse> import_(io.smallrye.mutiny.Multi<aserto.directory.importer.v3.ImportRequest> request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.importer.v3.ImporterGrpc.getImportMethod(), asyncBidiStreamingCall(new MethodHandlers<aserto.directory.importer.v3.ImporterOuterClass.ImportRequest, aserto.directory.importer.v3.ImporterOuterClass.ImportResponse>(this, METHODID_IMPORT_, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.importer.v3.ImporterGrpc.getImportMethod(), asyncBidiStreamingCall(new MethodHandlers<aserto.directory.importer.v3.ImportRequest, aserto.directory.importer.v3.ImportResponse>(this, METHODID_IMPORT_, compression))).build();
         }
     }
 
@@ -104,7 +104,7 @@ public final class MutinyImporterGrpc implements io.quarkus.grpc.MutinyGrpc {
         public io.grpc.stub.StreamObserver<Req> invoke(io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_IMPORT_:
-                    return (io.grpc.stub.StreamObserver<Req>) io.quarkus.grpc.stubs.ServerCalls.manyToMany((io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImporterOuterClass.ImportResponse>) responseObserver, serviceImpl::import_);
+                    return (io.grpc.stub.StreamObserver<Req>) io.quarkus.grpc.stubs.ServerCalls.manyToMany((io.grpc.stub.StreamObserver<aserto.directory.importer.v3.ImportResponse>) responseObserver, serviceImpl::import_);
                 default:
                     throw new java.lang.AssertionError();
             }

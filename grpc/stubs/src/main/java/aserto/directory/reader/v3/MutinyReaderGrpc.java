@@ -40,7 +40,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get object
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectResponse> getObject(aserto.directory.reader.v3.ReaderOuterClass.GetObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectResponse> getObject(aserto.directory.reader.v3.GetObjectRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getObject);
         }
 
@@ -49,7 +49,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get multiple objects
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.GetObjectManyRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getObjectMany);
         }
 
@@ -58,7 +58,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  list objects
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectsResponse> getObjects(aserto.directory.reader.v3.ReaderOuterClass.GetObjectsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectsResponse> getObjects(aserto.directory.reader.v3.GetObjectsRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getObjects);
         }
 
@@ -67,7 +67,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get relation
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationResponse> getRelation(aserto.directory.reader.v3.ReaderOuterClass.GetRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationResponse> getRelation(aserto.directory.reader.v3.GetRelationRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getRelation);
         }
 
@@ -76,7 +76,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  list relations
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationsResponse> getRelations(aserto.directory.reader.v3.ReaderOuterClass.GetRelationsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationsResponse> getRelations(aserto.directory.reader.v3.GetRelationsRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getRelations);
         }
 
@@ -85,7 +85,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  check if subject has relation or permission with object
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckResponse> check(aserto.directory.reader.v3.ReaderOuterClass.CheckRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckResponse> check(aserto.directory.reader.v3.CheckRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::check);
         }
 
@@ -94,7 +94,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  checks validates a set of check requests in a single roundtrip
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.ChecksResponse> checks(aserto.directory.reader.v3.ReaderOuterClass.ChecksRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ChecksResponse> checks(aserto.directory.reader.v3.ChecksRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::checks);
         }
 
@@ -105,7 +105,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          * </pre>
          */
         @Deprecated
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.CheckPermissionRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::checkPermission);
         }
 
@@ -116,7 +116,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          * </pre>
          */
         @Deprecated
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.ReaderOuterClass.CheckRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.CheckRelationRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::checkRelation);
         }
 
@@ -125,7 +125,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get object relationship graph
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetGraphResponse> getGraph(aserto.directory.reader.v3.ReaderOuterClass.GetGraphRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetGraphResponse> getGraph(aserto.directory.reader.v3.GetGraphRequest request) {
             return io.quarkus.grpc.stubs.ClientCalls.oneToOne(request, delegateStub::getGraph);
         }
     }
@@ -149,7 +149,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get object
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectResponse> getObject(aserto.directory.reader.v3.ReaderOuterClass.GetObjectRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectResponse> getObject(aserto.directory.reader.v3.GetObjectRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -158,7 +158,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get multiple objects
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectManyResponse> getObjectMany(aserto.directory.reader.v3.GetObjectManyRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -167,7 +167,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  list objects
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetObjectsResponse> getObjects(aserto.directory.reader.v3.ReaderOuterClass.GetObjectsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetObjectsResponse> getObjects(aserto.directory.reader.v3.GetObjectsRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -176,7 +176,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get relation
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationResponse> getRelation(aserto.directory.reader.v3.ReaderOuterClass.GetRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationResponse> getRelation(aserto.directory.reader.v3.GetRelationRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -185,7 +185,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  list relations
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetRelationsResponse> getRelations(aserto.directory.reader.v3.ReaderOuterClass.GetRelationsRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetRelationsResponse> getRelations(aserto.directory.reader.v3.GetRelationsRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -194,7 +194,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  check if subject has relation or permission with object
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckResponse> check(aserto.directory.reader.v3.ReaderOuterClass.CheckRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckResponse> check(aserto.directory.reader.v3.CheckRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -203,7 +203,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  checks validates a set of check requests in a single roundtrip
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.ChecksResponse> checks(aserto.directory.reader.v3.ReaderOuterClass.ChecksRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ChecksResponse> checks(aserto.directory.reader.v3.ChecksRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -214,7 +214,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          * </pre>
          */
         @Deprecated
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckPermissionResponse> checkPermission(aserto.directory.reader.v3.CheckPermissionRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -225,7 +225,7 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          * </pre>
          */
         @Deprecated
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.ReaderOuterClass.CheckRelationRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.CheckRelationResponse> checkRelation(aserto.directory.reader.v3.CheckRelationRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
@@ -234,13 +234,13 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
          *  get object relationship graph
          * </pre>
          */
-        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.ReaderOuterClass.GetGraphResponse> getGraph(aserto.directory.reader.v3.ReaderOuterClass.GetGraphRequest request) {
+        public io.smallrye.mutiny.Uni<aserto.directory.reader.v3.GetGraphResponse> getGraph(aserto.directory.reader.v3.GetGraphRequest request) {
             throw new io.grpc.StatusRuntimeException(io.grpc.Status.UNIMPLEMENTED);
         }
 
         @java.lang.Override
         public io.grpc.ServerServiceDefinition bindService() {
-            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetObjectRequest, aserto.directory.reader.v3.ReaderOuterClass.GetObjectResponse>(this, METHODID_GET_OBJECT, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectManyMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyRequest, aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyResponse>(this, METHODID_GET_OBJECT_MANY, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectsMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetObjectsRequest, aserto.directory.reader.v3.ReaderOuterClass.GetObjectsResponse>(this, METHODID_GET_OBJECTS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetRelationRequest, aserto.directory.reader.v3.ReaderOuterClass.GetRelationResponse>(this, METHODID_GET_RELATION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetRelationsMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetRelationsRequest, aserto.directory.reader.v3.ReaderOuterClass.GetRelationsResponse>(this, METHODID_GET_RELATIONS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.CheckRequest, aserto.directory.reader.v3.ReaderOuterClass.CheckResponse>(this, METHODID_CHECK, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getChecksMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.ChecksRequest, aserto.directory.reader.v3.ReaderOuterClass.ChecksResponse>(this, METHODID_CHECKS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckPermissionMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionRequest, aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionResponse>(this, METHODID_CHECK_PERMISSION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.CheckRelationRequest, aserto.directory.reader.v3.ReaderOuterClass.CheckRelationResponse>(this, METHODID_CHECK_RELATION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetGraphMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ReaderOuterClass.GetGraphRequest, aserto.directory.reader.v3.ReaderOuterClass.GetGraphResponse>(this, METHODID_GET_GRAPH, compression))).build();
+            return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor()).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetObjectRequest, aserto.directory.reader.v3.GetObjectResponse>(this, METHODID_GET_OBJECT, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectManyMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetObjectManyRequest, aserto.directory.reader.v3.GetObjectManyResponse>(this, METHODID_GET_OBJECT_MANY, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetObjectsMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetObjectsRequest, aserto.directory.reader.v3.GetObjectsResponse>(this, METHODID_GET_OBJECTS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetRelationRequest, aserto.directory.reader.v3.GetRelationResponse>(this, METHODID_GET_RELATION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetRelationsMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetRelationsRequest, aserto.directory.reader.v3.GetRelationsResponse>(this, METHODID_GET_RELATIONS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.CheckRequest, aserto.directory.reader.v3.CheckResponse>(this, METHODID_CHECK, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getChecksMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.ChecksRequest, aserto.directory.reader.v3.ChecksResponse>(this, METHODID_CHECKS, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckPermissionMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.CheckPermissionRequest, aserto.directory.reader.v3.CheckPermissionResponse>(this, METHODID_CHECK_PERMISSION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getCheckRelationMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.CheckRelationRequest, aserto.directory.reader.v3.CheckRelationResponse>(this, METHODID_CHECK_RELATION, compression))).addMethod(aserto.directory.reader.v3.ReaderGrpc.getGetGraphMethod(), asyncUnaryCall(new MethodHandlers<aserto.directory.reader.v3.GetGraphRequest, aserto.directory.reader.v3.GetGraphResponse>(this, METHODID_GET_GRAPH, compression))).build();
         }
     }
 
@@ -283,34 +283,34 @@ public final class MutinyReaderGrpc implements io.quarkus.grpc.MutinyGrpc {
         public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
             switch(methodId) {
                 case METHODID_GET_OBJECT:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetObjectResponse>) responseObserver, compression, serviceImpl::getObject);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetObjectRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetObjectResponse>) responseObserver, compression, serviceImpl::getObject);
                     break;
                 case METHODID_GET_OBJECT_MANY:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetObjectManyResponse>) responseObserver, compression, serviceImpl::getObjectMany);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetObjectManyRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetObjectManyResponse>) responseObserver, compression, serviceImpl::getObjectMany);
                     break;
                 case METHODID_GET_OBJECTS:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetObjectsRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetObjectsResponse>) responseObserver, compression, serviceImpl::getObjects);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetObjectsRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetObjectsResponse>) responseObserver, compression, serviceImpl::getObjects);
                     break;
                 case METHODID_GET_RELATION:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetRelationResponse>) responseObserver, compression, serviceImpl::getRelation);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetRelationResponse>) responseObserver, compression, serviceImpl::getRelation);
                     break;
                 case METHODID_GET_RELATIONS:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetRelationsRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetRelationsResponse>) responseObserver, compression, serviceImpl::getRelations);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetRelationsRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetRelationsResponse>) responseObserver, compression, serviceImpl::getRelations);
                     break;
                 case METHODID_CHECK:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.CheckRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.CheckResponse>) responseObserver, compression, serviceImpl::check);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.CheckRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.CheckResponse>) responseObserver, compression, serviceImpl::check);
                     break;
                 case METHODID_CHECKS:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.ChecksRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.ChecksResponse>) responseObserver, compression, serviceImpl::checks);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ChecksRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ChecksResponse>) responseObserver, compression, serviceImpl::checks);
                     break;
                 case METHODID_CHECK_PERMISSION:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.CheckPermissionResponse>) responseObserver, compression, serviceImpl::checkPermission);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.CheckPermissionRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.CheckPermissionResponse>) responseObserver, compression, serviceImpl::checkPermission);
                     break;
                 case METHODID_CHECK_RELATION:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.CheckRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.CheckRelationResponse>) responseObserver, compression, serviceImpl::checkRelation);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.CheckRelationRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.CheckRelationResponse>) responseObserver, compression, serviceImpl::checkRelation);
                     break;
                 case METHODID_GET_GRAPH:
-                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.ReaderOuterClass.GetGraphRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.ReaderOuterClass.GetGraphResponse>) responseObserver, compression, serviceImpl::getGraph);
+                    io.quarkus.grpc.stubs.ServerCalls.oneToOne((aserto.directory.reader.v3.GetGraphRequest) request, (io.grpc.stub.StreamObserver<aserto.directory.reader.v3.GetGraphResponse>) responseObserver, compression, serviceImpl::getGraph);
                     break;
                 default:
                     throw new java.lang.AssertionError();
