@@ -4,12 +4,22 @@ include::./includes/attributes.adoc[]
 https://github.com/aserto-dev/topaz[Topaz] is an open-source authorizer: an OPA policy engine (Rego) next to a
 Zanzibar-style directory of objects and relations, both served over gRPC. This extension gives a Quarkus
 application a reactive client for both services, a Dev Service that starts a Topaz container seeded with your
-policies and data, a readiness health check and a Dev UI card.
+policies and data, a readiness health check and a Dev UI card. An optional security extension enforces Topaz
+decisions on HTTP routes and CDI bean methods.
 
 The client talks to Topaz through the Vert.x gRPC client and Mutiny stubs generated from the pinned Topaz protos.
 It does not depend on the Aserto Java SDK.
 
 == Installation
+
+[cols="1,3"]
+|===
+|Artifact |Contents
+
+|`quarkus-topaz` |The client, the Dev Service, the health check and the Dev UI card.
+|`quarkus-topaz-security` |Enforcement: the `topaz` HTTP security policy, `@TopazAuthorize`, `@TopazCheck` and the
+`@PermissionsAllowed` bridge. Includes `quarkus-topaz`. See xref:security.adoc[Security].
+|===
 
 Add the runtime artifact; the deployment artifact is resolved by Quarkus.
 
@@ -71,6 +81,7 @@ manifest and data files are in `integration-tests/src/main/resources/topaz/`.
 == Where to go next
 
 * xref:client.adoc[Client]: the API, identity contexts and the fail-closed rules.
+* xref:security.adoc[Security]: enforcing decisions on routes and methods.
 * xref:dev-services.adoc[Dev Services]: policies, manifest, data and shared containers.
 * xref:health-and-tracing.adoc[Health and tracing] and xref:dev-ui.adoc[Dev UI].
 * xref:native.adoc[Native] and xref:testing.adoc[Testing].
