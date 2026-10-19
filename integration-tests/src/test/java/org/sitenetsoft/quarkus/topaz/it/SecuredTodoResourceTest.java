@@ -1,11 +1,8 @@
 package org.sitenetsoft.quarkus.topaz.it;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.hasItem;
-
-import java.util.List;
+import static org.hamcrest.Matchers.not;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +12,7 @@ import io.restassured.specification.RequestSpecification;
 @QuarkusTest
 public class SecuredTodoResourceTest {
 
+    private static final String TOPAZ_POLICY = "org.sitenetsoft.quarkus.topaz.security.runtime.TopazHttpSecurityPolicy";
     private static final String PERMISSION_AUGMENTOR = "org.sitenetsoft.quarkus.topaz.security.runtime.TopazPermissionAugmentor";
 
     private static RequestSpecification as(String user, String password) {
@@ -74,7 +72,8 @@ public class SecuredTodoResourceTest {
         // quarkus.topaz.enforcement.permissions.enabled is unset: the @PermissionsAllowed bridge must not be installed
         given().when().get("/annotated/augmentors")
                 .then().statusCode(200)
-                .body("$", instanceOf(List.class))
-                .body("$", not(hasItem(PERMISSION_AUGMENTOR)));
+                // positive control: the introspection sees the Topaz route policy bean, so absence below is meaningful
+                .body("policies", hasItem(TOPAZ_POLICY))
+                .body("augmentors", not(hasItem(PERMISSION_AUGMENTOR)));
     }
 }
