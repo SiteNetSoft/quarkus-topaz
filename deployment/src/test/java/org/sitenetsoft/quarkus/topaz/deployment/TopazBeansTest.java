@@ -24,7 +24,8 @@ public class TopazBeansTest {
             .overrideConfigKey("quarkus.topaz.authorizer.port", "1")
             .overrideConfigKey("quarkus.topaz.directory.port", "1")
             .overrideConfigKey("quarkus.topaz.plain-text", "true")
-            .overrideConfigKey("quarkus.topaz.deadline", "2s");
+            .overrideConfigKey("quarkus.topaz.deadline", "2s")
+            .overrideConfigKey("quarkus.topaz.devservices.enabled", "false");
 
     @Inject
     TopazClient client;
