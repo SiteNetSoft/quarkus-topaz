@@ -36,8 +36,26 @@ public final class TopazChannels {
                 && (registryDefault.get().getTrustStoreOptions() != null || registryDefault.get().isTrustAll());
     }
 
+    /**
+     * Creates a channel. {@code plainText=true} always wins: a plaintext channel is produced and {@code tls} is
+     * ignored. Otherwise, if TLS is forced ({@code plainText=false}) or a named TLS configuration is set but no
+     * TLS configuration was resolved, this fails instead of silently downgrading to plaintext.
+     */
     public static ManagedChannelHolder create(Vertx vertx, ResolvedServiceSettings s, Optional<TlsConfiguration> tls,
             List<ClientInterceptor> interceptors) {
+        boolean plain = s.plainText().orElse(false);
+        if (plain) {
+            tls = Optional.empty();
+        } else if (tls.isEmpty()) {
+            if (s.plainText().isPresent()) {
+                throw new IllegalStateException("TLS was required for Topaz service " + s.host() + ":" + s.port()
+                        + " (plain-text=false) but no TLS configuration resolved");
+            }
+            if (s.tlsConfigurationName().isPresent()) {
+                throw new IllegalStateException("TLS configuration '" + s.tlsConfigurationName().get()
+                        + "' for Topaz service " + s.host() + ":" + s.port() + " was not found");
+            }
+        }
         HttpClientOptions http = new HttpClientOptions().setProtocolVersion(HttpVersion.HTTP_2);
         if (tls.isPresent()) {
             http.setSsl(true).setUseAlpn(true);
