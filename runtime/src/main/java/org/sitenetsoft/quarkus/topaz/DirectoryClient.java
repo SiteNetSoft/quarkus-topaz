@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import com.google.protobuf.ByteString;
 
@@ -75,6 +76,18 @@ public final class DirectoryClient {
         return deadline.map(d -> stub.withDeadlineAfter(d.toMillis(), TimeUnit.MILLISECONDS)).orElse(stub);
     }
 
+    /**
+     * Defers stub acquisition to subscription time, so each subscription (including retries and late
+     * subscriptions) gets a deadline that starts when the call is actually made.
+     */
+    private static <S, T> Uni<T> uni(java.util.function.Supplier<S> stub, Function<S, Uni<T>> f) {
+        return Uni.createFrom().deferred(() -> f.apply(stub.get()));
+    }
+
+    private static <S, T> Multi<T> multi(java.util.function.Supplier<S> stub, Function<S, Multi<T>> f) {
+        return Multi.createFrom().deferred(() -> f.apply(stub.get()));
+    }
+
     /** The raw reader stub, with the configured deadline (if any) starting now; likewise for the others. */
     public MutinyReaderGrpc.MutinyReaderStub reader() {
         return withDeadline(reader);
@@ -98,58 +111,58 @@ public final class DirectoryClient {
 
     public Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
-        return reader().check(CheckRequest.newBuilder()
+        return uni(this::reader, s -> s.check(CheckRequest.newBuilder()
                 .setObjectType(objectType).setObjectId(objectId).setRelation(relation)
                 .setSubjectType(subjectType).setSubjectId(subjectId)
-                .build()).map(CheckResponse::getCheck);
+                .build())).map(CheckResponse::getCheck);
     }
 
     /** Runs several checks in one call; results are in request order. */
     public Uni<List<Boolean>> checks(List<CheckRequest> checks) {
-        return reader().checks(ChecksRequest.newBuilder().addAllChecks(checks).build())
+        return uni(this::reader, s -> s.checks(ChecksRequest.newBuilder().addAllChecks(checks).build()))
                 .map(r -> r.getChecksList().stream().map(CheckResponse::getCheck).toList());
     }
 
     public Uni<aserto.directory.common.v3.Object> getObject(String type, String id) {
-        return reader().getObject(GetObjectRequest.newBuilder().setObjectType(type).setObjectId(id).build())
+        return uni(this::reader, s -> s.getObject(GetObjectRequest.newBuilder().setObjectType(type).setObjectId(id).build()))
                 .map(GetObjectResponse::getResult);
     }
 
     public Uni<aserto.directory.common.v3.Object> setObject(aserto.directory.common.v3.Object o) {
-        return writer().setObject(SetObjectRequest.newBuilder().setObject(o).build())
+        return uni(this::writer, s -> s.setObject(SetObjectRequest.newBuilder().setObject(o).build()))
                 .map(SetObjectResponse::getResult);
     }
 
     public Uni<Void> deleteObject(String type, String id, boolean withRelations) {
-        return writer().deleteObject(DeleteObjectRequest.newBuilder()
-                .setObjectType(type).setObjectId(id).setWithRelations(withRelations).build())
+        return uni(this::writer, s -> s.deleteObject(DeleteObjectRequest.newBuilder()
+                .setObjectType(type).setObjectId(id).setWithRelations(withRelations).build()))
                 .replaceWithVoid();
     }
 
     public Uni<Relation> getRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
-        return reader().getRelation(GetRelationRequest.newBuilder()
+        return uni(this::reader, s -> s.getRelation(GetRelationRequest.newBuilder()
                 .setObjectType(objectType).setObjectId(objectId).setRelation(relation)
                 .setSubjectType(subjectType).setSubjectId(subjectId)
-                .build()).map(GetRelationResponse::getResult);
+                .build())).map(GetRelationResponse::getResult);
     }
 
     public Uni<Relation> setRelation(Relation r) {
-        return writer().setRelation(SetRelationRequest.newBuilder().setRelation(r).build())
+        return uni(this::writer, s -> s.setRelation(SetRelationRequest.newBuilder().setRelation(r).build()))
                 .map(SetRelationResponse::getResult);
     }
 
     public Uni<Void> deleteRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
-        return writer().deleteRelation(DeleteRelationRequest.newBuilder()
+        return uni(this::writer, s -> s.deleteRelation(DeleteRelationRequest.newBuilder()
                 .setObjectType(objectType).setObjectId(objectId).setRelation(relation)
                 .setSubjectType(subjectType).setSubjectId(subjectId)
-                .build()).replaceWithVoid();
+                .build())).replaceWithVoid();
     }
 
     /** The manifest YAML: the UTF-8 decoding of all {@code Body} chunks; metadata/model messages are ignored. */
     public Uni<String> getManifest() {
-        return model().getManifest(GetManifestRequest.getDefaultInstance())
+        return multi(this::model, s -> s.getManifest(GetManifestRequest.getDefaultInstance()))
                 .filter(GetManifestResponse::hasBody)
                 .map(r -> r.getBody().getData())
                 .collect().asList()
@@ -168,11 +181,11 @@ public final class DirectoryClient {
                     .build());
             offset += len;
         } while (offset < bytes.length);
-        return model().setManifest(Multi.createFrom().iterable(requests)).replaceWithVoid();
+        return uni(this::model, s -> s.setManifest(Multi.createFrom().iterable(requests))).replaceWithVoid();
     }
 
     public Uni<Void> deleteManifest() {
-        return model().deleteManifest(DeleteManifestRequest.getDefaultInstance()).replaceWithVoid();
+        return uni(this::model, s -> s.deleteManifest(DeleteManifestRequest.getDefaultInstance())).replaceWithVoid();
     }
 
     /**
@@ -181,7 +194,7 @@ public final class DirectoryClient {
      * no typed counter was received, so a server sending both is not double counted.
      */
     public Uni<ImportSummary> importData(Multi<ImportRequest> requests) {
-        return importer().import_(requests).collect().asList().map(DirectoryClient::summarise);
+        return multi(this::importer, s -> s.import_(requests)).collect().asList().map(DirectoryClient::summarise);
     }
 
     static ImportSummary summarise(List<ImportResponse> responses) {
@@ -220,6 +233,6 @@ public final class DirectoryClient {
     }
 
     public Multi<ExportResponse> export(ExportRequest r) {
-        return exporter().export(r);
+        return multi(this::exporter, s -> s.export(r));
     }
 }

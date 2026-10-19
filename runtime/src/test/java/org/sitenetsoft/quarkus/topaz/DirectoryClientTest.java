@@ -55,6 +55,9 @@ class DirectoryClientTest {
     private final AtomicReference<String> receivedManifest = new AtomicReference<>();
     private final AtomicReference<Integer> manifestChunks = new AtomicReference<>();
 
+    /** Set by any fake whose request stream fails; asserted empty after each test. */
+    private static final AtomicReference<Throwable> serverError = new AtomicReference<>();
+
     private Server server;
     private ManagedChannel channel;
     private TopazClient client;
@@ -74,9 +77,12 @@ class DirectoryClientTest {
 
     @AfterEach
     void stop() {
+        Throwable err = serverError.getAndSet(null);
         client.close();
+        client.close(); // idempotent
         channel.shutdownNow();
         server.shutdownNow();
+        assertThat(err).as("fake server stream error").isNull();
     }
 
     @Test
@@ -221,6 +227,7 @@ class DirectoryClientTest {
 
                 @Override
                 public void onError(Throwable t) {
+                    serverError.set(t);
                 }
 
                 @Override
@@ -250,6 +257,7 @@ class DirectoryClientTest {
 
                 @Override
                 public void onError(Throwable t) {
+                    serverError.set(t);
                 }
 
                 @Override

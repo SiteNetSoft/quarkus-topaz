@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.sitenetsoft.quarkus.topaz.runtime.ApiKeyClientInterceptor;
 import org.sitenetsoft.quarkus.topaz.runtime.ResolvedServiceSettings;
@@ -28,6 +29,7 @@ public final class TopazClient implements AutoCloseable {
     private final BlockingTopazClient blocking;
     private final List<ManagedChannelHolder> holders;
     private final Vertx ownedVertx;
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     private TopazClient(AuthorizerClient authorizer, DirectoryClient directory, List<ManagedChannelHolder> holders,
             Vertx ownedVertx) {
@@ -57,11 +59,13 @@ public final class TopazClient implements AutoCloseable {
     /**
      * Closes the channels this client created, and the Vert.x instance if the builder created it. Channels passed
      * to {@link Builder#authorizerChannel} / {@link Builder#directoryChannel} belong to the caller and are not
-     * closed.
+     * closed. Idempotent.
      */
     @Override
     public void close() {
-        closeAll(holders, ownedVertx);
+        if (closed.compareAndSet(false, true)) {
+            closeAll(holders, ownedVertx);
+        }
     }
 
     private static void closeAll(List<ManagedChannelHolder> holders, Vertx ownedVertx) {
