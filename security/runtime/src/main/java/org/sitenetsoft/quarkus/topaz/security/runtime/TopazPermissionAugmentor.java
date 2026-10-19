@@ -27,8 +27,9 @@ import io.smallrye.mutiny.Uni;
  * <p>
  * Adds a permission checker to every authenticated identity (anonymous identities are left unchanged). A
  * {@link TopazRelation} is checked against the directory; any other permission is evaluated as the policy path named by
- * {@link Permission#getName()} with an empty resource context. Fails closed: an error, a timeout
- * ({@code quarkus.topaz.enforcement.timeout}) or a mapper failure yields {@code false}.
+ * {@link Permission#getName()} with an empty resource context; a permission with actions (for example
+ * {@code @PermissionsAllowed("todoApp.GET.todos:write")}) is not supported and is denied. Fails closed: an error, a
+ * timeout ({@code quarkus.topaz.enforcement.timeout}) or a mapper failure yields {@code false}.
  */
 @ApplicationScoped
 public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
@@ -74,6 +75,11 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
                         LOG.warnf("Topaz relation check failed for %s: %s", relation, e.toString());
                         return false;
                     });
+        } else if (permission.getActions() != null && !permission.getActions().isEmpty()) {
+            // a policy path has no notion of actions; ignoring them would grant more than was asked for
+            LOG.warnf("Topaz denied %s with actions '%s': actions are not supported by the Topaz bridge",
+                    permission.getName(), permission.getActions());
+            return Uni.createFrom().item(false);
         } else {
             // the evaluator never fails and logs its own denials
             check = Uni.createFrom().deferred(() -> Objects.requireNonNull(

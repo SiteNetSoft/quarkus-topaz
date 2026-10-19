@@ -55,6 +55,12 @@ public class PermissionsAllowedBridgeTest {
     }
 
     @Test
+    void permissionWithActionsDenied() {
+        given().auth().preemptive().basic("rick@the-citadel.com", "rick")
+                .get("/perm/write").then().statusCode(403);
+    }
+
+    @Test
     void relationPermissionOwner() {
         given().auth().preemptive().basic("rick@the-citadel.com", "rick")
                 .delete("/perm/todos/todo-1").then().statusCode(200).body(equalTo("deleted todo-1"));

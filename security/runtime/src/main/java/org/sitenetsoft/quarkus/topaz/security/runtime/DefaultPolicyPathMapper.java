@@ -33,7 +33,22 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         if (method.isPresent()) {
             return PolicyPaths.of(root, method.get().httpMethod(), method.get().pathTemplate());
         }
-        return PolicyPaths.of(root, request.request().method().name(), stripRootPath(request.normalizedPath()));
+        String path = stripRootPath(request.normalizedPath());
+        checkRawSegments(path);
+        return PolicyPaths.of(root, request.request().method().name(), path);
+    }
+
+    // Before REST matching the path comes straight from the caller. A '.' would add Rego package segments, and a
+    // segment starting with '__' or '{' would name a template policy, so the caller could pick the package.
+    private static void checkRawSegments(String path) {
+        for (String segment : path.split("/")) {
+            String s = segment.trim();
+            if (s.contains(".") || s.startsWith("__") || s.startsWith("{")) {
+                throw new IllegalStateException("Policy path cannot be derived from request path " + path
+                        + ": segment " + s + " is not allowed before REST matching; bind the policy with"
+                        + " applies-to=jaxrs or @AuthorizationPolicy");
+            }
+        }
     }
 
     private String stripRootPath(String path) {

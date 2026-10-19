@@ -39,7 +39,8 @@ public interface TopazEnforcementConfig {
     Anonymous anonymous();
 
     /**
-     * The deadline for a single authorization call.
+     * The deadline for a whole evaluation: the mappers (identity, policy path, resource context) and the Topaz call
+     * together, not each call separately. An evaluation that exceeds it is denied.
      */
     @WithDefault("5s")
     Duration timeout();
