@@ -10,11 +10,16 @@ import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultResourceContextMapp
 import org.sitenetsoft.quarkus.topaz.security.runtime.DefaultSubjectMapper;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopDecisionCache;
 import org.sitenetsoft.quarkus.topaz.security.runtime.NoopResourceMethodInfoResolver;
+import org.sitenetsoft.quarkus.topaz.security.runtime.TopazEnforcementBuildTimeConfig;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazHttpSecurityPolicy;
 import org.sitenetsoft.quarkus.topaz.security.runtime.TopazSecurityRecorder;
 
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.deployment.ExcludedTypeBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
+import io.quarkus.deployment.Capabilities;
+import io.quarkus.deployment.Capability;
+import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
@@ -22,6 +27,7 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.vertx.deployment.VertxBuildItem;
+import io.quarkus.vertx.http.deployment.RequireBodyHandlerBuildItem;
 import io.quarkus.vertx.http.runtime.security.HttpSecurityPolicy;
 
 class TopazSecurityProcessor {
@@ -30,6 +36,9 @@ class TopazSecurityProcessor {
 
     private static final DotName AUTHORIZATION_POLICY = DotName
             .createSimple("io.quarkus.vertx.http.security.AuthorizationPolicy");
+
+    private static final String REST_RESOLVER = "org.sitenetsoft.quarkus.topaz.security.runtime.rest"
+            + ".RestResourceMethodInfoResolver";
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -49,6 +58,30 @@ class TopazSecurityProcessor {
                         NoopResourceMethodInfoResolver.class, NoopDecisionCache.class)
                 .setUnremovable()
                 .build();
+    }
+
+    // Referenced by name so this class never loads the resolver, which needs quarkus-rest on the classpath.
+    // As a non-default bean it replaces NoopResourceMethodInfoResolver. The runtime jar is indexed, so without REST
+    // the resolver must be excluded explicitly or bean discovery would still pick it up.
+    @BuildStep
+    void restResolver(Capabilities capabilities, BuildProducer<AdditionalBeanBuildItem> beans,
+            BuildProducer<ExcludedTypeBuildItem> excluded) {
+        if (capabilities.isPresent(Capability.REST)) {
+            beans.produce(AdditionalBeanBuildItem.builder()
+                    .addBeanClasses(REST_RESOLVER)
+                    .setUnremovable()
+                    .build());
+        } else {
+            excluded.produce(new ExcludedTypeBuildItem(REST_RESOLVER));
+        }
+    }
+
+    @BuildStep
+    void bodyHandler(TopazEnforcementBuildTimeConfig buildTimeConfig,
+            BuildProducer<RequireBodyHandlerBuildItem> bodyHandler) {
+        if (buildTimeConfig.readBody()) {
+            bodyHandler.produce(new RequireBodyHandlerBuildItem());
+        }
     }
 
     @BuildStep
