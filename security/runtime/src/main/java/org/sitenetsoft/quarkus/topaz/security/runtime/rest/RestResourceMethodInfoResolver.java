@@ -52,7 +52,7 @@ public class RestResourceMethodInfoResolver implements ResourceMethodInfoResolve
                     joinTemplates(template(target.getClassPath()), template(target.getPath())), params));
         } catch (RuntimeException e) {
             // Fail closed: the evaluator then maps the raw path, which has no policy.
-            LOG.debugf(e, "Could not resolve the REST resource method of %s", request.normalizedPath());
+            LOG.debug("Could not resolve the REST resource method", e);
             return Optional.empty();
         }
     }
