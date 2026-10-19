@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
             **/target/failsafe-reports/
           retention-days: 7
 
-  # Runs on pull requests as well as main: native image is sensitive to how stubs and beans are registered,
+  # Runs on pull requests as well as master: native image is sensitive to how stubs and beans are registered,
   # which is easy to get wrong and expensive to discover after merging.
   native:
     name: Native Image Test
