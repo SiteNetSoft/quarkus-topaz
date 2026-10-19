@@ -12,6 +12,7 @@ public class TopazFeatureTest {
     @RegisterExtension
     static final QuarkusUnitTest TEST = new QuarkusUnitTest()
             .withApplicationRoot(jar -> jar.addClasses())
+            .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .setLogRecordPredicate(r -> r.getMessage().contains("Installed features"))
             .assertLogRecords(records -> assertThat(records).anyMatch(r -> r.getMessage() != null
                     && String.format(r.getMessage(), r.getParameters()).contains("topaz")));

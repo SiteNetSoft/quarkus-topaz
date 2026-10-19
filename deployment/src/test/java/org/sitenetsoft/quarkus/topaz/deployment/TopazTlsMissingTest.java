@@ -12,6 +12,7 @@ public class TopazTlsMissingTest {
     @RegisterExtension
     static final QuarkusUnitTest TEST = new QuarkusUnitTest()
             .overrideConfigKey("quarkus.topaz.tls-configuration-name", "nope")
+            .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .assertException(t -> {
                 Throwable c = t;
                 StringBuilder all = new StringBuilder();
