@@ -46,4 +46,25 @@ public class ServiceResource {
     public String deleteRef(SecuredService.TodoRef ref) {
         return service.deleteRef(ref);
     }
+
+    @DELETE
+    @Path("owned/{todo}")
+    public Uni<String> deleteOwned(@PathParam("todo") String todo) {
+        return service.deleteOwned(todo);
+    }
+
+    @POST
+    @Path("owned-dto")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Blocking
+    public String deleteOwnedDto(SecuredService.OwnedTodo todo) {
+        return service.deleteOwnedDto(todo);
+    }
+
+    @DELETE
+    @Path("owned-fixed")
+    @Blocking
+    public String deleteFixed() {
+        return service.deleteFixed();
+    }
 }
