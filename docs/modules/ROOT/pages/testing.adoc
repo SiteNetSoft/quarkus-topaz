@@ -13,6 +13,8 @@ policy in both modes, `@TopazAuthorize`, `@TopazCheck`, the `@PermissionsAllowed
 Topaz-down denials.
 `security/no-rest-tests`:: An application without `quarkus-rest`: it builds, and the `topaz` route policy enforces on
 a reactive route.
+`zanzibar/deployment`:: `QuarkusUnitTest` classes for `quarkus-topaz-zanzibar` against the Dev Service: the
+relationship manager, the quarkus-zanzibar filter and its Topaz-down behaviour.
 `integration-tests`:: The todo application, including endpoints secured by the route policy and the interceptors.
 `TodoResourceTest` and `SecuredTodoResourceTest` (`@QuarkusTest`) run with Surefire; their `*IT` subclasses run the
 same tests with Failsafe against the native executable and are skipped unless `-Dnative` is given.

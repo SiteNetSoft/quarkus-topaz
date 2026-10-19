@@ -23,6 +23,11 @@ declare a `@TopazObjectId` field or getter, and the parameter types annotated `@
 those types further. Nested types, collection element types and arrays inside a `@TopazResource` POJO must be
 registered by the application, for example with `@RegisterForReflection`.
 
+== Zanzibar connector
+
+`quarkus-topaz-zanzibar` needs no native configuration; the CI native job exercises it through the `/fga/todos`
+endpoints of the todo application.
+
 == Integration tests
 
 `@QuarkusIntegrationTest` classes run against the native executable. To seed or inspect Topaz from the test JVM, use
