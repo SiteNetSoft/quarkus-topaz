@@ -1,0 +1,96 @@
+package org.sitenetsoft.quarkus.topaz.zanzibar.deployment;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import io.quarkus.security.test.utils.TestIdentityController;
+import io.quarkus.security.test.utils.TestIdentityProvider;
+import io.quarkus.test.QuarkusUnitTest;
+import io.restassured.specification.RequestSpecification;
+
+public class FgaFilterTest {
+
+    @RegisterExtension
+    static final QuarkusUnitTest TEST = new QuarkusUnitTest()
+            .withApplicationRoot(jar -> jar
+                    .addClasses(FgaTodoResource.class, TestIdentities.class, TestIdentityProvider.class,
+                            TestIdentityController.class)
+                    .addAsResource("topaz", "topaz"))
+            .overrideConfigKey("quarkus.http.auth.basic", "true")
+            // the test identities carry a single role, which the default extractor would mistake for a user type
+            .overrideConfigKey("quarkus.zanzibar.extract-user-type-from-roles", "false")
+            .overrideConfigKey("quarkus.topaz.devservices.policy.directory", "classpath:topaz/policies")
+            .overrideConfigKey("quarkus.topaz.devservices.manifest-location", "classpath:topaz/manifest.yaml")
+            .overrideConfigKey("quarkus.topaz.devservices.data-location", "classpath:topaz/data");
+
+    @BeforeAll
+    static void identities() {
+        TestIdentities.register();
+    }
+
+    @Test
+    void ownerCanRead() {
+        rick().get("/fga/todos/todo-1").then().statusCode(200).body("id", equalTo("todo-1"));
+    }
+
+    @Test
+    void nonOwnerIsForbidden() {
+        morty().get("/fga/todos/todo-1").then().statusCode(403);
+    }
+
+    @Test
+    void unknownUserIsForbidden() {
+        summer().get("/fga/todos/todo-1").then().statusCode(403);
+    }
+
+    @Test
+    void anonymousIsForbidden() {
+        // quarkus-zanzibar denies without a principal; it does not challenge
+        given().get("/fga/todos/todo-1").then().statusCode(403);
+    }
+
+    @Test
+    void permissionRelation() {
+        rick().delete("/fga/todos/todo-1").then().statusCode(204);
+        morty().delete("/fga/todos/todo-1").then().statusCode(403);
+    }
+
+    @Test
+    void shareAndUnshare() {
+        morty().get("/fga/todos/todo-2").then().statusCode(403);
+        rick().put("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-2").then().statusCode(200);
+        rick().delete("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-2").then().statusCode(403);
+    }
+
+    @Test
+    void unannotatedEndpointIsDenied() {
+        rick().get("/fga/todos/unannotated").then().statusCode(403);
+    }
+
+    @Test
+    void ignoredEndpointIsOpen() {
+        given().get("/fga/todos/ignored").then().statusCode(200).body(equalTo("ignored"));
+    }
+
+    private static RequestSpecification rick() {
+        return as("rick@the-citadel.com", "rick");
+    }
+
+    private static RequestSpecification morty() {
+        return as("morty@the-citadel.com", "morty");
+    }
+
+    private static RequestSpecification summer() {
+        return as("summer@the-citadel.com", "summer");
+    }
+
+    private static RequestSpecification as(String user, String password) {
+        return given().auth().preemptive().basic(user, password);
+    }
+}
