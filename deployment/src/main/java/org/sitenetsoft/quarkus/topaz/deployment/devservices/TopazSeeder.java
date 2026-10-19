@@ -24,6 +24,7 @@ import aserto.directory.common.v3.Object;
 import aserto.directory.common.v3.Relation;
 import aserto.directory.importer.v3.ImportRequest;
 import aserto.directory.importer.v3.Opcode;
+import io.quarkus.runtime.configuration.ConfigurationException;
 import io.smallrye.mutiny.Multi;
 
 /**
@@ -44,7 +45,12 @@ final class TopazSeeder {
     private TopazSeeder() {
     }
 
-    static void seed(TopazClient client, Optional<Path> manifest, Optional<Path> data) {
+    /**
+     * @param data the requests from {@link #requests(Path)}, parsed at build time so bad data fails the build
+     * @param dataDir where they came from, for messages
+     */
+    static void seed(TopazClient client, Optional<Path> manifest, Optional<List<ImportRequest>> data,
+            Optional<Path> dataDir) {
         if (manifest.isPresent()) {
             String yaml = read(manifest.get());
             client.directory().setManifest(yaml).await().atMost(CALL_TIMEOUT);
@@ -52,15 +58,14 @@ final class TopazSeeder {
             LOG.debugf("Topaz Dev Services: manifest %s loaded", manifest.get());
         }
         if (data.isPresent()) {
-            List<ImportRequest> requests = requests(data.get());
-            ImportSummary summary = client.directory().importData(Multi.createFrom().iterable(requests))
+            ImportSummary summary = client.directory().importData(Multi.createFrom().iterable(data.get()))
                     .await().atMost(CALL_TIMEOUT);
             if (!summary.errors().isEmpty()) {
-                throw new IllegalStateException("Topaz Dev Services: importing " + data.get() + " failed: "
+                throw new IllegalStateException("Topaz Dev Services: importing " + dataDir.orElse(null) + " failed: "
                         + summary.errors());
             }
             LOG.infof("Topaz Dev Services: imported %d objects and %d relations from %s", summary.objectsSet(),
-                    summary.relationsSet(), data.get());
+                    summary.relationsSet(), dataDir.orElse(null));
         }
     }
 
@@ -98,11 +103,12 @@ final class TopazSeeder {
         }
     }
 
+    /** Parses the data files strictly: unknown fields are errors. */
     static List<ImportRequest> requests(Path dataDir) {
         Path objects = dataDir.resolve(OBJECTS_FILE);
         Path relations = dataDir.resolve(RELATIONS_FILE);
         if (!Files.isRegularFile(objects) && !Files.isRegularFile(relations)) {
-            throw new IllegalStateException("Topaz Dev Services: " + dataDir + " has neither " + OBJECTS_FILE
+            throw new ConfigurationException("Topaz Dev Services: " + dataDir + " has neither " + OBJECTS_FILE
                     + " nor " + RELATIONS_FILE);
         }
         List<ImportRequest> requests = new ArrayList<>();
@@ -125,19 +131,20 @@ final class TopazSeeder {
         try {
             array = new ObjectMapper().readTree(file.toFile()).path(field);
         } catch (IOException e) {
-            throw new UncheckedIOException("Topaz Dev Services: cannot read " + file, e);
+            throw new ConfigurationException("Topaz Dev Services: cannot read " + file + ": " + e.getMessage(), e);
         }
         if (!array.isArray()) {
-            throw new IllegalStateException("Topaz Dev Services: " + file + " must be {\"" + field + "\": [...]}");
+            throw new ConfigurationException("Topaz Dev Services: " + file + " must be {\"" + field + "\": [...]}");
         }
         List<T> out = new ArrayList<>();
-        JsonFormat.Parser parser = JsonFormat.parser().ignoringUnknownFields();
+        JsonFormat.Parser parser = JsonFormat.parser();
         for (JsonNode element : array) {
             B b = builder.get();
             try {
                 parser.merge(element.toString(), b);
             } catch (InvalidProtocolBufferException e) {
-                throw new IllegalStateException("Topaz Dev Services: invalid entry in " + file + ": " + element, e);
+                throw new ConfigurationException("Topaz Dev Services: invalid entry in " + file + ": " + element
+                        + " (" + e.getMessage() + ")", e);
             }
             out.add(build.apply(b));
         }

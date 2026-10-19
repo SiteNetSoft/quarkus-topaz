@@ -71,16 +71,6 @@
       <artifactId>testcontainers</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-grpc-client</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-grpc</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sitenetsoft</groupId>
       <artifactId>quarkus-topaz-grpc</artifactId>
       <version>${project.version}</version>
