@@ -16,10 +16,12 @@ import jakarta.interceptor.InterceptorBinding;
  * <p>
  * The subject is the current {@code SecurityIdentity}, mapped to a subject id of type {@link #subjectType()} by the
  * {@link SubjectMapper}. The object id is {@link #objectId()} when set; otherwise the method argument annotated
- * {@link TopazObjectId}; otherwise the {@link TopazObjectId} field or getter of the first argument whose class declares
- * one.
+ * {@link TopazObjectId}; otherwise the {@link TopazObjectId} field or getter of the first argument whose declared
+ * parameter type (or one of its superclasses) declares one. The lookup uses the declared parameter type, not the runtime
+ * class of the argument, so a {@link TopazObjectId} declared only on a subclass is not found.
  * <p>
- * An anonymous caller is rejected with {@code UnauthorizedException} (401). A failing check, a directory error, a
+ * An anonymous caller is always rejected with {@code UnauthorizedException} (401), whatever
+ * {@code quarkus.topaz.enforcement.anonymous} says: a relation check needs a subject. A failing check, a directory error, a
  * timeout ({@code quarkus.topaz.enforcement.timeout}), a mapper failure or an object id that cannot be resolved (none,
  * null or blank) raises {@code ForbiddenException} (403); an error never permits.
  * <p>
