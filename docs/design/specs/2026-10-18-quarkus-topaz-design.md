@@ -179,7 +179,7 @@ endpoint. It is public API and versioned like the rest. This is my call; the alt
 
 ### Beans
 
-Synthetic, `@ApplicationScoped`, runtime-init:
+Synthetic, `@Singleton` (the client classes are final, so they cannot be client-proxied), runtime-init:
 
 ```java
 @Inject TopazClient topaz;            // umbrella: authorizer(), directory(), blocking()
@@ -193,7 +193,7 @@ and convenience methods that build the request types:
 ```java
 Uni<IsResponse>     is(IdentityContext id, String policyPath, List<String> decisions, Struct resource);
 Uni<Boolean>        isAllowed(IdentityContext id, String policyPath, String decision, Map<String,?> resource);
-Uni<DecisionTreeResponse> decisionTree(...);  Uni<QueryResponse> query(...);
+Uni<DecisionTreeResponse> decisionTree(...);  Uni<QueryResponse> query(...);  Uni<CompileResponse> compile(...);
 Uni<List<Module>>   listPolicies();           Uni<Module> getPolicy(String id);  Uni<InfoResponse> info();
 ```
 
@@ -205,15 +205,17 @@ stubs and convenience methods for the common path:
 ```java
 Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType, String subjectId);
 Uni<List<Boolean>> checks(List<CheckRequest>);
-Uni<Object>  getObject(type, id);   Uni<Void> setObject(Object);   Uni<Void> deleteObject(type, id, withRelations);
-Uni<Relation> getRelation(...);     Uni<Void> setRelation(Relation);  Uni<Void> deleteRelation(...);
+Uni<Object>  getObject(type, id);   Uni<Object> setObject(Object);   Uni<Void> deleteObject(type, id, withRelations);
+Uni<Relation> getRelation(...);     Uni<Relation> setRelation(Relation);  Uni<Void> deleteRelation(...);
 Uni<String>  getManifest();         Uni<Void> setManifest(String yaml);   Uni<Void> deleteManifest();
-Uni<ImportSummary> importData(Multi<ImportRequest>);   Multi<ExportResponse> export(ExportOptions);
+Uni<ImportSummary> importData(Multi<ImportRequest>);   Multi<ExportResponse> export(ExportRequest);
 ```
 
 `blocking()` returns a facade with the same method set using the blocking generated stubs. Manifest
 and import/export are streams in the proto; the facade hides the chunking for manifest and exposes
-`Multi` for import and export.
+`Multi` for import and export. `setObject`/`setRelation` return the stored object/relation. Each
+blocking call waits at most the deadline plus one second (so the gRPC deadline fires first), or 30 s
+when no deadline is set; every failure, including an exceeded wait, is a `StatusRuntimeException`.
 
 ### Configuration (`quarkus.topaz.*`, runtime phase unless stated)
 
@@ -228,9 +230,11 @@ quarkus.topaz.health.enabled=true            # build time
 quarkus.topaz.devservices.*                  # build time, §6
 ```
 
-TLS resolution copies `io.quarkus.grpc.runtime.supports.Channels`: a named TLS configuration wins;
-otherwise the registry default is used only if it defines a trust store or trust-all; otherwise the
-JVM defaults. `quarkus.tls.trust-all=true` stays a test-only escape hatch and is documented as such.
+TLS resolution copies `io.quarkus.grpc.runtime.supports.Channels`: `plain-text=true` gives plaintext;
+a named TLS configuration wins, and a name the registry does not know fails startup with an
+`IllegalStateException` naming the key; otherwise the registry default is used only if it defines a
+trust store or trust-all; otherwise, when TLS is required (`plain-text=false`), TLS with the JVM
+default trust. A required TLS channel never falls back to plaintext. `quarkus.tls.trust-all=true` stays a test-only escape hatch and is documented as such.
 
 ### Health
 
@@ -361,25 +365,24 @@ container runtime is available (`DockerStatusBuildItem`). Shared container disco
 `ContainerLocator` on label `quarkus-dev-service-topaz`, and Compose discovery via `ComposeLocator`
 for images named `topaz`.
 
-Container: `GenericContainer` on `ghcr.io/aserto-dev/topaz:<pinned>`, exposing 8282, 9292, 9494 and
-8080 (console). On the shared network when required. Startup:
+Container: `GenericContainer` on `ghcr.io/aserto-dev/topaz:<pinned>`, exposing 8282, 9292, 9494 (exposed
+but unused by the wait strategy) and 8080 (console). On the shared network when required. Startup:
 
 1. The Dev Service writes a **version 2 `config.yaml`** into a temp directory under the project
-   `target/` (not `/tmp`, per host rules) and bind-mounts it at `/config`. The config enables the
+   `target/` (not `/tmp`, per host rules) and copies it into the container at `/config`. The config enables the
    authorizer, the directory with a BoltDB edge store under `/db`, the console, API key auth only when
    `devservices.api-key` is set, and **plaintext gRPC and gateway listeners**. Topaz's bundled
    self-signed certificates are not used, so tests need no trust-store gymnastics.
 2. Policies, exactly one of:
-   - `quarkus.topaz.devservices.policy.directory=<path>`: a Rego directory, bind-mounted at `/policies`
+   - `quarkus.topaz.devservices.policy.directory=<path>`: a Rego directory, copied into the container at `/policies`
      and configured as `opa.local_bundles.paths` with `skip_verification: true`. Classpath or filesystem
      prefixes like the OpenFGA Dev Service (`classpath:policies`, `filesystem:../policies`).
    - `quarkus.topaz.devservices.policy.image=<oci ref>`: an OCI policy image, configured under
      `opa.config.services.ghcr` + `opa.config.bundles`.
    - Neither: Topaz starts with no policy; `Is` calls return errors until one is set. Logged at startup.
-3. Wait strategy: a custom `AbstractWaitStrategy` opening a plaintext channel to 9494 and calling
-   `grpc.health.v1.Health/Check` until `SERVING`, falling back to `Wait.forListeningPorts(8282, 9292)`
-   plus the Topaz "serving" log line if the health port is disabled. Startup timeout from
-   `quarkus.devservices.timeout`.
+3. Wait strategy: a custom `AbstractWaitStrategy` that, through `TopazClient.builder()` on the
+   mapped ports, calls Authorizer `Info` and Directory `GetManifest` (answer or `NOT_FOUND`) until both
+   succeed. Startup timeout from `quarkus.devservices.timeout`.
 4. Post-start hook, using `TopazClient.builder()` (§4) with a throwaway `Vertx` against the mapped
    ports:
    `SetManifest` from `devservices.manifest-location` and `Import` from `devservices.data-location`
@@ -388,7 +391,7 @@ Container: `GenericContainer` on `ghcr.io/aserto-dev/topaz:<pinned>`, exposing 8
    warning rather than overwriting, as the OpenFGA Dev Service does.
 5. Config provider injects `quarkus.topaz.authorizer.host/port`, `quarkus.topaz.directory.host/port`,
    `quarkus.topaz.plain-text=true`, and `quarkus.topaz.api-key` when set, plus
-   `quarkus.topaz.devservices.console-url` for the Dev UI link.
+   `quarkus.topaz.console-url` for the Dev UI link.
 
 Config keys (build time, `quarkus.topaz.devservices.*`): `enabled=true`, `image-name`, `shared=true`,
 `service-name=topaz`, `policy.directory`, `policy.image`, `manifest-location`, `data-location`,
