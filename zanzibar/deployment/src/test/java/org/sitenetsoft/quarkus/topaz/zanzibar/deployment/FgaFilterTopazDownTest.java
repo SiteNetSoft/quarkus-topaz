@@ -8,6 +8,8 @@ import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.logging.Level;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,8 +21,8 @@ import io.quarkus.security.test.utils.TestIdentityProvider;
 import io.quarkus.test.QuarkusUnitTest;
 
 /**
- * Topaz accepts connections and never answers; the call must end in a 5xx within quarkus-zanzibar's filter timeout, never in
- * a permit.
+ * Topaz accepts connections and never answers. The quarkus-zanzibar filter timeout (set explicitly to 3s) ends the call
+ * with a 5xx, never a permit. The client-wide gRPC deadline (1s) is configured but does not fire on a stalled connection.
  */
 public class FgaFilterTopazDownTest {
 
@@ -33,7 +35,13 @@ public class FgaFilterTopazDownTest {
                     .addClasses(FgaTodoResource.class, TestIdentities.class, TestIdentityProvider.class,
                             TestIdentityController.class))
             .overrideConfigKey("quarkus.http.auth.basic", "true")
-            // the test identities carry a single role, which the default extractor would mistake for a user type
+            // quarkus.zanzibar.extract-user-type-from-roles defaults to true: when the user type is not in the principal name and
+            // the identity has exactly one role, DefaultUserExtractor.extractUserTypeFromRoles takes that role as the Topaz
+            // subject type. TestIdentityController.add(user, password) without roles builds the identity with the role set
+            // {null}, so Optional.of(null) throws an NPE (every request answers 500). That is specific to this test helper.
+            // A real application with a single-role user is not hit by the NPE, but the role name (say "admin") would become
+            // the subject type of the check, which is a misconfiguration for Topaz (the subject type is a directory object
+            // type such as "user", not a role). Applications should leave this false or use @FGAUserType.
             .overrideConfigKey("quarkus.zanzibar.extract-user-type-from-roles", "false")
             .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .overrideConfigKey("quarkus.topaz.authorizer.host", "127.0.0.1")
@@ -41,7 +49,15 @@ public class FgaFilterTopazDownTest {
             .overrideConfigKey("quarkus.topaz.authorizer.port", String.valueOf(SILENT.getLocalPort()))
             .overrideConfigKey("quarkus.topaz.directory.port", String.valueOf(SILENT.getLocalPort()))
             .overrideConfigKey("quarkus.topaz.plain-text", "true")
-            .overrideConfigKey("quarkus.topaz.deadline", "1s");
+            // Configured, but observed not to end the call on a connection that never completes the HTTP/2 handshake
+            // (tracked as a client finding); the filter timeout below is what bounds the request.
+            .overrideConfigKey("quarkus.topaz.deadline", "1s")
+            .overrideConfigKey("quarkus.zanzibar.filter.timeout", "3s")
+            .setLogRecordPredicate(r -> r.getLevel().intValue() == Level.SEVERE.intValue()
+                    && r.getLoggerName().contains("Zanzibar"))
+            .assertLogRecords(records -> assertThat(records).anyMatch(r -> String.valueOf(r.getMessage()).contains("TimeoutException")
+                    || (r.getThrown() != null && r.getThrown().toString().contains("TimeoutException"))
+                    || Arrays.toString(r.getParameters()).contains("TimeoutException")));
 
     @BeforeAll
     static void identities() {
@@ -61,9 +77,8 @@ public class FgaFilterTopazDownTest {
         Duration elapsed = Duration.ofNanos(System.nanoTime() - t0);
         // quarkus-zanzibar maps a failed check to InternalServerErrorException
         assertThat(status).isIn(500, 503);
-        // Observed: against a socket that never completes the HTTP/2 handshake the 1s gRPC deadline does not end the call;
-        // quarkus-zanzibar's own 5s filter timeout does (about 5.3s). The call is still bounded and never permitted.
-        assertThat(elapsed).isLessThan(Duration.ofSeconds(10));
+        // the 3s filter timeout, not the 1s client deadline, ends the call (the log-record assertion confirms the cause)
+        assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(3)).isLessThan(Duration.ofSeconds(8));
     }
 
     private static ServerSocket silentListener() {
