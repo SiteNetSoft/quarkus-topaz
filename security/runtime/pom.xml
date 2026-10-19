@@ -38,6 +38,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <!-- Optional: DefaultSubjectMapper reads the JWT subject only when an application brings MicroProfile JWT -->
+      <groupId>org.eclipse.microprofile.jwt</groupId>
+      <artifactId>microprofile-jwt-auth-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
