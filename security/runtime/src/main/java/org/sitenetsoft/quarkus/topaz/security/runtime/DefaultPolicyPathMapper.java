@@ -23,7 +23,7 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     public DefaultPolicyPathMapper(TopazEnforcementConfig config,
             @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath) {
         this.config = config;
-        this.rootPath = rootPath;
+        this.rootPath = normalize(rootPath);
     }
 
     @Override
@@ -37,10 +37,21 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     }
 
     private String stripRootPath(String path) {
-        String prefix = rootPath.endsWith("/") ? rootPath.substring(0, rootPath.length() - 1) : rootPath;
-        if (!prefix.isEmpty() && (path.equals(prefix) || path.startsWith(prefix + "/"))) {
-            return path.substring(prefix.length());
+        if (!rootPath.isEmpty() && (path.equals(rootPath) || path.startsWith(rootPath + "/"))) {
+            return path.substring(rootPath.length());
         }
         return path;
+    }
+
+    /** Returns the root path with a leading and no trailing {@code /}, or empty for {@code /}. */
+    private static String normalize(String rootPath) {
+        String p = rootPath.trim();
+        while (p.endsWith("/")) {
+            p = p.substring(0, p.length() - 1);
+        }
+        if (p.isEmpty()) {
+            return "";
+        }
+        return p.startsWith("/") ? p : "/" + p;
     }
 }

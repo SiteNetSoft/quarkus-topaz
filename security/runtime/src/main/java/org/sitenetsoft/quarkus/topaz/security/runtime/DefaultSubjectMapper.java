@@ -25,11 +25,12 @@ public class DefaultSubjectMapper implements SubjectMapper {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
             Principal principal = identity.getPrincipal();
-            if (JWT_PRESENT) {
+            if (JWT_PRESENT && Jwt.isJwt(principal)) {
                 String subject = Jwt.subject(principal);
-                if (subject != null) {
-                    return Uni.createFrom().item(subject);
+                if (subject == null || subject.isBlank()) {
+                    return Uni.createFrom().failure(new UnauthorizedException("JWT has no subject claim"));
                 }
+                return Uni.createFrom().item(subject);
             }
             return Uni.createFrom().item(principal.getName());
         } catch (RuntimeException e) {
@@ -49,8 +50,12 @@ public class DefaultSubjectMapper implements SubjectMapper {
     /** Isolates the {@link JsonWebToken} reference so it is only linked when the API is present. */
     private static final class Jwt {
 
+        static boolean isJwt(Principal principal) {
+            return principal instanceof JsonWebToken;
+        }
+
         static String subject(Principal principal) {
-            return principal instanceof JsonWebToken jwt ? jwt.getSubject() : null;
+            return ((JsonWebToken) principal).getSubject();
         }
     }
 }

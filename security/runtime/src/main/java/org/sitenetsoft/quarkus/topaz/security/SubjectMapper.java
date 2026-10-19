@@ -7,7 +7,9 @@ import io.smallrye.mutiny.Uni;
  * Maps the caller's {@link SecurityIdentity} to a directory subject id, e.g. for relation checks.
  * <p>
  * The default fails with {@link io.quarkus.security.UnauthorizedException} for an anonymous identity, returns the
- * {@code sub} claim when the principal is a MicroProfile {@code JsonWebToken}, and the principal name otherwise.
+ * {@code sub} claim when the principal is a MicroProfile {@code JsonWebToken}, and the principal name otherwise. A
+ * {@code JsonWebToken} without a {@code sub} claim also fails with {@code UnauthorizedException}: it cannot identify a
+ * Topaz subject, and the principal name is not used in its place.
  * Provide a CDI bean of this type to replace it.
  */
 public interface SubjectMapper {
