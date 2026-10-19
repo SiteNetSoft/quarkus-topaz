@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sitenetsoft.quarkus.topaz.zanzibar.ZanzibarTopazRelationshipManager;
 
+import org.sitenetsoft.quarkus.topaz.DirectoryClient;
+
 import io.grpc.StatusRuntimeException;
 import io.quarkiverse.zanzibar.Relationship;
 import io.quarkiverse.zanzibar.RelationshipManager;
@@ -31,6 +33,9 @@ public class RelationshipManagerTest {
 
     @Inject
     RelationshipManager manager;
+
+    @Inject
+    DirectoryClient directory;
 
     static final Relationship RICK_OWNS_1 = Relationship.of("todo", "todo-1", "owner", "user", "rick@the-citadel.com");
     static final Relationship MORTY_OWNS_1 = Relationship.of("todo", "todo-1", "owner", "user", "morty@the-citadel.com");
@@ -101,9 +106,15 @@ public class RelationshipManagerTest {
 
     @Test
     void unknownTypeOnCheckIsFalse() {
-        // Topaz 0.33.22 answers NOT_FOUND for an unknown object type on check, which the manager maps to false
+        // Topaz itself answers check=false here (see directoryCheckOnUnknownTypeIsFalse); no NOT_FOUND recovery involved
         assertThat(await(manager.check(Relationship.of("spaceship", "s-1", "owner", "user", "rick@the-citadel.com"))))
                 .isFalse();
+    }
+
+    @Test
+    void directoryCheckOnUnknownTypeIsFalse() {
+        // Topaz 0.33.22 answers OK with check=false (no gRPC error) for an unknown object type
+        assertThat(await(directory.check("spaceship", "s-1", "owner", "user", "rick@the-citadel.com"))).isFalse();
     }
 
     static <T> T await(Uni<T> u) {
