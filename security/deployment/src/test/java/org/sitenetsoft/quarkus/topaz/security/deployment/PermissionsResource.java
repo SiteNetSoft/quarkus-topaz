@@ -22,6 +22,14 @@ public class PermissionsResource {
         return "list";
     }
 
+    // the policy exists and permits rick; the action must still deny
+    @GET
+    @Path("/write")
+    @PermissionsAllowed("todoApp.GET.todos:write")
+    public String write() {
+        return "write";
+    }
+
     @DELETE
     @Path("/todos/{id}")
     @PermissionsAllowed(value = "todo#owner", permission = TopazRelation.class, params = "id")

@@ -1,6 +1,10 @@
 package org.sitenetsoft.quarkus.topaz.security.runtime;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -144,8 +148,7 @@ public final class DecisionEvaluator {
             decisions = decisions(Objects.requireNonNull(decision, "decision"), extraDecisions);
             String resourceJson = JSON.print(resource == null ? Struct.getDefaultInstance() : resource);
             for (String d : decisions) {
-                String key = identity.getType() + "|" + identity.getIdentity() + "|" + policyPath + "|" + d
-                        + "|" + resourceJson;
+                String key = cacheKey(identity, policyPath, d, resourceJson);
                 keys.put(d, key);
                 cache.get(key).ifPresent(v -> cached.put(d, v));
             }
@@ -176,6 +179,18 @@ public final class DecisionEvaluator {
                     return new Outcome(permitted, Map.copyOf(returned));
                 })
                 .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
+    }
+
+    // The identity may be a raw JWT: the key is a digest so that a cache never holds a credential in clear.
+    static String cacheKey(IdentityContext identity, String policyPath, String decision, String resourceJson) {
+        String material = identity.getType() + "|" + identity.getIdentity() + "|" + policyPath + "|" + decision + "|"
+                + resourceJson;
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(material.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is not available", e);
+        }
     }
 
     private static List<String> decisions(String decision, List<String> extraDecisions) {

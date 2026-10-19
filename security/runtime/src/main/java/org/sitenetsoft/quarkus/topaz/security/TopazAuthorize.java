@@ -33,8 +33,11 @@ public @interface TopazAuthorize {
 
     /**
      * The policy path, for example {@code todoApp.DELETE.todos.__id}. When empty, the path is derived from the current
-     * HTTP request with the {@link PolicyPathMapper}; this requires {@code quarkus.topaz.enforcement.policy-root} and a
-     * JAX-RS resource class (annotated {@code @Path}), which the build verifies.
+     * HTTP request with the {@link PolicyPathMapper}: a derived path always means "the policy of the HTTP request being
+     * served", so only JAX-RS resource methods may omit it. The build verifies that an annotated method carries an
+     * HTTP method annotation ({@code @GET}, {@code @POST}, ... or one meta-annotated {@code @HttpMethod}) and that an
+     * annotated class is a JAX-RS resource (annotated {@code @Path}, directly or on an implemented interface). It also
+     * requires {@code quarkus.topaz.enforcement.policy-root}. Set the path explicitly on any other method.
      */
     @Nonbinding
     String path() default "";

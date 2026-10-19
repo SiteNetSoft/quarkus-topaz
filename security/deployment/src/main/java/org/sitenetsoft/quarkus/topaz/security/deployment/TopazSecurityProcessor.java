@@ -1,5 +1,6 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -11,6 +12,7 @@ import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
+import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.Type;
 import org.sitenetsoft.quarkus.topaz.security.TopazAuthorize;
@@ -62,6 +64,14 @@ class TopazSecurityProcessor {
     private static final DotName TOPAZ_OBJECT_ID = DotName.createSimple(TopazObjectId.class);
 
     private static final DotName JAXRS_PATH = DotName.createSimple("jakarta.ws.rs.Path");
+
+    private static final DotName JAXRS_HTTP_METHOD = DotName.createSimple("jakarta.ws.rs.HttpMethod");
+
+    private static final Set<DotName> JAXRS_METHODS = Set.of(
+            DotName.createSimple("jakarta.ws.rs.GET"), DotName.createSimple("jakarta.ws.rs.POST"),
+            DotName.createSimple("jakarta.ws.rs.PUT"), DotName.createSimple("jakarta.ws.rs.DELETE"),
+            DotName.createSimple("jakarta.ws.rs.PATCH"), DotName.createSimple("jakarta.ws.rs.HEAD"),
+            DotName.createSimple("jakarta.ws.rs.OPTIONS"));
 
     private static final DotName INTERCEPTOR = DotName.createSimple("jakarta.interceptor.Interceptor");
 
@@ -203,7 +213,9 @@ class TopazSecurityProcessor {
         recorder.validate(annotationUsesTopazPolicy(index) || derivedPath);
     }
 
-    // A @TopazAuthorize without a path derives it from the matched JAX-RS resource method, so it must sit on one.
+    // A @TopazAuthorize without a path derives it from the HTTP request being served, so it must sit on a JAX-RS
+    // resource class or on a resource method; on any other method it would gate that method with the policy of
+    // whatever endpoint the caller happens to be on.
     private static boolean derivedTopazAuthorizePath(IndexView index) {
         boolean derived = false;
         for (AnnotationInstance a : index.getAnnotations(TOPAZ_AUTHORIZE)) {
@@ -225,14 +237,56 @@ class TopazSecurityProcessor {
                         + " in " + declaring.name() + ": the policy path can only be derived on a JAX-RS resource"
                         + " (a class annotated @Path); set path explicitly");
             }
+            if (a.target().kind() == AnnotationTarget.Kind.METHOD
+                    && !isResourceMethod(index, declaring, a.target().asMethod(), new HashSet<>())) {
+                MethodInfo method = a.target().asMethod();
+                throw new DeploymentException("@TopazAuthorize without a path on method " + method.name()
+                        + " of " + declaring.name() + ": the method is not a JAX-RS resource method (no HTTP method"
+                        + " annotation such as @GET), so the policy path cannot be derived for it; set path"
+                        + " explicitly");
+            }
             derived = true;
         }
         return derived;
     }
 
+    // JAX-RS inherits the HTTP method annotation from an overridden superclass or interface method.
+    private static boolean isResourceMethod(IndexView index, ClassInfo type, MethodInfo method, Set<DotName> seen) {
+        if (type == null || !seen.add(type.name())) {
+            return false;
+        }
+        MethodInfo declared = type.method(method.name(), method.parameterTypes());
+        if (declared != null && hasHttpMethod(index, declared)) {
+            return true;
+        }
+        if (type.superName() != null && isResourceMethod(index, index.getClassByName(type.superName()), method, seen)) {
+            return true;
+        }
+        for (DotName name : type.interfaceNames()) {
+            if (isResourceMethod(index, index.getClassByName(name), method, seen)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasHttpMethod(IndexView index, MethodInfo method) {
+        for (AnnotationInstance annotation : method.declaredAnnotations()) {
+            DotName name = annotation.name();
+            if (JAXRS_METHODS.contains(name)) {
+                return true;
+            }
+            ClassInfo annotationClass = index.getClassByName(name);
+            if (annotationClass != null && annotationClass.hasDeclaredAnnotation(JAXRS_HTTP_METHOD)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean isJaxrsResource(IndexView index, ClassInfo type) {
         for (ClassInfo c = type; c != null; c = c.superName() == null ? null : index.getClassByName(c.superName())) {
-            if (c.hasDeclaredAnnotation(JAXRS_PATH)) {
+            if (c.hasDeclaredAnnotation(JAXRS_PATH) || hasPathInterface(index, c, new HashSet<>())) {
                 return true;
             }
             if (c.enclosingClass() != null) {
@@ -240,6 +294,20 @@ class TopazSecurityProcessor {
                 if (enclosing != null && enclosing.hasDeclaredAnnotation(JAXRS_PATH)) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasPathInterface(IndexView index, ClassInfo type, Set<DotName> seen) {
+        for (DotName name : type.interfaceNames()) {
+            if (!seen.add(name)) {
+                continue;
+            }
+            ClassInfo iface = index.getClassByName(name);
+            if (iface != null
+                    && (iface.hasDeclaredAnnotation(JAXRS_PATH) || hasPathInterface(index, iface, seen))) {
+                return true;
             }
         }
         return false;
