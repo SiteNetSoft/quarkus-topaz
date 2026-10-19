@@ -42,6 +42,6 @@ public class RoutePolicyDecisionsAttributeTest {
     @Test
     void mortySeesVisibleFalse() {
         given().auth().preemptive().basic("morty@the-citadel.com", "morty").get("/todos")
-                .then().statusCode(200).body("visible", equalTo(false));
+                .then().statusCode(200).body("visible", equalTo(false)).body("allowed", equalTo(true));
     }
 }

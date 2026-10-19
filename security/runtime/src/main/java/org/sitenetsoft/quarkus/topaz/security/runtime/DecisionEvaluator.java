@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -94,16 +95,20 @@ public final class DecisionEvaluator {
             return Uni.createFrom().item(deny("<unresolved policy path for " + request.request().method().name()
                     + " " + request.normalizedPath() + ">", describe(identity), e));
         }
-        Uni<IdentityContext> id;
-        Uni<Struct> resource;
+        Uni<Outcome> outcome;
         try {
-            id = identityMapper.map(identity, Optional.of(request));
-            resource = resourceContextMapper.map(request, method);
+            Uni<IdentityContext> id = Objects.requireNonNull(identityMapper.map(identity, Optional.of(request)),
+                    "IdentityMapper returned null");
+            Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
+                    "ResourceContextMapper returned null");
+            outcome = Uni.combine().all().unis(id, resource).asTuple()
+                    .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
         } catch (RuntimeException e) {
             return Uni.createFrom().item(deny(policyPath, describe(identity), e));
         }
-        return Uni.combine().all().unis(id, resource).asTuple()
-                .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()))
+        // The timeout covers the mappers too, so a mapper that never emits cannot hang the request.
+        return outcome
+                .ifNoItem().after(config.timeout()).fail()
                 .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
     }
 
@@ -134,7 +139,8 @@ public final class DecisionEvaluator {
         if (cached.size() == decisions.size()) {
             return Uni.createFrom().item(new Outcome(cached.get(config.decision()), Map.copyOf(cached)));
         }
-        return authorizer.is(identity, policyPath, decisions, resource)
+        // deferred: the client builds the request synchronously, and evaluate must never throw
+        return Uni.createFrom().deferred(() -> authorizer.is(identity, policyPath, decisions, resource))
                 .ifNoItem().after(config.timeout()).fail()
                 .map(response -> {
                     Map<String, Boolean> returned = new LinkedHashMap<>();
@@ -170,6 +176,9 @@ public final class DecisionEvaluator {
 
     // A JWT is a credential: log only its type.
     private static String describe(IdentityContext identity) {
+        if (identity == null) {
+            return "<no identity>";
+        }
         if (identity.getType() == IdentityType.IDENTITY_TYPE_JWT) {
             return identity.getType().name();
         }

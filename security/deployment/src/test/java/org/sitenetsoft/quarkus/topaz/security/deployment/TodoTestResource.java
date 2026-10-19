@@ -25,6 +25,13 @@ public class TodoTestResource {
         return decisions == null ? Map.of() : decisions;
     }
 
+    @GET
+    @Path("public")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String publicTodos() {
+        return "public";
+    }
+
     @DELETE
     @Path("{id}")
     public void delete(@PathParam("id") String id) {

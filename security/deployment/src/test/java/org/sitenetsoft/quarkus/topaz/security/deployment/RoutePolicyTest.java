@@ -1,11 +1,20 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+
+import java.time.Duration;
+
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sitenetsoft.quarkus.topaz.IdentityContexts;
+import org.sitenetsoft.quarkus.topaz.security.runtime.DecisionEvaluator;
+
+import com.google.protobuf.Struct;
 
 import io.quarkus.security.test.utils.TestIdentityController;
 import io.quarkus.security.test.utils.TestIdentityProvider;
@@ -27,6 +36,9 @@ public class RoutePolicyTest {
             .overrideConfigKey("quarkus.http.auth.permission.todos.paths", "/todos*")
             .overrideConfigKey("quarkus.http.auth.permission.todos.policy", "topaz");
 
+    @Inject
+    DecisionEvaluator evaluator;
+
     @BeforeAll
     static void identities() {
         TestIdentities.register();
@@ -47,5 +59,19 @@ public class RoutePolicyTest {
     @Test
     void anonymousIsUnauthorized() {
         given().get("/todos").then().statusCode(401);
+    }
+
+    @Test
+    void anonymousDenyShortCircuitsBeforeTopaz() {
+        // the policy would allow anyone; anonymous=deny rejects without asking Topaz
+        given().get("/todos/public").then().statusCode(401);
+    }
+
+    @Test
+    void evaluateNeverThrows() {
+        DecisionEvaluator.Outcome outcome = evaluator.evaluate(IdentityContexts.none(), null, Struct.getDefaultInstance())
+                .await().atMost(Duration.ofSeconds(10));
+        assertThat(outcome.permitted()).isFalse();
+        assertThat(outcome.decisions()).isEmpty();
     }
 }
