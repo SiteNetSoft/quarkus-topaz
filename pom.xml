@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.sitenetsoft</groupId>
+  <artifactId>quarkus-topaz-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Topaz - Parent</name>
+
+  <modules>
+    <module>runtime</module>
+    <module>deployment</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus.version>3.40.1</quarkus.version>
+    <assertj.version>3.27.7</assertj.version>
+    <compiler-plugin.version>3.15.0</compiler-plugin.version>
+    <surefire-plugin.version>3.6.0</surefire-plugin.version>
+    <topaz.image>ghcr.io/aserto-dev/topaz:0.33.22</topaz.image>
+    <pb-authorizer.tag>v0.24.0</pb-authorizer.tag>
+    <pb-directory.tag>v0.34.1</pb-directory.tag>
+    <!-- host rule: fork JVMs run C1 only -->
+    <test.argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:TieredStopAtLevel=1</test.argLine>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-extension-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${compiler-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire-plugin.version}</version>
+          <configuration>
+            <argLine>${test.argLine}</argLine>
+            <systemPropertyVariables>
+              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+              <maven.home>${maven.home}</maven.home>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${surefire-plugin.version}</version>
+          <configuration>
+            <argLine>${test.argLine}</argLine>
+            <systemPropertyVariables>
+              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+              <maven.home>${maven.home}</maven.home>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
