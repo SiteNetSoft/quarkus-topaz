@@ -34,10 +34,10 @@ import aserto.authorizer.v2.Decision;
 import aserto.authorizer.v2.api.IdentityContext;
 import aserto.authorizer.v2.api.IdentityType;
 import io.quarkus.security.identity.SecurityIdentity;
-import io.vertx.core.Context;
-import io.vertx.core.Vertx;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
