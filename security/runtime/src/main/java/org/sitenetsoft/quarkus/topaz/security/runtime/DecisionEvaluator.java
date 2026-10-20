@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -33,6 +34,8 @@ import aserto.authorizer.v2.Decision;
 import aserto.authorizer.v2.api.IdentityContext;
 import aserto.authorizer.v2.api.IdentityType;
 import io.quarkus.security.identity.SecurityIdentity;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.ext.web.RoutingContext;
@@ -41,7 +44,8 @@ import io.vertx.ext.web.RoutingContext;
  * Evaluates Topaz decisions for a request. Every enforcement point delegates here.
  * <p>
  * Fails closed: an authorizer error, a timeout, a mapper failure or a response without the configured decision yields
- * a denying {@link Outcome} and a WARN log naming the policy path. Successful decisions go through the
+ * a denying {@link Outcome} and a WARN log naming the policy path. The mappers run on a worker thread under the
+ * request's Vert.x context and are bounded by the enforcement timeout. Successful decisions go through the
  * {@link DecisionCache}; errors are never cached.
  */
 @Singleton
@@ -85,27 +89,31 @@ public final class DecisionEvaluator {
     /**
      * Evaluates the configured decision and the additional decisions for an HTTP request, mapping the identity, the
      * policy path and the resource context with the configured mappers.
+     * <p>
+     * Threading: the method resolution and the three mappers run on a worker thread, through the caller's Vert.x
+     * context (or the default worker pool when there is none), so the request's duplicated context stays current
+     * there. A mapper may therefore block, but the whole evaluation, mappers included, is bounded by
+     * {@code quarkus.topaz.enforcement.timeout} and is denied when it runs out. The {@code RoutingContext} is not
+     * thread-safe: mappers must not hand it to other threads.
      *
      * @param identity the caller
      * @param request the HTTP request
      * @return the outcome; never a failure
      */
     public Uni<Outcome> evaluateRequest(SecurityIdentity identity, RoutingContext request) {
-        Optional<ResourceMethodInfo> method;
-        String policyPath;
-        try {
-            method = resolver.resolve(request);
-            policyPath = policyPathMapper.map(request, method);
-        } catch (RuntimeException e) {
-            return Uni.createFrom().item(deny("<unresolved policy path for " + request.request().method().name()
-                    + " " + request.normalizedPath() + ">", describe(identity), e));
-        }
-        // The mappers run on a worker after the subscription, so the timeout below is already armed while they run
-        // and also bounds a mapper that blocks or throws instead of emitting. A plain deferred supplier would run
-        // before the timer starts, and on the event loop a blocking mapper would stop the timer from firing.
+        String unresolved = "<unresolved policy path for " + request.request().method().name() + " "
+                + request.normalizedPath() + ">";
+        String[] logPath = { unresolved };
+        // The resolver and the three mappers run on a worker after the subscription: the timeout below is already
+        // armed while they run, so it bounds a mapper that blocks or throws instead of emitting. A plain deferred
+        // supplier would run before the timer starts, and on the event loop a blocking mapper would stop the timer.
         return Uni.createFrom().voidItem()
-                .emitOn(Infrastructure.getDefaultWorkerPool())
+                .emitOn(mapperExecutor())
                 .chain(() -> {
+                    Optional<ResourceMethodInfo> method = resolver.resolve(request);
+                    String policyPath = Objects.requireNonNull(policyPathMapper.map(request, method),
+                            "PolicyPathMapper returned null");
+                    logPath[0] = policyPath;
                     Uni<IdentityContext> id = Objects.requireNonNull(
                             identityMapper.map(identity, Optional.of(request)), "IdentityMapper returned null");
                     Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
@@ -114,7 +122,21 @@ public final class DecisionEvaluator {
                             .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
                 })
                 .ifNoItem().after(config.timeout()).fail()
-                .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
+                .onFailure().recoverWithItem(e -> deny(logPath[0], describe(identity), e));
+    }
+
+    // Blocking work for the current Vert.x context runs through that context, so the duplicated context (request
+    // scope, reactive clients, the identity association) stays current on the worker thread. Without a Vert.x
+    // context the default worker pool is used.
+    private static Executor mapperExecutor() {
+        Context context = Vertx.currentContext();
+        if (context == null) {
+            return Infrastructure.getDefaultWorkerPool();
+        }
+        return task -> context.executeBlocking(() -> {
+            task.run();
+            return null;
+        }, false);
     }
 
     /**
