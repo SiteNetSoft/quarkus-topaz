@@ -14,6 +14,12 @@ import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Maps the {@link SecurityIdentity} to a Topaz identity context: type {@code JWT} with the raw token when the identity
+ * carries a {@link TokenCredential}, otherwise {@code SUB} with the principal name when authenticated, otherwise
+ * {@code NONE}. It is a {@code @DefaultBean}: to replace it, provide your own bean implementing {@link
+ * IdentityMapper}.
+ */
 @Singleton
 @DefaultBean
 public class DefaultIdentityMapper implements IdentityMapper {

@@ -186,6 +186,21 @@ method; set `path` there. A derived path also requires `quarkus.topaz.enforcemen
 * `decision`: the decision that must be `true`; empty means `quarkus.topaz.enforcement.decision`.
 * `decisions`: further decisions to request; empty means `quarkus.topaz.enforcement.additional-decisions`.
 
+For example, with a POJO argument (a plain record):
+
+[source,java]
+----
+public record Todo(String id, String title, boolean completed) { }
+
+@PUT
+@Path("todos/{id}")
+@TopazAuthorize(path = "todoApp.PUT.todos.__id")
+public Todo update(@PathParam("id") String id, @TopazResource("todo") Todo todo) { ... }
+----
+
+Jackson turns the `Todo` into the map `{"id": ..., "title": ..., "completed": ...}`, which the policy reads as
+`input.resource.todo.title`.
+
 The resource context is the `ResourceContextMapper` output for the current request (empty outside one), overlaid with
 the arguments annotated `@TopazResource("key")`. An argument is converted with Jackson: strings, numbers, booleans,
 maps and lists pass through, other objects become maps of their properties. It replaces a mapper key of the same name.
