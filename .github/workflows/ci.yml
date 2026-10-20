@@ -71,4 +71,4 @@ jobs:
           cache: maven
 
       - name: Test against Topaz 0.33.21
-        run: mvn -B -pl deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21
+        run: mvn -B -pl deployment,security/deployment,zanzibar/deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21
