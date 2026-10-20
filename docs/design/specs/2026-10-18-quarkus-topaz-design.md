@@ -444,7 +444,7 @@ a refactor.
 
 - `deployment/src/test`: `QuarkusUnitTest` with the Dev Service for client behaviour, TLS via a
   Topaz container configured with test certificates, API key enforcement, config validation (missing
-  `policy-root` when the `topaz` policy is bound is a build-time error), shared-container drift.
+  `policy-root` when the `topaz` policy is bound fails startup validation unless a custom `PolicyPathMapper` bean is present), shared-container drift.
   `QuarkusDevModeTest` for Dev UI JSON-RPC.
 - `security/deployment/src/test`: `QuarkusUnitTest` apps exercising both attachment points and both
   annotations with the bundled sample policy and manifest, including deny on unresolved user, deny on
