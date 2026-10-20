@@ -11,6 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 @Path("/service")
@@ -72,5 +73,32 @@ public class ServiceResource {
     @Path("owned-blank")
     public Uni<String> deleteOwnedBlank() {
         return service.deleteOwned("");
+    }
+
+    @GET
+    @Path("stream")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Multi<String> stream() {
+        return service.streamTodos();
+    }
+
+    @GET
+    @Path("stream-count")
+    public String streamCount() {
+        return String.valueOf(service.streamEntered());
+    }
+
+    @GET
+    @Path("visible")
+    @Blocking
+    public String visible() {
+        return service.peekVisible();
+    }
+
+    @GET
+    @Path("visible-as-allowed")
+    @Blocking
+    public String visibleAsAllowed() {
+        return service.peekAllowed();
     }
 }
