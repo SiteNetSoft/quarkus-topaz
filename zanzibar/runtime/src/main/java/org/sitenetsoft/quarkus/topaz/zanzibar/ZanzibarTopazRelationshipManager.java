@@ -19,8 +19,12 @@ import io.smallrye.mutiny.Uni;
 /**
  * {@link RelationshipManager} backed by the Topaz Directory.
  * <p>
- * Fails closed: a {@code NOT_FOUND} answer to a check means "not related" ({@code false}); every other failure
- * propagates as a {@link StatusRuntimeException} and never yields {@code true}.
+ * Fails closed: a {@code NOT_FOUND} answer to a check means "not related" ({@code false}), and {@link #remove} ignores
+ * a {@code NOT_FOUND} for a relation that does not exist. Every other failure propagates as a
+ * {@link StatusRuntimeException} and never yields {@code true}.
+ * <p>
+ * {@link #add} and {@link #remove} are not atomic: they call the Directory once per element, in order, and stop at the
+ * first failure; the elements before it stay applied.
  */
 @ApplicationScoped
 public class ZanzibarTopazRelationshipManager implements RelationshipManager {
@@ -34,6 +38,10 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
         this.config = config;
     }
 
+    /**
+     * Checks the relationship with a Directory {@code Check}, which evaluates relations and permissions alike.
+     * {@code NOT_FOUND} answers {@code false}; other failures propagate.
+     */
     @Override
     public Uni<Boolean> check(Relationship r) {
         Relation rel = toRelation(r, config.defaultUserType());
@@ -42,6 +50,10 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
                 .onFailure(ZanzibarTopazRelationshipManager::isNotFound).recoverWithItem(false);
     }
 
+    /**
+     * Sets each relationship with a Directory {@code SetRelation}, in order; setting an existing relation succeeds.
+     * Not atomic: the first failure propagates and the earlier elements stay set.
+     */
     @Override
     public Uni<Void> add(List<Relationship> rs) {
         return Multi.createFrom().iterable(rs)
@@ -50,6 +62,10 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
                 .collect().last().replaceWithVoid();
     }
 
+    /**
+     * Deletes each relationship with a Directory {@code DeleteRelation}, in order; a relation that does not exist is
+     * ignored. Not atomic: the first other failure propagates and the earlier elements stay removed.
+     */
     @Override
     public Uni<Void> remove(List<Relationship> rs) {
         return Multi.createFrom().iterable(rs)

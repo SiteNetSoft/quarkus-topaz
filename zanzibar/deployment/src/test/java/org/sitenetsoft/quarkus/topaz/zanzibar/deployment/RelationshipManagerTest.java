@@ -63,6 +63,11 @@ public class RelationshipManagerTest {
     }
 
     @Test
+    void unknownRelationChecksFalse() {
+        assertThat(await(manager.check(Relationship.of("todo", "todo-1", "nope", "user", "rick@the-citadel.com")))).isFalse();
+    }
+
+    @Test
     void unknownUserChecksFalse() {
         assertThat(await(manager.check(Relationship.of("todo", "todo-1", "owner", "user", "summer@the-citadel.com")))).isFalse();
     }
