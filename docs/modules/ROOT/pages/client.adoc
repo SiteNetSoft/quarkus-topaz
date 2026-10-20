@@ -86,12 +86,19 @@ return topaz.authorizer().isAllowed(subject(user), policy, "allowed", Map.of("id
 == Deadlines
 
 `quarkus.topaz.deadline`, or `quarkus.topaz.authorizer.deadline` / `quarkus.topaz.directory.deadline`, sets a
-per-call deadline. It starts when a `Uni` or `Multi` is subscribed to, so each retry gets a fresh deadline, and it
-applies to streaming calls (manifest, import, export) too, where it bounds the wait for the first item. The client
-enforces the deadline itself: a call against a server that accepts the connection and never answers fails with
-`DEADLINE_EXCEEDED` once the deadline elapses. A refused connection fails immediately with `UNAVAILABLE`, deadline
-or not. Without a deadline, calls have no time limit, except that the health check and the Dev UI give up after 10
-seconds.
+per-call deadline. It starts when a `Uni` or `Multi` is subscribed to, so each retry gets a fresh deadline. The
+deadline bounds the whole call, streams (manifest, import, export) included, as a gRPC `withDeadlineAfter`
+deadline. In addition the client fails a call that receives nothing for one deadline period with
+`DEADLINE_EXCEEDED`, so a stalled connection cannot hang the convenience methods. For a `Multi` this guard is an
+inactivity timeout between items, not a first-item timeout. A refused connection fails immediately with
+`UNAVAILABLE`.
+
+The raw stubs (`reader()`, `writer()`, `model()`, `importer()`, `exporter()` and the authorizer `stub()`) carry only the
+gRPC deadline and are not protected against a stalled handshake: add your own `ifNoItem()` or use the convenience
+methods. Timeout failures are emitted on a Mutiny timer thread, not on the caller's Vert.x context; recover with
+`emitOn` if the recovery needs the context.
+
+Without a deadline, calls have no time limit, except that the health check and the Dev UI give up after 10 seconds.
 
 == Connection security
 

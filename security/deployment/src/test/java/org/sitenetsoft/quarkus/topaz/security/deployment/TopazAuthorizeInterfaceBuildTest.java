@@ -26,7 +26,7 @@ public class TopazAuthorizeInterfaceBuildTest {
             .assertException(t -> assertThat(t).hasMessageContaining("@TopazAuthorize")
                     .hasMessageContaining(XImpl.class.getName())
                     .hasMessageContaining("HTTP method annotation")
-                    .hasMessageNotContaining("not a JAX-RS resource)"));
+                    .hasMessageNotContaining("can only be derived on a JAX-RS resource"));
 
     @Test
     void buildFails() {

@@ -353,8 +353,8 @@ A `SecurityIdentityAugmentor` adds a permission checker to every authenticated i
 resolves lazily by calling `Is` with the permission name as policy path and the configured decision,
 and `TopazRelation` permission class for `@PermissionsAllowed(value="todo#owner", permission=TopazRelation.class, params="id")`
 mapping to a directory `Check`. `TopazRelation(String name, String id)` takes a name of the form
-`objectType#relation[@subjectType]` (subject type defaults to `user`); whitespace anywhere in the name or id is
-rejected, and a malformed name denies. Opt-in with `quarkus.topaz.enforcement.permissions.enabled=true`
+`objectType#relation[@subjectType]` (subject type defaults to `user`); whitespace in the name is rejected (the id
+must be non-blank), and a malformed name denies. Opt-in with `quarkus.topaz.enforcement.permissions.enabled=true`
 (default false) so that users relying on role-based `@PermissionsAllowed` elsewhere are not surprised by
 remote calls. This is the lowest-priority piece of the security module and ships last.
 
@@ -433,7 +433,7 @@ blank user type. It never gives an authenticated caller a type. Recommended when
 `@FGARelation("owner")` (or another real relation); otherwise any caller reaches it. A stalled call is bounded by
 the shorter of the client deadline (`quarkus.topaz.deadline`, enforced by the client itself, failing with
 `DEADLINE_EXCEEDED`) and `quarkus.zanzibar.filter.timeout`; a refused connection fails fast with `UNAVAILABLE`. The
-filter answers 500 on either. The health check names the failing endpoints in its DOWN payload.
+filter answers 500 on either. The health check names the configured authorizer and directory endpoints in its DOWN payload.
 
 Deployment registers `FeatureBuildItem("topaz-zanzibar")` and the bean. Docs page shows the
 `@FGARelation` flow against a Topaz manifest. This module is also the candidate for upstreaming as
@@ -444,7 +444,8 @@ a refactor.
 
 - `deployment/src/test`: `QuarkusUnitTest` with the Dev Service for client behaviour, TLS via a
   Topaz container configured with test certificates, API key enforcement, config validation (missing
-  `policy-root` when the `topaz` policy is bound fails startup validation unless a custom `PolicyPathMapper` bean is present), shared-container drift.
+  `policy-root` when the `topaz` policy is bound fails startup validation unless a custom
+  `PolicyPathMapper` bean is present), shared-container drift.
   `QuarkusDevModeTest` for Dev UI JSON-RPC.
 - `security/deployment/src/test`: `QuarkusUnitTest` apps exercising both attachment points and both
   annotations with the bundled sample policy and manifest, including deny on unresolved user, deny on

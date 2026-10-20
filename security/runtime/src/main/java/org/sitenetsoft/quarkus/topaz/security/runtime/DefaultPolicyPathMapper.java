@@ -53,7 +53,8 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     private static void checkRawSegments(String path) {
         for (String segment : path.split("/")) {
             String s = segment.trim();
-            if (s.contains(".") || s.startsWith("__") || s.startsWith("{")) {
+            if (s.contains(".") || s.startsWith("__") || s.contains("{")
+                    || s.contains("}")) {
                 throw new IllegalStateException("Policy path cannot be derived from request path " + path
                         + ": segment " + s + " is not allowed before REST matching; bind the policy with"
                         + " applies-to=jaxrs or @AuthorizationPolicy");

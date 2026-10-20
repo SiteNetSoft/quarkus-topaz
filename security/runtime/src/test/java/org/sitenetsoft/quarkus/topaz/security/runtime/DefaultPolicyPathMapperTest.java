@@ -53,7 +53,7 @@ class DefaultPolicyPathMapperTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "/todos.public", "/todos/__id", "/todos/{id}" })
+    @ValueSource(strings = { "/todos.public", "/todos/__id", "/todos/{id}", "/todos/a{b", "/todos/a}b" })
     void rawPathCannotPickThePackage(String path) {
         DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/");
 
