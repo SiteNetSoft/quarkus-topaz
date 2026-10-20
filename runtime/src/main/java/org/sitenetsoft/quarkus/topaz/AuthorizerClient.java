@@ -50,10 +50,14 @@ public final class AuthorizerClient {
 
     /**
      * Defers stub acquisition to subscription time, so each subscription (including retries and late
-     * subscriptions) gets a deadline that starts when the call is actually made.
+     * subscriptions) gets a deadline that starts when the call is actually made. The deadline is also enforced
+     * here with a Mutiny timeout: the gRPC deadline alone does not end a call on a connection that never
+     * completes its HTTP/2 handshake.
      */
     private <T> Uni<T> call(Function<MutinyAuthorizerGrpc.MutinyAuthorizerStub, Uni<T>> f) {
-        return Uni.createFrom().deferred(() -> f.apply(stub()));
+        Uni<T> call = Uni.createFrom().deferred(() -> f.apply(stub()));
+        return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> DirectoryClient.deadlineExceeded(d)))
+                .orElse(call);
     }
 
     Optional<Duration> deadline() {

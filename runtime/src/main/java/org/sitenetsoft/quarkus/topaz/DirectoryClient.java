@@ -40,6 +40,7 @@ import aserto.directory.writer.v3.SetObjectResponse;
 import aserto.directory.writer.v3.SetRelationRequest;
 import aserto.directory.writer.v3.SetRelationResponse;
 import io.grpc.Channel;
+import io.grpc.Status;
 import io.grpc.stub.AbstractStub;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -78,14 +79,24 @@ public final class DirectoryClient {
 
     /**
      * Defers stub acquisition to subscription time, so each subscription (including retries and late
-     * subscriptions) gets a deadline that starts when the call is actually made.
+     * subscriptions) gets a deadline that starts when the call is actually made. The deadline is also enforced
+     * here with a Mutiny timeout: the gRPC deadline alone does not end a call on a connection that never
+     * completes its HTTP/2 handshake.
      */
-    private static <S, T> Uni<T> uni(java.util.function.Supplier<S> stub, Function<S, Uni<T>> f) {
-        return Uni.createFrom().deferred(() -> f.apply(stub.get()));
+    private <S, T> Uni<T> uni(java.util.function.Supplier<S> stub, Function<S, Uni<T>> f) {
+        Uni<T> call = Uni.createFrom().deferred(() -> f.apply(stub.get()));
+        return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
     }
 
-    private static <S, T> Multi<T> multi(java.util.function.Supplier<S> stub, Function<S, Multi<T>> f) {
-        return Multi.createFrom().deferred(() -> f.apply(stub.get()));
+    /** Same as {@link #uni}; the timeout applies to the first item of the stream. */
+    private <S, T> Multi<T> multi(java.util.function.Supplier<S> stub, Function<S, Multi<T>> f) {
+        Multi<T> call = Multi.createFrom().deferred(() -> f.apply(stub.get()));
+        return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
+    }
+
+    static Throwable deadlineExceeded(Duration deadline) {
+        return Status.DEADLINE_EXCEEDED
+                .withDescription("Topaz call exceeded the configured deadline of " + deadline).asRuntimeException();
     }
 
     /** The raw reader stub, with the configured deadline (if any) starting now; likewise for the others. */
