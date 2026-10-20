@@ -12,6 +12,11 @@ import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 
+/**
+ * Resolves the subject id used by {@code @TopazCheck}: the principal name, or the {@code sub} claim of a JWT when one
+ * is present; an anonymous caller fails with {@code UnauthorizedException}. It is a {@code @DefaultBean}: to replace
+ * it, provide your own bean implementing {@link SubjectMapper}.
+ */
 @Singleton
 @DefaultBean
 public class DefaultSubjectMapper implements SubjectMapper {

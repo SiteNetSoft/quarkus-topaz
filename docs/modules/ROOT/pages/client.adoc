@@ -18,7 +18,7 @@ The channels are Vert.x gRPC client channels on the Quarkus event loop. Generate
 == API
 
 All methods return Mutiny types. Each client also exposes its raw Mutiny stubs for requests the convenience
-methods do not cover.
+methods do not cover. Packages named `runtime` are internal.
 
 [cols="1,3"]
 |===

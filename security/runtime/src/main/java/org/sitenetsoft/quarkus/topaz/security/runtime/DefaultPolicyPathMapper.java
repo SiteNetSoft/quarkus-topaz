@@ -12,6 +12,13 @@ import org.sitenetsoft.quarkus.topaz.security.ResourceMethodInfo;
 import io.quarkus.arc.DefaultBean;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Builds the policy path in the Aserto middleware convention, {@code <policy-root>.<METHOD>.<path>}, with {@code /}
+ * replaced by {@code .} and {@code {param}} by {@code __param}, after stripping {@code quarkus.http.root-path} and
+ * {@code quarkus.rest.path} from the path. It is a {@code @DefaultBean}: to replace it, provide your own bean
+ * implementing {@link PolicyPathMapper}; with a custom mapper {@code quarkus.topaz.enforcement.policy-root} is no
+ * longer required.
+ */
 @Singleton
 @DefaultBean
 public class DefaultPolicyPathMapper implements PolicyPathMapper {

@@ -18,6 +18,11 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Builds the resource context from the JAX-RS path parameters, when the route is known, and the query parameters; it
+ * never reads the request body. It is a {@code @DefaultBean}: to replace it, provide your own bean implementing {@link
+ * ResourceContextMapper}.
+ */
 @Singleton
 @DefaultBean
 public class DefaultResourceContextMapper implements ResourceContextMapper {
