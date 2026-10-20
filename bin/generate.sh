@@ -43,10 +43,22 @@ find "${PROTO_DIR}" -name '*.proto' -print0 | while IFS= read -r -d '' f; do
   grep -q '^option java_multiple_files' "$f" || sed -i '0,/^package .*;/s//&\noption java_multiple_files = true;/' "$f"
 done
 
+if [ -z "$(find "${PROTO_DIR}/aserto" -type f -name '*.proto' 2>/dev/null | head -n 1)" ]; then
+  echo "ERROR: ${PROTO_DIR}/aserto is empty after the proto export" >&2
+  exit 1
+fi
+
 echo "Generating gRPC stubs"
 mvn -Pgenerate -pl grpc/generator clean package
+
+if [ -z "$(find "${GENERATED_DIR}" -type f 2>/dev/null | head -n 1)" ]; then
+  echo "ERROR: ${GENERATED_DIR} is empty after generation" >&2
+  exit 1
+fi
 
 echo "Replacing committed stubs"
 rm -rf "${TARGET_DIR}/aserto" "${TARGET_DIR}/grpc"
 mkdir -p "${TARGET_DIR}"
 cp -r "${GENERATED_DIR}"/* "${TARGET_DIR}"
+
+echo "Done: stubs regenerated from authorizer ${PB_AUTHORIZER_TAG} and directory ${PB_DIRECTORY_TAG}"

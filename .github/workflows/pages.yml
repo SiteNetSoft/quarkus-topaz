@@ -48,4 +48,5 @@ jobs:
 
   deploy:
     needs: build
-    uses: SiteNetSoft/GitHub-Actions/.github/workflows/deploy-pages.yml@master
+    # no tags exist; pinned to the master commit of 2026-08-22
+    uses: SiteNetSoft/GitHub-Actions/.github/workflows/deploy-pages.yml@12137ac4ca02e9a5a0c057ba499f3496eddeac6b
