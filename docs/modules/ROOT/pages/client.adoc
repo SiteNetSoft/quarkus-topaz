@@ -87,7 +87,11 @@ return topaz.authorizer().isAllowed(subject(user), policy, "allowed", Map.of("id
 
 `quarkus.topaz.deadline`, or `quarkus.topaz.authorizer.deadline` / `quarkus.topaz.directory.deadline`, sets a
 per-call deadline. It starts when a `Uni` or `Multi` is subscribed to, so each retry gets a fresh deadline, and it
-applies to streaming calls (manifest, import, export) too. Without it, calls have no deadline.
+applies to streaming calls (manifest, import, export) too, where it bounds the wait for the first item. The client
+enforces the deadline itself: a call against a server that accepts the connection and never answers fails with
+`DEADLINE_EXCEEDED` once the deadline elapses. A refused connection fails immediately with `UNAVAILABLE`, deadline
+or not. Without a deadline, calls have no time limit, except that the health check and the Dev UI give up after 10
+seconds.
 
 == Connection security
 

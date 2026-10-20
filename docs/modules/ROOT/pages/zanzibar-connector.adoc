@@ -177,9 +177,9 @@ names, so it leaves both user-type extractions at their defaults.
 * An anonymous caller, and a caller that is unknown to the Directory, get 403 on a checked endpoint. quarkus-zanzibar
 denies; it does not challenge with 401.
 * When Topaz refuses the connection, the check fails fast with `UNAVAILABLE` and the filter answers 500.
-* When Topaz accepts the connection and never answers, `quarkus.zanzibar.filter.timeout` (5s by default) bounds the
-wait; the filter then answers 500. `quarkus.topaz.deadline` was observed not to end such a stalled call, so do not rely
-on it here; its effect on calls that reach Topaz is not tested by this module.
+* When Topaz accepts the connection and never answers, the shorter of the client deadline (`quarkus.topaz.deadline`,
+unset by default) and `quarkus.zanzibar.filter.timeout` (5s by default) ends the wait first, and the filter answers 500.
+The client deadline fails the call with `DEADLINE_EXCEEDED`; the filter timeout fails it with a `TimeoutException`.
 
 == Configuration
 

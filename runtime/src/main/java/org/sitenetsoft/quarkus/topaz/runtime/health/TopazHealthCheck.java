@@ -1,5 +1,7 @@
 package org.sitenetsoft.quarkus.topaz.runtime.health;
 
+import java.time.Duration;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -22,6 +24,8 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class TopazHealthCheck implements AsyncHealthCheck {
 
+    static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
+
     @Inject
     TopazClient client;
 
@@ -37,6 +41,7 @@ public class TopazHealthCheck implements AsyncHealthCheck {
             Uni<?> manifest = client.directory().getManifest()
                     .onFailure(TopazHealthCheck::isNotFound).recoverWithItem("");
             return Uni.combine().all().unis(info, manifest).discardItems()
+                    .ifNoItem().after(HEALTH_TIMEOUT).fail()
                     .map(ignored -> HealthCheckResponse.named("Topaz").up()
                             .withData("authorizer", authorizer).withData("directory", directory).build())
                     .onFailure().recoverWithItem(TopazHealthCheck::down);
