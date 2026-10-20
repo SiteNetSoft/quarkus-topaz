@@ -6,14 +6,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import jakarta.inject.Singleton;
 
+import org.jboss.logmanager.ExtLogRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sitenetsoft.quarkus.topaz.security.PolicyPathMapper;
 import org.sitenetsoft.quarkus.topaz.security.ResourceMethodInfo;
+import org.sitenetsoft.quarkus.topaz.security.runtime.DecisionEvaluator;
 
 import io.quarkus.security.test.utils.TestIdentityController;
 import io.quarkus.security.test.utils.TestIdentityProvider;
@@ -39,7 +42,11 @@ public class RoutePolicySlowPathMapperTest {
             .overrideConfigKey("quarkus.topaz.devservices.data-location", "classpath:topaz/data")
             .overrideConfigKey("quarkus.topaz.enforcement.timeout", "1s")
             .overrideConfigKey("quarkus.http.auth.permission.todos.paths", "/todos*")
-            .overrideConfigKey("quarkus.http.auth.permission.todos.policy", "topaz");
+            .overrideConfigKey("quarkus.http.auth.permission.todos.policy", "topaz")
+            .setLogRecordPredicate(r -> r.getLevel().intValue() >= Level.WARNING.intValue()
+                    && DecisionEvaluator.class.getName().equals(r.getLoggerName()))
+            .assertLogRecords(records -> assertThat(records).anyMatch(r -> ((ExtLogRecord) r).getFormattedMessage()
+                    .contains("<unresolved policy path for GET /todos>")));
 
     @BeforeAll
     static void identities() {

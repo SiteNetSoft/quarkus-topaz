@@ -26,8 +26,8 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Mappers run on a worker thread, but under the request's Vert.x context: the current duplicated Vert.x
- * context stays available (the request scope itself is not yet active when HTTP policies run).
+ * Mappers run on a worker thread, but under the request's Vert.x duplicated context, which stays current. The CDI
+ * request scope is not active while HTTP security policies run, so it is deliberately not tested here.
  */
 public class RoutePolicyMapperContextTest {
 
