@@ -10,6 +10,12 @@ import io.vertx.ext.web.RoutingContext;
  * The default follows the convention {@code <policy-root>.<METHOD>.<path>}, where {@code /} separators become
  * {@code .} and template parameters {@code {name}} become {@code __name}; it uses the resource method's path template
  * when known, the request path otherwise. Provide a CDI bean of this type to replace it.
+ * <p>
+ * Threading: for the {@code topaz} HTTP security policy, {@code map} runs on a worker thread through the request's
+ * Vert.x context, so a blocking body is tolerated, request-scoped beans and the Vert.x context stay available, and
+ * the whole evaluation is bounded by {@code quarkus.topaz.enforcement.timeout} (a mapper that runs out of time
+ * yields a denial). The {@code RoutingContext} is not thread-safe: do not pass it to other threads. When called
+ * from {@code @TopazAuthorize}, {@code map} runs on the calling thread instead, so it should not block there.
  */
 public interface PolicyPathMapper {
 
