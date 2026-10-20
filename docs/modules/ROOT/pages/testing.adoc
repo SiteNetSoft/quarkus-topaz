@@ -15,9 +15,10 @@ Topaz-down denials.
 a reactive route.
 `zanzibar/deployment`:: `QuarkusUnitTest` classes for `quarkus-topaz-zanzibar` against the Dev Service: the
 relationship manager, the quarkus-zanzibar filter and its Topaz-down behaviour.
-`integration-tests`:: The todo application, including endpoints secured by the route policy and the interceptors.
-`TodoResourceTest` and `SecuredTodoResourceTest` (`@QuarkusTest`) run with Surefire; their `*IT` subclasses run the
-same tests with Failsafe against the native executable and are skipped unless `-Dnative` is given.
+`integration-tests`:: The todo application, including endpoints secured by the route policy and the interceptors, and
+the quarkus-zanzibar annotated `/fga/todos` endpoints. `TodoResourceTest`, `SecuredTodoResourceTest` and
+`FgaTodoResourceTest` (`@QuarkusTest`) run with Surefire; their `*IT` subclasses (`TodoResourceIT`,
+`SecuredTodoResourceIT`, `FgaTodoResourceIT`) run the same tests with Failsafe against the native executable and are skipped unless `-Dnative` is given.
 
 == Running locally
 
