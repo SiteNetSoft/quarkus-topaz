@@ -24,18 +24,6 @@ public final class TopazChannels {
     private TopazChannels() {
     }
 
-    public static boolean useTls(ResolvedServiceSettings s, Optional<TlsConfiguration> named,
-            Optional<TlsConfiguration> registryDefault) {
-        if (s.plainText().isPresent()) {
-            return !s.plainText().get();
-        }
-        if (named.isPresent()) {
-            return true;
-        }
-        return registryDefault.isPresent()
-                && (registryDefault.get().getTrustStoreOptions() != null || registryDefault.get().isTrustAll());
-    }
-
     /**
      * Creates a channel. {@code plainText=true} always wins: a plaintext channel is produced and {@code tls} is
      * ignored. A named TLS configuration that was not resolved fails instead of silently downgrading. If TLS is

@@ -41,10 +41,12 @@ public final class BlockingTopazClient {
         this.directory = new BlockingDirectoryClient(directory);
     }
 
+    /** The blocking authorizer client. */
     public BlockingAuthorizerClient authorizer() {
         return authorizer;
     }
 
+    /** The blocking directory client. */
     public BlockingDirectoryClient directory() {
         return directory;
     }

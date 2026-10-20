@@ -1,4 +1,4 @@
-package org.sitenetsoft.quarkus.topaz.runtime;
+package org.sitenetsoft.quarkus.topaz;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
