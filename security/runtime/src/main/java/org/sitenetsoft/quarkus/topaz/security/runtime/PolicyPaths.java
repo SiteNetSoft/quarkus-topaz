@@ -1,5 +1,7 @@
 package org.sitenetsoft.quarkus.topaz.security.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
 
@@ -22,7 +24,7 @@ public final class PolicyPaths {
      */
     public static String of(String root, String httpMethod, String path) {
         StringJoiner joined = new StringJoiner(".").add(root).add(httpMethod.toUpperCase(Locale.ROOT));
-        for (String segment : path.split("/")) {
+        for (String segment : segments(path)) {
             String s = segment.trim();
             if (s.isEmpty()) {
                 continue;
@@ -38,5 +40,28 @@ public final class PolicyPaths {
             joined.add(s);
         }
         return joined.toString();
+    }
+
+    // A '/' inside {...} belongs to a regex, not to the path: split only at brace depth zero.
+    private static List<String> segments(String path) {
+        List<String> segments = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        int depth = 0;
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == '{') {
+                depth++;
+            } else if (c == '}' && depth > 0) {
+                depth--;
+            }
+            if (c == '/' && depth == 0) {
+                segments.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        segments.add(current.toString());
+        return segments;
     }
 }

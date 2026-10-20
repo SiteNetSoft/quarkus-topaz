@@ -40,6 +40,9 @@ public final class TopazRelation extends Permission {
         if (name == null) {
             throw new IllegalArgumentException("TopazRelation name must not be null");
         }
+        if (name.chars().anyMatch(Character::isWhitespace)) {
+            throw malformed(name);
+        }
         int hash = name.indexOf('#');
         if (hash < 0) {
             throw malformed(name);

@@ -34,6 +34,7 @@ import aserto.authorizer.v2.api.IdentityContext;
 import aserto.authorizer.v2.api.IdentityType;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -99,19 +100,19 @@ public final class DecisionEvaluator {
             return Uni.createFrom().item(deny("<unresolved policy path for " + request.request().method().name()
                     + " " + request.normalizedPath() + ">", describe(identity), e));
         }
-        Uni<Outcome> outcome;
-        try {
-            Uni<IdentityContext> id = Objects.requireNonNull(identityMapper.map(identity, Optional.of(request)),
-                    "IdentityMapper returned null");
-            Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
-                    "ResourceContextMapper returned null");
-            outcome = Uni.combine().all().unis(id, resource).asTuple()
-                    .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
-        } catch (RuntimeException e) {
-            return Uni.createFrom().item(deny(policyPath, describe(identity), e));
-        }
-        // The timeout covers the mappers too, so a mapper that never emits cannot hang the request.
-        return outcome
+        // The mappers run on a worker after the subscription, so the timeout below is already armed while they run
+        // and also bounds a mapper that blocks or throws instead of emitting. A plain deferred supplier would run
+        // before the timer starts, and on the event loop a blocking mapper would stop the timer from firing.
+        return Uni.createFrom().voidItem()
+                .emitOn(Infrastructure.getDefaultWorkerPool())
+                .chain(() -> {
+                    Uni<IdentityContext> id = Objects.requireNonNull(
+                            identityMapper.map(identity, Optional.of(request)), "IdentityMapper returned null");
+                    Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
+                            "ResourceContextMapper returned null");
+                    return Uni.combine().all().unis(id, resource).asTuple()
+                            .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
+                })
                 .ifNoItem().after(config.timeout()).fail()
                 .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
     }
@@ -202,23 +203,29 @@ public final class DecisionEvaluator {
         return new ArrayList<>(decisions);
     }
 
-    private static Outcome deny(String policyPath, String identity, Throwable cause) {
-        LOG.warnf("Topaz denied %s for %s: %s", policyPath, identity, cause.toString());
+    private static Outcome deny(String policyPath, Described who, Throwable cause) {
+        LOG.warnf("Topaz denied %s for %s: %s", policyPath, who.type(), cause.toString());
+        // the subject is personal data (often an e-mail address): DEBUG only
+        LOG.debugf("Topaz denied %s for %s %s", policyPath, who.type(), who.subject());
         return Outcome.DENIED;
     }
 
-    // A JWT is a credential: log only its type.
-    private static String describe(IdentityContext identity) {
-        if (identity == null) {
-            return "<no identity>";
-        }
-        if (identity.getType() == IdentityType.IDENTITY_TYPE_JWT) {
-            return identity.getType().name();
-        }
-        return identity.getType().name() + " " + identity.getIdentity();
+    private record Described(String type, String subject) {
     }
 
-    private static String describe(SecurityIdentity identity) {
-        return identity.isAnonymous() ? "anonymous" : identity.getPrincipal().getName();
+    // A JWT is a credential: neither the WARN nor the DEBUG line carries it, only its type.
+    private static Described describe(IdentityContext identity) {
+        if (identity == null) {
+            return new Described("<no identity>", "");
+        }
+        if (identity.getType() == IdentityType.IDENTITY_TYPE_JWT) {
+            return new Described(identity.getType().name(), "<jwt>");
+        }
+        return new Described(identity.getType().name(), identity.getIdentity());
+    }
+
+    private static Described describe(SecurityIdentity identity) {
+        return identity.isAnonymous() ? new Described("anonymous", "")
+                : new Described("authenticated", identity.getPrincipal().getName());
     }
 }
