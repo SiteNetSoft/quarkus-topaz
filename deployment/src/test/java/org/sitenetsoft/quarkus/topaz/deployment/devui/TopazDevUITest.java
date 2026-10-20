@@ -46,7 +46,15 @@ public class TopazDevUITest extends DevUIJsonRPCTest {
     @Test
     void connectionDescribesEndpoints() throws Exception {
         JsonNode c = executeJsonRPCMethod("connection");
-        assertThat(c.get("authorizer").asText()).contains(":");
-        assertThat(c.get("directory").asText()).contains(":");
+        // the app's own view of the Dev Service endpoints (injected quarkus.topaz.authorizer/directory host and port)
+        // is what the health check reports; the Dev UI must describe the same host:port pairs
+        io.restassured.path.json.JsonPath ready = io.restassured.RestAssured.get("/q/health/ready").jsonPath();
+        String authorizer = ready.getString("checks.find { it.name == 'Topaz' }.data.authorizer");
+        String directory = ready.getString("checks.find { it.name == 'Topaz' }.data.directory");
+        assertThat(authorizer).matches("[^:]+:\\d+");
+        assertThat(directory).matches("[^:]+:\\d+");
+        assertThat(authorizer).isNotEqualTo(directory);
+        assertThat(c.get("authorizer").asText()).isEqualTo(authorizer);
+        assertThat(c.get("directory").asText()).isEqualTo(directory);
     }
 }

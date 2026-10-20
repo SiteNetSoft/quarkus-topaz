@@ -270,16 +270,20 @@ quarkus.http.auth.permission.todos.applies-to=jaxrs     # optional: run after RE
 ```
 
 On each request the policy builds an `IsRequest` from three pluggable mappers, each a CDI bean with a
-default implementation that users override by providing their own bean (`@Alternative @Priority` or
-simply a bean of the interface, resolved with `Instance` and highest priority wins):
+default implementation registered as a `@DefaultBean`, so a user overrides one by providing a bean of the
+interface (no `@Alternative` or priority needed; the build does not resolve through `Instance`). The mappers run on a
+worker thread under the request's Vert.x duplicated context, bounded by `quarkus.topaz.enforcement.timeout`. The CDI
+request scope is not active during an HTTP security policy, so a mapper must not depend on `@RequestScoped` beans:
 
-- **`IdentityMapper`** `Uni<IdentityContext> map(SecurityIdentity, RoutingContext)`. Default: if the
+- **`IdentityMapper`** `Uni<IdentityContext> map(SecurityIdentity, Optional<RoutingContext>)` (the routing context is absent outside an HTTP request). Default: if the
   identity carries a `TokenCredential` (OIDC `AccessTokenCredential`, SmallRye JWT), type `JWT` with
   the raw token; else if authenticated, type `SUB` with the principal name; else type `NONE`. Anonymous
   handling is configurable: `quarkus.topaz.enforcement.anonymous=deny|evaluate` (default `deny`).
-- **`PolicyPathMapper`** `String map(RoutingContext, Optional<ResourceMethodInfo>)`. Default is the
+- **`PolicyPathMapper`** `String map(RoutingContext, Optional<ResourceMethodInfo>)`, where `ResourceMethodInfo(httpMethod, pathTemplate, pathParams)` is a record supplied by a `ResourceMethodInfoResolver` (a no-op `@DefaultBean`, replaced by the Quarkus REST resolver when quarkus-rest is present). Default is the
   Aserto middleware convention so existing Topaz policies work unchanged:
-  `<policy-root>.<METHOD>.<path with / replaced by . and {param} replaced by __param>`. When the policy
+  `<policy-root>.<METHOD>.<path with / replaced by . and {param} replaced by __param>`, after stripping
+  `quarkus.http.root-path` and then `quarkus.rest.path` from the path; the path template is split at brace depth zero,
+  so a `{param}` containing a `/` stays one segment. When the policy
   runs after REST matching (via `@AuthorizationPolicy` or `applies-to=jaxrs`) the JAX-RS template is
   used, so `/todos/{id}` becomes `todoApp.GET.todos.__id`; before matching only the raw path is
   available and the mapper documents that limitation.
@@ -291,7 +295,8 @@ simply a bean of the interface, resolved with `Instance` and highest priority wi
 Config:
 
 ```
-quarkus.topaz.enforcement.policy-root            # required when the policy is used, e.g. todoApp
+quarkus.topaz.enforcement.policy-root            # validated at startup when the policy is bound or a path is derived, e.g. todoApp;
+                                                 # not required when a custom PolicyPathMapper bean is present
 quarkus.topaz.enforcement.decision=allowed
 quarkus.topaz.enforcement.additional-decisions=        # optional list, e.g. visible,enabled
 quarkus.topaz.enforcement.anonymous=deny
@@ -301,7 +306,8 @@ quarkus.topaz.enforcement.timeout=5s
 
 Decision: the `Is` request asks for `decision` plus `additional-decisions`. `is == true` for
 `decision` permits; anything else, including a gRPC error, a user that Topaz cannot resolve in the
-directory, or a timeout, denies and logs at WARN with the policy path. Topaz only returns the decisions
+directory, or a timeout, denies and logs at WARN naming the policy path and the identity type; the subject itself is logged only at DEBUG.
+Topaz only returns the decisions
 named in the request, so when `additional-decisions` is non-empty the identity is augmented on permit
 with an attribute `topaz.decisions` (`Map<String, Boolean>`) so downstream code can read secondary
 decisions such as `visible` or `enabled` without a second call; when it is empty no attribute is set.
@@ -327,9 +333,12 @@ public void delete(@TopazObjectId String id) { ... }
 - `@TopazCheck`: `objectType`, `relation`, `subjectType` (default `user`), optional `objectId`
   constant; the object id comes from the `@TopazObjectId` parameter or from a `@TopazObjectId`-annotated
   field or getter of a parameter. Subject id from `IdentityMapper`'s `SUB`, or for `JWT` from the token
-  `sub` claim, overridable by a `SubjectMapper` bean.
+  `sub` claim, overridable by a `SubjectMapper` bean. An anonymous caller is always 401: `anonymous=evaluate`
+  applies to `@TopazAuthorize` only, because a relation check needs a subject.
 - Both are reactive-aware: on a `Uni`/`Multi`-returning method the check is chained; on a blocking
-  method the interceptor blocks via `BlockingSecurityExecutor`.
+  method the interceptor waits for the decision with `await`. It decides by `BlockingOperationControl`: on the event
+  loop (where blocking is not allowed) it fails with `IllegalStateException` rather than block. A method returning
+  `CompletionStage` is treated as blocking, not as reactive.
 - Failure throws `io.quarkus.security.ForbiddenException` (401 for anonymous via
   `UnauthorizedException`), so Quarkus REST maps it the same as its own checks.
 
@@ -342,8 +351,10 @@ A `SecurityIdentityAugmentor` adds a permission checker to every authenticated i
 ```
 
 resolves lazily by calling `Is` with the permission name as policy path and the configured decision,
-and `TopazRelation` permission class for `@PermissionsAllowed(value="owner", permission=TopazRelation.class, params="id")`
-mapping to a directory `Check`. Opt-in with `quarkus.topaz.enforcement.permissions.enabled=true`
+and `TopazRelation` permission class for `@PermissionsAllowed(value="todo#owner", permission=TopazRelation.class, params="id")`
+mapping to a directory `Check`. `TopazRelation(String name, String id)` takes a name of the form
+`objectType#relation[@subjectType]` (subject type defaults to `user`); whitespace in the name is rejected (the id
+must be non-blank), and a malformed name denies. Opt-in with `quarkus.topaz.enforcement.permissions.enabled=true`
 (default false) so that users relying on role-based `@PermissionsAllowed` elsewhere are not surprised by
 remote calls. This is the lowest-priority piece of the security module and ships last.
 
@@ -351,9 +362,14 @@ remote calls. This is the lowest-priority piece of the security module and ships
 
 - It does not register a global (unnamed) policy. Nothing is enforced unless the user binds the
   `topaz` policy or uses an annotation.
-- It does not cache decisions. Topaz is local-first and sub-millisecond; caching is a policy decision
-  for the user. A hook point (`DecisionCache` interface with a no-op default) is left so one can be
-  added without an API break.
+- It caches decisions only through a user-provided `DecisionCache` bean. Topaz is local-first and
+  sub-millisecond; caching is a policy decision for the user. The default is a no-op `@DefaultBean`. Cache keys
+  are SHA-256 digests of the identity type, identity, policy path, decision and resource context, so no subject, token or
+  resource value is held in clear as a key; only successful decisions are stored.
+- It does not run mappers inside the CDI request scope, and it does not read the request body unless
+  `quarkus.topaz.enforcement.read-body=true`.
+- Runtime packages (`*.runtime`) are internal and may change without notice; the extension points are the interfaces
+  and annotations in the API packages.
 
 ## 6. Dev Services
 
@@ -401,8 +417,24 @@ Config keys (build time, `quarkus.topaz.devservices.*`): `enabled=true`, `image-
 
 One `@ApplicationScoped` `ZanzibarTopazRelationshipManager implements io.quarkiverse.zanzibar.RelationshipManager`
 over `DirectoryClient`: `check` maps to Reader `Check`, `add` to Writer `SetRelation` (idempotent in
-Topaz, so duplicate adds are fine), `remove` to `DeleteRelation` (missing relation ignored). Subject
+Topaz, so duplicate adds are fine), `remove` to `DeleteRelation`. Subject
 relation is not representable in quarkus-zanzibar's `Relationship` record and is left empty.
+Error mapping, as shipped: `check` maps `NOT_FOUND` (an unknown object, type or user) to `false` and propagates
+every other error; `remove` of a missing relation succeeds (Topaz's `DeleteRelation` completes without error, observed
+against 0.33.22); `add` of a relation whose object type is unknown fails with `INVALID_ARGUMENT`, and a multi-relation
+add stops at the first failure, so it is not atomic.
+
+`quarkus.topaz.zanzibar.default-user-type` (default `user`) supplies the subject type only when quarkus-zanzibar hands
+over a blank one: the `unauthenticated-user` path for an endpoint without `@FGAUserType`, and a `Relationship` with a
+blank user type. It never gives an authenticated caller a type. Recommended when roles are not Topaz types: set
+`quarkus.zanzibar.extract-user-type-from-roles=false` and name the type with `@FGAUserType`.
+
+`@FGARelation(FGARelation.ANY)` skips the check, so a share or unshare style write must carry its own
+`@FGARelation("owner")` (or another real relation); otherwise any caller reaches it. A stalled call is bounded by
+the shorter of the client deadline (`quarkus.topaz.deadline`, enforced by the client itself, failing with
+`DEADLINE_EXCEEDED`) and `quarkus.zanzibar.filter.timeout`; a refused connection fails fast with `UNAVAILABLE`. The
+filter answers 500 on either. The health check names the configured authorizer and directory endpoints in its DOWN payload.
+
 Deployment registers `FeatureBuildItem("topaz-zanzibar")` and the bean. Docs page shows the
 `@FGARelation` flow against a Topaz manifest. This module is also the candidate for upstreaming as
 `zanzibar-topaz` in quarkiverse/quarkus-zanzibar later; keeping it separate here makes that a copy, not
@@ -412,7 +444,8 @@ a refactor.
 
 - `deployment/src/test`: `QuarkusUnitTest` with the Dev Service for client behaviour, TLS via a
   Topaz container configured with test certificates, API key enforcement, config validation (missing
-  `policy-root` when the `topaz` policy is bound is a build-time error), shared-container drift.
+  `policy-root` when the `topaz` policy is bound fails startup validation unless a custom
+  `PolicyPathMapper` bean is present), shared-container drift.
   `QuarkusDevModeTest` for Dev UI JSON-RPC.
 - `security/deployment/src/test`: `QuarkusUnitTest` apps exercising both attachment points and both
   annotations with the bundled sample policy and manifest, including deny on unresolved user, deny on

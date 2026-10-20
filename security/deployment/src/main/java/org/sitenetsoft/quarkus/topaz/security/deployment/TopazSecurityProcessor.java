@@ -1,5 +1,6 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -15,6 +16,7 @@ import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.Type;
+import org.sitenetsoft.quarkus.topaz.security.PolicyPathMapper;
 import org.sitenetsoft.quarkus.topaz.security.TopazAuthorize;
 import org.sitenetsoft.quarkus.topaz.security.TopazObjectId;
 import org.sitenetsoft.quarkus.topaz.security.TopazResource;
@@ -57,6 +59,8 @@ class TopazSecurityProcessor {
     private static final DotName AUTHORIZATION_POLICY = DotName
             .createSimple("io.quarkus.vertx.http.security.AuthorizationPolicy");
 
+    private static final DotName POLICY_PATH_MAPPER = DotName.createSimple(PolicyPathMapper.class);
+    private static final DotName DEFAULT_POLICY_PATH_MAPPER = DotName.createSimple(DefaultPolicyPathMapper.class);
     private static final DotName TOPAZ_AUTHORIZE = DotName.createSimple(TopazAuthorize.class);
 
     private static final DotName TOPAZ_RESOURCE = DotName.createSimple(TopazResource.class);
@@ -210,7 +214,18 @@ class TopazSecurityProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void validate(TopazSecurityRecorder recorder, CombinedIndexBuildItem index, VertxBuildItem vertx) {
         boolean derivedPath = derivedTopazAuthorizePath(index.getIndex());
-        recorder.validate(annotationUsesTopazPolicy(index) || derivedPath);
+        recorder.validate(annotationUsesTopazPolicy(index) || derivedPath, hasCustomPathMapper(index.getIndex()));
+    }
+
+    // An application PolicyPathMapper derives the path itself, so the policy root is not needed for it.
+    private static boolean hasCustomPathMapper(IndexView index) {
+        for (ClassInfo impl : index.getAllKnownImplementors(POLICY_PATH_MAPPER)) {
+            if (!Modifier.isAbstract(impl.flags()) && !Modifier.isInterface(impl.flags())
+                    && !DEFAULT_POLICY_PATH_MAPPER.equals(impl.name())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // A @TopazAuthorize without a path derives it from the HTTP request being served, so it must sit on a JAX-RS
@@ -235,7 +250,7 @@ class TopazSecurityProcessor {
             if (!isJaxrsResource(index, declaring)) {
                 throw new DeploymentException("@TopazAuthorize without a path on " + a.target()
                         + " in " + declaring.name() + ": the policy path can only be derived on a JAX-RS resource"
-                        + " (a class annotated @Path); set path explicitly");
+                        + " (a class annotated @Path, or implementing an interface annotated @Path); set path explicitly");
             }
             if (a.target().kind() == AnnotationTarget.Kind.METHOD
                     && !isResourceMethod(index, declaring, a.target().asMethod(), new HashSet<>())) {

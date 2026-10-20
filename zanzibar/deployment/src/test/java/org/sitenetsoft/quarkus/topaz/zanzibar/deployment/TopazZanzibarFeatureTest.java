@@ -17,7 +17,12 @@ public class TopazZanzibarFeatureTest {
             .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .overrideConfigKey("quarkus.topaz.authorizer.port", "1")
             .overrideConfigKey("quarkus.topaz.directory.port", "1")
-            .overrideConfigKey("quarkus.topaz.plain-text", "true");
+            .overrideConfigKey("quarkus.topaz.plain-text", "true")
+            .setLogRecordPredicate(r -> r.getMessage() != null && r.getMessage().contains("Installed features"))
+            .assertLogRecords(records -> assertThat(records).anyMatch(r -> {
+                String message = String.format(r.getMessage(), r.getParameters());
+                return message.contains("topaz-zanzibar") && message.contains("topaz") && message.contains("zanzibar");
+            }));
 
     @Inject
     TopazZanzibarConfig config;
@@ -29,7 +34,8 @@ public class TopazZanzibarFeatureTest {
 
     @Test
     void featureIsInstalled() {
-        assertThat(TopazZanzibarProcessor.FEATURE).isEqualTo("topaz-zanzibar");
+        // asserted on the "Installed features" log line by the extension's assertLogRecords above
+        assertThat(TopazZanzibarProcessor.FEATURE).isNotBlank();
     }
 
     @Test

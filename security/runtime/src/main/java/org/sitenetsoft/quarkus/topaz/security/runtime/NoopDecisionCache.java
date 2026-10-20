@@ -8,6 +8,10 @@ import org.sitenetsoft.quarkus.topaz.security.DecisionCache;
 
 import io.quarkus.arc.DefaultBean;
 
+/**
+ * Caches nothing: every lookup misses and every store is dropped, so each decision is a call to Topaz. It is a {@code
+ * @DefaultBean}: to cache decisions, provide your own bean implementing {@link DecisionCache}.
+ */
 @Singleton
 @DefaultBean
 public class NoopDecisionCache implements DecisionCache {

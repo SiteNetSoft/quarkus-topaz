@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -34,13 +36,17 @@ import aserto.authorizer.v2.api.IdentityContext;
 import aserto.authorizer.v2.api.IdentityType;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
  * Evaluates Topaz decisions for a request. Every enforcement point delegates here.
  * <p>
  * Fails closed: an authorizer error, a timeout, a mapper failure or a response without the configured decision yields
- * a denying {@link Outcome} and a WARN log naming the policy path. Successful decisions go through the
+ * a denying {@link Outcome} and a WARN log naming the policy path. The mappers run on a worker thread under the
+ * request's Vert.x context and are bounded by the enforcement timeout. Successful decisions go through the
  * {@link DecisionCache}; errors are never cached.
  */
 @Singleton
@@ -84,36 +90,57 @@ public final class DecisionEvaluator {
     /**
      * Evaluates the configured decision and the additional decisions for an HTTP request, mapping the identity, the
      * policy path and the resource context with the configured mappers.
+     * <p>
+     * Threading: the method resolution and the three mappers run on a worker thread, through the caller's Vert.x
+     * context (or the default worker pool when there is none), so the request's duplicated context stays current
+     * there. A mapper may therefore block, but the whole evaluation, mappers included, is bounded by
+     * {@code quarkus.topaz.enforcement.timeout} and is denied when it runs out. The {@code RoutingContext} is not
+     * thread-safe: mappers must not hand it to other threads. The outcome is delivered on the caller's Vert.x context
+     * (when there is one), whether it came from the cache, from Topaz or from the timeout.
      *
      * @param identity the caller
      * @param request the HTTP request
      * @return the outcome; never a failure
      */
     public Uni<Outcome> evaluateRequest(SecurityIdentity identity, RoutingContext request) {
-        Optional<ResourceMethodInfo> method;
-        String policyPath;
-        try {
-            method = resolver.resolve(request);
-            policyPath = policyPathMapper.map(request, method);
-        } catch (RuntimeException e) {
-            return Uni.createFrom().item(deny("<unresolved policy path for " + request.request().method().name()
-                    + " " + request.normalizedPath() + ">", describe(identity), e));
-        }
-        Uni<Outcome> outcome;
-        try {
-            Uni<IdentityContext> id = Objects.requireNonNull(identityMapper.map(identity, Optional.of(request)),
-                    "IdentityMapper returned null");
-            Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
-                    "ResourceContextMapper returned null");
-            outcome = Uni.combine().all().unis(id, resource).asTuple()
-                    .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
-        } catch (RuntimeException e) {
-            return Uni.createFrom().item(deny(policyPath, describe(identity), e));
-        }
-        // The timeout covers the mappers too, so a mapper that never emits cannot hang the request.
-        return outcome
+        String unresolved = "<unresolved policy path for " + request.request().method().name() + " "
+                + request.normalizedPath() + ">";
+        Context context = Vertx.currentContext();
+        AtomicReference<String> logPath = new AtomicReference<>(unresolved);
+        // The resolver and the three mappers run on a worker after the subscription: the timeout below is already
+        // armed while they run, so it bounds a mapper that blocks or throws instead of emitting. A plain deferred
+        // supplier would run before the timer starts, and on the event loop a blocking mapper would stop the timer.
+        Uni<Outcome> outcome = Uni.createFrom().voidItem()
+                .emitOn(mapperExecutor(context))
+                .chain(() -> {
+                    Optional<ResourceMethodInfo> method = resolver.resolve(request);
+                    String policyPath = Objects.requireNonNull(policyPathMapper.map(request, method),
+                            "PolicyPathMapper returned null");
+                    logPath.set(policyPath);
+                    Uni<IdentityContext> id = Objects.requireNonNull(
+                            identityMapper.map(identity, Optional.of(request)), "IdentityMapper returned null");
+                    Uni<Struct> resource = Objects.requireNonNull(resourceContextMapper.map(request, method),
+                            "ResourceContextMapper returned null");
+                    return Uni.combine().all().unis(id, resource).asTuple()
+                            .onItem().transformToUni(t -> evaluate(t.getItem1(), policyPath, t.getItem2()));
+                })
                 .ifNoItem().after(config.timeout()).fail()
-                .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
+                .onFailure().recoverWithItem(e -> deny(logPath.get(), describe(identity), e));
+        // a cache hit completes on the worker and a timeout on the timer thread: resume on the request's context
+        return context == null ? outcome : outcome.emitOn(r -> context.runOnContext(v -> r.run()));
+    }
+
+    // Blocking work for the current Vert.x context runs through that context, so the duplicated context (request
+    // scope, reactive clients, the identity association) stays current on the worker thread. Without a Vert.x
+    // context the default worker pool is used.
+    private static Executor mapperExecutor(Context context) {
+        if (context == null) {
+            return Infrastructure.getDefaultWorkerPool();
+        }
+        return task -> context.executeBlocking(() -> {
+            task.run();
+            return null;
+        }, false);
     }
 
     /**
@@ -202,23 +229,29 @@ public final class DecisionEvaluator {
         return new ArrayList<>(decisions);
     }
 
-    private static Outcome deny(String policyPath, String identity, Throwable cause) {
-        LOG.warnf("Topaz denied %s for %s: %s", policyPath, identity, cause.toString());
+    private static Outcome deny(String policyPath, Described who, Throwable cause) {
+        LOG.warnf("Topaz denied %s for %s: %s", policyPath, who.type(), cause.toString());
+        // the subject is personal data (often an e-mail address): DEBUG only
+        LOG.debugf("Topaz denied %s for %s %s", policyPath, who.type(), who.subject());
         return Outcome.DENIED;
     }
 
-    // A JWT is a credential: log only its type.
-    private static String describe(IdentityContext identity) {
-        if (identity == null) {
-            return "<no identity>";
-        }
-        if (identity.getType() == IdentityType.IDENTITY_TYPE_JWT) {
-            return identity.getType().name();
-        }
-        return identity.getType().name() + " " + identity.getIdentity();
+    private record Described(String type, String subject) {
     }
 
-    private static String describe(SecurityIdentity identity) {
-        return identity.isAnonymous() ? "anonymous" : identity.getPrincipal().getName();
+    // A JWT is a credential: neither the WARN nor the DEBUG line carries it, only its type.
+    private static Described describe(IdentityContext identity) {
+        if (identity == null) {
+            return new Described("<no identity>", "");
+        }
+        if (identity.getType() == IdentityType.IDENTITY_TYPE_JWT) {
+            return new Described(identity.getType().name(), "<jwt>");
+        }
+        return new Described(identity.getType().name(), identity.getIdentity());
+    }
+
+    private static Described describe(SecurityIdentity identity) {
+        return identity.isAnonymous() ? new Described("anonymous", "")
+                : new Described("authenticated", identity.getPrincipal().getName());
     }
 }

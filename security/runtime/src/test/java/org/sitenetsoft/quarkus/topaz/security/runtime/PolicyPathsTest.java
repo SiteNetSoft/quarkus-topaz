@@ -2,6 +2,7 @@ package org.sitenetsoft.quarkus.topaz.security.runtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -20,5 +21,15 @@ class PolicyPathsTest {
             "todoApp, get, /todos, todoApp.GET.todos" })
     void convention(String root, String method, String path, String expected) {
         assertThat(PolicyPaths.of(root, method, path)).isEqualTo(expected);
+    }
+
+    @Test
+    void regexWithSlash() {
+        assertThat(PolicyPaths.of("r", "GET", "/files/{path:.+/.+}/meta")).isEqualTo("r.GET.files.__path.meta");
+    }
+
+    @Test
+    void nestedBracesInRegex() {
+        assertThat(PolicyPaths.of("r", "GET", "/a/{id:[0-9]{3}}")).isEqualTo("r.GET.a.__id");
     }
 }

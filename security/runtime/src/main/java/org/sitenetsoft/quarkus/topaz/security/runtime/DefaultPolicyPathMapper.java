@@ -12,18 +12,28 @@ import org.sitenetsoft.quarkus.topaz.security.ResourceMethodInfo;
 import io.quarkus.arc.DefaultBean;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Builds the policy path in the Aserto middleware convention, {@code <policy-root>.<METHOD>.<path>}, with {@code /}
+ * replaced by {@code .} and {@code {param}} by {@code __param}, after stripping {@code quarkus.http.root-path} and
+ * {@code quarkus.rest.path} from the path. It is a {@code @DefaultBean}: to replace it, provide your own bean
+ * implementing {@link PolicyPathMapper}; with a custom mapper {@code quarkus.topaz.enforcement.policy-root} is no
+ * longer required.
+ */
 @Singleton
 @DefaultBean
 public class DefaultPolicyPathMapper implements PolicyPathMapper {
 
     private final TopazEnforcementConfig config;
     private final String rootPath;
+    private final String restPath;
 
     @Inject
     public DefaultPolicyPathMapper(TopazEnforcementConfig config,
-            @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath) {
+            @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath,
+            @ConfigProperty(name = "quarkus.rest.path", defaultValue = "/") String restPath) {
         this.config = config;
         this.rootPath = normalize(rootPath);
+        this.restPath = normalize(restPath);
     }
 
     @Override
@@ -33,7 +43,7 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         if (method.isPresent()) {
             return PolicyPaths.of(root, method.get().httpMethod(), method.get().pathTemplate());
         }
-        String path = stripRootPath(request.normalizedPath());
+        String path = strip(restPath, strip(rootPath, request.normalizedPath()));
         checkRawSegments(path);
         return PolicyPaths.of(root, request.request().method().name(), path);
     }
@@ -43,7 +53,8 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     private static void checkRawSegments(String path) {
         for (String segment : path.split("/")) {
             String s = segment.trim();
-            if (s.contains(".") || s.startsWith("__") || s.startsWith("{")) {
+            if (s.contains(".") || s.startsWith("__") || s.contains("{")
+                    || s.contains("}")) {
                 throw new IllegalStateException("Policy path cannot be derived from request path " + path
                         + ": segment " + s + " is not allowed before REST matching; bind the policy with"
                         + " applies-to=jaxrs or @AuthorizationPolicy");
@@ -51,9 +62,10 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         }
     }
 
-    private String stripRootPath(String path) {
-        if (!rootPath.isEmpty() && (path.equals(rootPath) || path.startsWith(rootPath + "/"))) {
-            return path.substring(rootPath.length());
+    // The raw path still carries quarkus.http.root-path and then quarkus.rest.path; the policy path has neither.
+    private static String strip(String prefix, String path) {
+        if (!prefix.isEmpty() && (path.equals(prefix) || path.startsWith(prefix + "/"))) {
+            return path.substring(prefix.length());
         }
         return path;
     }

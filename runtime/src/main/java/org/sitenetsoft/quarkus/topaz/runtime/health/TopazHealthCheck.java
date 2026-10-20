@@ -1,9 +1,12 @@
 package org.sitenetsoft.quarkus.topaz.runtime.health;
 
+import java.time.Duration;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 import org.sitenetsoft.quarkus.topaz.runtime.ResolvedServiceSettings;
@@ -22,6 +25,8 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class TopazHealthCheck implements AsyncHealthCheck {
 
+    static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
+
     @Inject
     TopazClient client;
 
@@ -37,11 +42,12 @@ public class TopazHealthCheck implements AsyncHealthCheck {
             Uni<?> manifest = client.directory().getManifest()
                     .onFailure(TopazHealthCheck::isNotFound).recoverWithItem("");
             return Uni.combine().all().unis(info, manifest).discardItems()
+                    .ifNoItem().after(HEALTH_TIMEOUT).fail()
                     .map(ignored -> HealthCheckResponse.named("Topaz").up()
                             .withData("authorizer", authorizer).withData("directory", directory).build())
-                    .onFailure().recoverWithItem(TopazHealthCheck::down);
+                    .onFailure().recoverWithItem(t -> down(t, authorizer, directory));
         } catch (RuntimeException e) {
-            return Uni.createFrom().item(down(e));
+            return Uni.createFrom().item(down(e, null, null));
         }
     }
 
@@ -53,8 +59,12 @@ public class TopazHealthCheck implements AsyncHealthCheck {
         return t instanceof StatusRuntimeException e && e.getStatus().getCode() == Status.Code.NOT_FOUND;
     }
 
-    private static HealthCheckResponse down(Throwable t) {
+    private static HealthCheckResponse down(Throwable t, String authorizer, String directory) {
         String message = t.getMessage() != null ? t.getMessage() : t.getClass().getName();
-        return HealthCheckResponse.named("Topaz").down().withData("error", message).build();
+        HealthCheckResponseBuilder builder = HealthCheckResponse.named("Topaz").down();
+        if (authorizer != null) {
+            builder.withData("authorizer", authorizer).withData("directory", directory);
+        }
+        return builder.withData("error", message).build();
     }
 }

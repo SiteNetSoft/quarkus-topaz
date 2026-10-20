@@ -2,6 +2,7 @@ package org.sitenetsoft.quarkus.topaz.runtime;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
@@ -22,18 +23,6 @@ import io.vertx.grpc.client.GrpcClientOptions;
 public final class TopazChannels {
 
     private TopazChannels() {
-    }
-
-    public static boolean useTls(ResolvedServiceSettings s, Optional<TlsConfiguration> named,
-            Optional<TlsConfiguration> registryDefault) {
-        if (s.plainText().isPresent()) {
-            return !s.plainText().get();
-        }
-        if (named.isPresent()) {
-            return true;
-        }
-        return registryDefault.isPresent()
-                && (registryDefault.get().getTrustStoreOptions() != null || registryDefault.get().isTrustAll());
     }
 
     /**
@@ -75,10 +64,22 @@ public final class TopazChannels {
         return http;
     }
 
-    public record ManagedChannelHolder(Channel channel, GrpcClient client) implements AutoCloseable {
+    public record ManagedChannelHolder(Channel channel, GrpcClient client, AtomicBoolean closed)
+            implements AutoCloseable {
+
+        public ManagedChannelHolder(Channel channel, GrpcClient client) {
+            this(channel, client, new AtomicBoolean());
+        }
+
         @Override
         public void close() {
+            closed.set(true);
             client.close();
+        }
+
+        /** True once {@link #close()} has been called. */
+        public boolean isClosed() {
+            return closed.get();
         }
     }
 }

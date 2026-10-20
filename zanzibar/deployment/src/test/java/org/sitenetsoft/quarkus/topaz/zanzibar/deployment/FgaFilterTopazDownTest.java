@@ -21,8 +21,8 @@ import io.quarkus.security.test.utils.TestIdentityProvider;
 import io.quarkus.test.QuarkusUnitTest;
 
 /**
- * Topaz accepts connections and never answers. The quarkus-zanzibar filter timeout (set explicitly to 3s) ends the call
- * with a 5xx, never a permit. The client-wide gRPC deadline (1s) is configured but does not fire on a stalled connection.
+ * Topaz accepts connections and never answers. The client-wide deadline (1s) is shorter than the quarkus-zanzibar filter
+ * timeout (3s), so the client ends the call with DEADLINE_EXCEEDED and the request fails with a 5xx, never a permit.
  */
 public class FgaFilterTopazDownTest {
 
@@ -49,15 +49,13 @@ public class FgaFilterTopazDownTest {
             .overrideConfigKey("quarkus.topaz.authorizer.port", String.valueOf(SILENT.getLocalPort()))
             .overrideConfigKey("quarkus.topaz.directory.port", String.valueOf(SILENT.getLocalPort()))
             .overrideConfigKey("quarkus.topaz.plain-text", "true")
-            // Configured, but observed not to end the call on a connection that never completes the HTTP/2 handshake
-            // (tracked as a client finding); the filter timeout below is what bounds the request.
             .overrideConfigKey("quarkus.topaz.deadline", "1s")
             .overrideConfigKey("quarkus.zanzibar.filter.timeout", "3s")
             .setLogRecordPredicate(r -> r.getLevel().intValue() == Level.SEVERE.intValue()
-                    && r.getLoggerName().contains("Zanzibar"))
-            .assertLogRecords(records -> assertThat(records).anyMatch(r -> String.valueOf(r.getMessage()).contains("TimeoutException")
-                    || (r.getThrown() != null && r.getThrown().toString().contains("TimeoutException"))
-                    || Arrays.toString(r.getParameters()).contains("TimeoutException")));
+                    && String.valueOf(r.getLoggerName()).contains("Zanzibar"))
+            .assertLogRecords(records -> assertThat(records).anyMatch(r -> mentionsDeadline(String.valueOf(r.getMessage()))
+                    || hasDeadlineCause(r.getThrown())
+                    || mentionsDeadline(Arrays.toString(r.getParameters()))));
 
     @BeforeAll
     static void identities() {
@@ -77,8 +75,23 @@ public class FgaFilterTopazDownTest {
         Duration elapsed = Duration.ofNanos(System.nanoTime() - t0);
         // quarkus-zanzibar maps a failed check to InternalServerErrorException
         assertThat(status).isIn(500, 503);
-        // the 3s filter timeout, not the 1s client deadline, ends the call (the log-record assertion confirms the cause)
-        assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(3)).isLessThan(Duration.ofSeconds(8));
+        // the 1s client deadline, not the 3s filter timeout, ends the call (the log-record assertion confirms the cause)
+        assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(1)).isLessThan(Duration.ofMillis(2500));
+    }
+
+    private static boolean hasDeadlineCause(Throwable thrown) {
+        for (Throwable t = thrown; t != null; t = t.getCause()) {
+            // the application classes come from another class loader, so compare by name and status text
+            if (t.getClass().getName().equals("io.grpc.StatusRuntimeException")
+                    && t.toString().startsWith("io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean mentionsDeadline(String text) {
+        return text.contains("DEADLINE_EXCEEDED");
     }
 
     private static ServerSocket silentListener() {

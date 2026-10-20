@@ -65,14 +65,16 @@ another Rego package is denied before Topaz is asked, with a WARN naming the pat
 `/todos.public`), or starting with `+__+` or `+{+`.
 
 The application fails to start when the `topaz` policy is bound, by configuration or annotation, and
-`quarkus.topaz.enforcement.policy-root` is not set.
+`quarkus.topaz.enforcement.policy-root` is not set. When the application provides its own `PolicyPathMapper` bean,
+`policy-root` is not required and the startup check is skipped.
 
 === Policy paths
 
 The default `PolicyPathMapper` builds `<policy-root>.<METHOD>.<path>`: each `/` becomes `.`, and a template
 parameter `+{name}+` (or `+{name:regex}+`) becomes `+__name+`. After matching, the path is the full JAX-RS template
 of the resource method (class `@Path` joined with method `@Path`); before matching, it is the request path with
-`quarkus.http.root-path` removed. With `policy-root=todoApp`:
+`quarkus.http.root-path` and then `quarkus.rest.path` removed (`@ApplicationPath` is not removed). The strip applies
+to every route under the policy, including non-REST routes. With `policy-root=todoApp`:
 
 [cols="2,2,3"]
 |===
@@ -186,6 +188,21 @@ method; set `path` there. A derived path also requires `quarkus.topaz.enforcemen
 * `decision`: the decision that must be `true`; empty means `quarkus.topaz.enforcement.decision`.
 * `decisions`: further decisions to request; empty means `quarkus.topaz.enforcement.additional-decisions`.
 
+For example, with a POJO argument (a plain record):
+
+[source,java]
+----
+public record Todo(String id, String title, boolean completed) { }
+
+@PUT
+@Path("todos/{id}")
+@TopazAuthorize(path = "todoApp.PUT.todos.__id")
+public Todo update(@PathParam("id") String id, @TopazResource("todo") Todo todo) { ... }
+----
+
+Jackson turns the `Todo` into the map `{"id": ..., "title": ..., "completed": ...}`, which the policy reads as
+`input.resource.todo.title`.
+
 The resource context is the `ResourceContextMapper` output for the current request (empty outside one), overlaid with
 the arguments annotated `@TopazResource("key")`. An argument is converted with Jackson: strings, numbers, booleans,
 maps and lists pass through, other objects become maps of their properties. It replaces a mapper key of the same name.
@@ -296,6 +313,14 @@ A mapper that fails, returns `null` or exceeds the timeout denies the request. S
 `quarkus.topaz.enforcement.read-body=true` when a custom mapper reads the request body; it installs the body handler
 so that `RoutingContext.body()` is available. The default mappers do not read the body.
 
+=== Mapper threading
+
+Under the route policy the three mappers run on a worker thread, with the request's duplicated Vert.x context
+current, bounded by `quarkus.topaz.enforcement.timeout`. They may block, but `@RequestScoped` beans are not available
+there: inject `RoutingContext` or `SecurityIdentity` data instead. A mapper that times out is denied, yet it keeps its
+worker thread until it returns, so a mapper that can hang can exhaust the worker pool. Under `@TopazAuthorize` and the
+`@PermissionsAllowed` bridge the mappers run on the calling thread and should not block.
+
 === Decision cache
 
 `DecisionCache` has `get(key)` and `put(key, allowed)`. Keys are opaque 64-character lowercase hex SHA-256 digests of
@@ -311,7 +336,8 @@ relation checks. Any expiry and size bounds are up to the implementation.
 |Property |Meaning
 
 |`quarkus.topaz.enforcement.policy-root` |The Rego package prefix of derived policy paths. Required at startup when
-the `topaz` policy is bound or a `@TopazAuthorize` without `path` exists.
+the `topaz` policy is bound or a `@TopazAuthorize` without `path` exists; not required when the application provides
+its own `PolicyPathMapper` bean.
 |`quarkus.topaz.enforcement.decision` |The decision that must be `true`. Default `allowed`.
 |`quarkus.topaz.enforcement.additional-decisions` |Further decisions requested in the same call; exposed as the
 `topaz.decisions` attribute by the route policy.

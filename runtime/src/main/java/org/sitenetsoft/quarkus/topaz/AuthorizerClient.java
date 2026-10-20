@@ -50,20 +50,28 @@ public final class AuthorizerClient {
 
     /**
      * Defers stub acquisition to subscription time, so each subscription (including retries and late
-     * subscriptions) gets a deadline that starts when the call is actually made.
+     * subscriptions) gets a deadline that starts when the call is actually made. The deadline is also enforced
+     * here with a Mutiny timeout: the gRPC deadline alone does not end a call on a connection that never
+     * completes its HTTP/2 handshake.
      */
     private <T> Uni<T> call(Function<MutinyAuthorizerGrpc.MutinyAuthorizerStub, Uni<T>> f) {
-        return Uni.createFrom().deferred(() -> f.apply(stub()));
+        Uni<T> call = Uni.createFrom().deferred(() -> f.apply(stub()));
+        return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> DirectoryClient.deadlineExceeded(d)))
+                .orElse(call);
     }
 
     Optional<Duration> deadline() {
         return deadline;
     }
 
+    /** Calls the authorizer {@code Is} RPC with a prepared request. */
     public Uni<IsResponse> is(IsRequest r) {
         return call(s -> s.is(r));
     }
 
+    /**
+     * Calls the authorizer {@code Is} RPC for the given identity, policy path, decisions and optional resource context.
+     */
     public Uni<IsResponse> is(IdentityContext id, String policyPath, List<String> decisions, Struct resource) {
         IsRequest.Builder b = IsRequest.newBuilder()
                 .setIdentityContext(id)
@@ -85,26 +93,32 @@ public final class AuthorizerClient {
                         .anyMatch(d -> d.getDecision().equals(decision) && d.getIs()));
     }
 
+    /** Calls the authorizer {@code DecisionTree} RPC. */
     public Uni<DecisionTreeResponse> decisionTree(DecisionTreeRequest r) {
         return call(s -> s.decisionTree(r));
     }
 
+    /** Calls the authorizer {@code Query} RPC. */
     public Uni<QueryResponse> query(QueryRequest r) {
         return call(s -> s.query(r));
     }
 
+    /** Calls the authorizer {@code Compile} RPC. */
     public Uni<CompileResponse> compile(CompileRequest r) {
         return call(s -> s.compile(r));
     }
 
+    /** Calls the authorizer {@code ListPolicies} RPC and returns the policy modules. */
     public Uni<List<Module>> listPolicies() {
         return call(s -> s.listPolicies(ListPoliciesRequest.getDefaultInstance())).map(ListPoliciesResponse::getResultList);
     }
 
+    /** Calls the authorizer {@code GetPolicy} RPC for the policy module with the given id. */
     public Uni<Module> getPolicy(String id) {
         return call(s -> s.getPolicy(GetPolicyRequest.newBuilder().setId(id).build())).map(GetPolicyResponse::getResult);
     }
 
+    /** Calls the authorizer {@code Info} RPC. */
     public Uni<InfoResponse> info() {
         return call(s -> s.info(InfoRequest.getDefaultInstance()));
     }

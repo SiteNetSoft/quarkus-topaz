@@ -25,6 +25,10 @@ public final class Structs {
         return toStruct(map);
     }
 
+    /**
+     * Converts a Java value (null, String, Boolean, Number, Map, Iterable, Struct, ListValue or Value) to a protobuf
+     * {@link Value}. Other types throw {@link IllegalArgumentException}.
+     */
     public static Value value(Object o) {
         if (o == null) {
             return Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();

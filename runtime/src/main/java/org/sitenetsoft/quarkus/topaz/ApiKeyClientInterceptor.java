@@ -1,4 +1,4 @@
-package org.sitenetsoft.quarkus.topaz.runtime;
+package org.sitenetsoft.quarkus.topaz;
 
 import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
@@ -15,15 +15,15 @@ import io.grpc.MethodDescriptor;
 /**
  * Adds the Topaz API key ({@code authorization: basic <key>}) and optional tenant id to outgoing calls.
  */
-public final class ApiKeyClientInterceptor implements ClientInterceptor {
+final class ApiKeyClientInterceptor implements ClientInterceptor {
 
-    public static final Metadata.Key<String> AUTHORIZATION = Metadata.Key.of("authorization", ASCII_STRING_MARSHALLER);
-    public static final Metadata.Key<String> TENANT_ID = Metadata.Key.of("aserto-tenant-id", ASCII_STRING_MARSHALLER);
+    static final Metadata.Key<String> AUTHORIZATION = Metadata.Key.of("authorization", ASCII_STRING_MARSHALLER);
+    static final Metadata.Key<String> TENANT_ID = Metadata.Key.of("aserto-tenant-id", ASCII_STRING_MARSHALLER);
 
     private final String authorization;
     private final Optional<String> tenantId;
 
-    public ApiKeyClientInterceptor(String apiKey, Optional<String> tenantId) {
+    ApiKeyClientInterceptor(String apiKey, Optional<String> tenantId) {
         this.authorization = "basic " + java.util.Objects.requireNonNull(apiKey, "apiKey");
         this.tenantId = tenantId;
     }
