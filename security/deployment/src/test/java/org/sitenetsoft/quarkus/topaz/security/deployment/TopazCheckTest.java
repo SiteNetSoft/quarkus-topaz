@@ -18,6 +18,7 @@ public class TopazCheckTest {
     static final QuarkusUnitTest TEST = new QuarkusUnitTest()
             .withApplicationRoot(jar -> jar
                     .addClasses(TodoTestResource.class, ServiceResource.class, SecuredService.class,
+                            ClassBoundResource.class, AuthorizeBoundService.class, CheckBoundService.class,
                             TestIdentities.class, TestIdentityProvider.class, TestIdentityController.class)
                     .addAsResource("topaz", "topaz"))
             .overrideConfigKey("quarkus.http.auth.basic", "true")
@@ -80,5 +81,13 @@ public class TopazCheckTest {
     void blankObjectIdForbidden() {
         given().auth().preemptive().basic("rick@the-citadel.com", "rick")
                 .delete("/service/owned-blank").then().statusCode(403);
+    }
+
+    @Test
+    void classLevelBindingApplies() {
+        given().auth().preemptive().basic("rick@the-citadel.com", "rick")
+                .delete("/class-bound/check/todo-1").then().statusCode(200).body(equalTo("deleted todo-1"));
+        given().auth().preemptive().basic("morty@the-citadel.com", "morty")
+                .delete("/class-bound/check/todo-1").then().statusCode(403);
     }
 }

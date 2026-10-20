@@ -1,5 +1,7 @@
 package org.sitenetsoft.quarkus.topaz.security.deployment;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import jakarta.enterprise.context.ApplicationScoped;
 
 import org.sitenetsoft.quarkus.topaz.security.TopazAuthorize;
@@ -7,6 +9,7 @@ import org.sitenetsoft.quarkus.topaz.security.TopazCheck;
 import org.sitenetsoft.quarkus.topaz.security.TopazObjectId;
 import org.sitenetsoft.quarkus.topaz.security.TopazResource;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 @ApplicationScoped
@@ -51,5 +54,28 @@ public class SecuredService {
     @TopazCheck(objectType = "todo", relation = "owner", objectId = "todo-1")
     public String deleteFixed() {
         return "deleted todo-1";
+    }
+
+    private final AtomicInteger streamEntered = new AtomicInteger();
+
+    @TopazAuthorize(path = "todoApp.GET.todos")
+    public Multi<String> streamTodos() {
+        streamEntered.incrementAndGet();
+        return Multi.createFrom().items("todo-1", "todo-2");
+    }
+
+    public int streamEntered() {
+        return streamEntered.get();
+    }
+
+    // todoApp.GET.visibleonly sets visible=true and allowed=false for rick
+    @TopazAuthorize(path = "todoApp.GET.visibleonly", decision = "visible")
+    public String peekVisible() {
+        return "visible";
+    }
+
+    @TopazAuthorize(path = "todoApp.GET.visibleonly", decision = "allowed")
+    public String peekAllowed() {
+        return "allowed";
     }
 }

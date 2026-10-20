@@ -48,6 +48,14 @@ class DefaultSubjectMapperTest {
                 .isInstanceOf(UnauthorizedException.class);
     }
 
+    @Test
+    void blankJwtSubjectIsUnauthorized() {
+        SecurityIdentity identity = QuarkusSecurityIdentity.builder().setPrincipal(jwt(" ")).build();
+
+        assertThatThrownBy(() -> mapper.map(identity).await().indefinitely())
+                .isInstanceOf(UnauthorizedException.class);
+    }
+
     private static JsonWebToken jwt(String subject) {
         JsonWebToken jwt = mock(JsonWebToken.class);
         when(jwt.getSubject()).thenReturn(subject);
