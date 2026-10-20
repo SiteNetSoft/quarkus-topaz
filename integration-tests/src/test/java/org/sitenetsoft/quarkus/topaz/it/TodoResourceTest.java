@@ -42,6 +42,18 @@ public class TodoResourceTest {
     }
 
     @Test
+    void missingUserParamIs400() {
+        given().when().get("/todos/todo-1/can-delete").then().statusCode(400);
+    }
+
+    @Test
+    void unknownTodoIdIsDenied() {
+        given().queryParam("user", RICK)
+                .when().get("/todos/nope/can-delete")
+                .then().statusCode(200).body("allowed", is(false));
+    }
+
+    @Test
     void ownerCheck() {
         given().when().get("/todos/todo-1/owner/{user}", RICK)
                 .then().statusCode(200).body("owner", is(true));

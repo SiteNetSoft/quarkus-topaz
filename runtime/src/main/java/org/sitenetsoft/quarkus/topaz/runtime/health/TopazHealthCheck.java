@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 import org.sitenetsoft.quarkus.topaz.runtime.ResolvedServiceSettings;
@@ -44,9 +45,9 @@ public class TopazHealthCheck implements AsyncHealthCheck {
                     .ifNoItem().after(HEALTH_TIMEOUT).fail()
                     .map(ignored -> HealthCheckResponse.named("Topaz").up()
                             .withData("authorizer", authorizer).withData("directory", directory).build())
-                    .onFailure().recoverWithItem(TopazHealthCheck::down);
+                    .onFailure().recoverWithItem(t -> down(t, authorizer, directory));
         } catch (RuntimeException e) {
-            return Uni.createFrom().item(down(e));
+            return Uni.createFrom().item(down(e, null, null));
         }
     }
 
@@ -58,8 +59,12 @@ public class TopazHealthCheck implements AsyncHealthCheck {
         return t instanceof StatusRuntimeException e && e.getStatus().getCode() == Status.Code.NOT_FOUND;
     }
 
-    private static HealthCheckResponse down(Throwable t) {
+    private static HealthCheckResponse down(Throwable t, String authorizer, String directory) {
         String message = t.getMessage() != null ? t.getMessage() : t.getClass().getName();
-        return HealthCheckResponse.named("Topaz").down().withData("error", message).build();
+        HealthCheckResponseBuilder builder = HealthCheckResponse.named("Topaz").down();
+        if (authorizer != null) {
+            builder.withData("authorizer", authorizer).withData("directory", directory);
+        }
+        return builder.withData("error", message).build();
     }
 }

@@ -34,6 +34,10 @@ public class TodoResource {
     @GET
     @Path("can-delete")
     public Uni<RestResponse<Map<String, Object>>> canDelete(@PathParam("id") String id, @QueryParam("user") String user) {
+        if (user == null || user.isBlank()) {
+            return Uni.createFrom().item(RestResponse.status(Response.Status.BAD_REQUEST,
+                    Map.<String, Object> of("error", "user query parameter is required")));
+        }
         return topaz.authorizer().isAllowed(subject(user), DELETE_POLICY, "allowed", Map.of("id", id))
                 .map(allowed -> RestResponse.ok(Map.<String, Object> of("allowed", allowed)))
                 // Topaz rejects identities it cannot resolve; surface that as 403 with the gRPC status code

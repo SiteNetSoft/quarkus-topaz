@@ -52,6 +52,8 @@ public class FgaTodoResourceTest {
     void permissionRelation() {
         rick().delete("/fga/todos/todo-1").then().statusCode(204);
         morty().delete("/fga/todos/todo-1").then().statusCode(403);
+        // can_delete is a permission check only: the resource handler does not remove anything
+        rick().get("/fga/todos/todo-1").then().statusCode(200);
     }
 
     @Test
