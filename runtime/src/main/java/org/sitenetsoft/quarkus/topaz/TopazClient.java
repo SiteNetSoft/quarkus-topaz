@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.sitenetsoft.quarkus.topaz.runtime.ApiKeyClientInterceptor;
 import org.sitenetsoft.quarkus.topaz.runtime.ResolvedServiceSettings;
 import org.sitenetsoft.quarkus.topaz.runtime.TopazChannels;
 import org.sitenetsoft.quarkus.topaz.runtime.TopazChannels.ManagedChannelHolder;
@@ -40,18 +39,22 @@ public final class TopazClient implements AutoCloseable {
         this.ownedVertx = ownedVertx;
     }
 
+    /** Creates a builder with defaults: authorizer {@code localhost:8282}, directory {@code localhost:9292}. */
     public static Builder builder() {
         return new Builder();
     }
 
+    /** The reactive authorizer client. */
     public AuthorizerClient authorizer() {
         return authorizer;
     }
 
+    /** The reactive directory client. */
     public DirectoryClient directory() {
         return directory;
     }
 
+    /** A blocking view of the authorizer and directory clients. */
     public BlockingTopazClient blocking() {
         return blocking;
     }
@@ -117,11 +120,13 @@ public final class TopazClient implements AutoCloseable {
                     s.plainText(), deadline);
         }
 
+        /** Sets the authorizer endpoint. */
         public Builder authorizer(String host, int port) {
             authorizerSettings = withEndpoint(authorizerSettings, host, port);
             return this;
         }
 
+        /** Sets the directory endpoint. */
         public Builder directory(String host, int port) {
             directorySettings = withEndpoint(directorySettings, host, port);
             return this;
@@ -185,7 +190,10 @@ public final class TopazClient implements AutoCloseable {
             return this;
         }
 
-        /** Replaces both services' settings and their TLS configurations at once (used by the recorder). */
+        /**
+         * Internal: used by the extension's recorder. Not API. Replaces both services' settings and their TLS
+         * configurations at once.
+         */
         public Builder settings(ResolvedServiceSettings authorizer, Optional<TlsConfiguration> authorizerTls,
                 ResolvedServiceSettings directory, Optional<TlsConfiguration> directoryTls) {
             this.authorizerSettings = Objects.requireNonNull(authorizer, "authorizer");
@@ -195,6 +203,7 @@ public final class TopazClient implements AutoCloseable {
             return this;
         }
 
+        /** Builds the client. Channels created here are closed by {@link TopazClient#close()}. */
         public TopazClient build() {
             List<ManagedChannelHolder> holders = new ArrayList<>();
             Vertx owned = null;

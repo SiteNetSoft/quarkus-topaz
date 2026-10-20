@@ -104,22 +104,29 @@ public final class DirectoryClient {
         return withDeadline(reader);
     }
 
+    /** The raw writer stub, with the configured deadline (if any) starting now. */
     public MutinyWriterGrpc.MutinyWriterStub writer() {
         return withDeadline(writer);
     }
 
+    /** The raw model stub, with the configured deadline (if any) starting now. */
     public MutinyModelGrpc.MutinyModelStub model() {
         return withDeadline(model);
     }
 
+    /** The raw importer stub, with the configured deadline (if any) starting now. */
     public MutinyImporterGrpc.MutinyImporterStub importer() {
         return withDeadline(importer);
     }
 
+    /** The raw exporter stub, with the configured deadline (if any) starting now. */
     public MutinyExporterGrpc.MutinyExporterStub exporter() {
         return withDeadline(exporter);
     }
 
+    /**
+     * Calls the directory reader {@code Check} RPC; emits the check result, failing with a {@link io.grpc.StatusRuntimeException} on any error, never a default {@code true}.
+     */
     public Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
         return uni(this::reader, s -> s.check(CheckRequest.newBuilder()
@@ -134,22 +141,26 @@ public final class DirectoryClient {
                 .map(r -> r.getChecksList().stream().map(CheckResponse::getCheck).toList());
     }
 
+    /** Calls the directory reader {@code GetObject} RPC. */
     public Uni<aserto.directory.common.v3.Object> getObject(String type, String id) {
         return uni(this::reader, s -> s.getObject(GetObjectRequest.newBuilder().setObjectType(type).setObjectId(id).build()))
                 .map(GetObjectResponse::getResult);
     }
 
+    /** Calls the directory writer {@code SetObject} RPC and emits the stored object. */
     public Uni<aserto.directory.common.v3.Object> setObject(aserto.directory.common.v3.Object o) {
         return uni(this::writer, s -> s.setObject(SetObjectRequest.newBuilder().setObject(o).build()))
                 .map(SetObjectResponse::getResult);
     }
 
+    /** Calls the directory writer {@code DeleteObject} RPC, optionally deleting the object's relations too. */
     public Uni<Void> deleteObject(String type, String id, boolean withRelations) {
         return uni(this::writer, s -> s.deleteObject(DeleteObjectRequest.newBuilder()
                 .setObjectType(type).setObjectId(id).setWithRelations(withRelations).build()))
                 .replaceWithVoid();
     }
 
+    /** Calls the directory reader {@code GetRelation} RPC. */
     public Uni<Relation> getRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
         return uni(this::reader, s -> s.getRelation(GetRelationRequest.newBuilder()
@@ -158,11 +169,13 @@ public final class DirectoryClient {
                 .build())).map(GetRelationResponse::getResult);
     }
 
+    /** Calls the directory writer {@code SetRelation} RPC and emits the stored relation. */
     public Uni<Relation> setRelation(Relation r) {
         return uni(this::writer, s -> s.setRelation(SetRelationRequest.newBuilder().setRelation(r).build()))
                 .map(SetRelationResponse::getResult);
     }
 
+    /** Calls the directory writer {@code DeleteRelation} RPC. */
     public Uni<Void> deleteRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
         return uni(this::writer, s -> s.deleteRelation(DeleteRelationRequest.newBuilder()
@@ -195,6 +208,7 @@ public final class DirectoryClient {
         return uni(this::model, s -> s.setManifest(Multi.createFrom().iterable(requests))).replaceWithVoid();
     }
 
+    /** Calls the directory model {@code DeleteManifest} RPC. */
     public Uni<Void> deleteManifest() {
         return uni(this::model, s -> s.deleteManifest(DeleteManifestRequest.getDefaultInstance())).replaceWithVoid();
     }
@@ -243,6 +257,7 @@ public final class DirectoryClient {
         return new ImportSummary(objectsSet, objectsDeleted, relationsSet, relationsDeleted, errors);
     }
 
+    /** Calls the directory exporter {@code Export} RPC and streams its responses. */
     public Multi<ExportResponse> export(ExportRequest r) {
         return multi(this::exporter, s -> s.export(r));
     }

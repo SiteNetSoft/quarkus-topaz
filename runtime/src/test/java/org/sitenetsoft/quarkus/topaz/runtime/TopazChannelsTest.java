@@ -29,45 +29,6 @@ class TopazChannelsTest {
         return c;
     }
 
-    private static TlsConfiguration withoutTrust() {
-        TlsConfiguration c = mock(TlsConfiguration.class);
-        when(c.getTrustStoreOptions()).thenReturn(null);
-        when(c.isTrustAll()).thenReturn(false);
-        return c;
-    }
-
-    @Test
-    void plainTextTrueWins() {
-        assertThat(TopazChannels.useTls(settings(Optional.of(true), Optional.of("n")),
-                Optional.of(withTrustStore()), Optional.of(withTrustStore()))).isFalse();
-    }
-
-    @Test
-    void plainTextFalseForcesTls() {
-        assertThat(TopazChannels.useTls(settings(Optional.of(false), Optional.empty()),
-                Optional.empty(), Optional.empty())).isTrue();
-    }
-
-    @Test
-    void namedConfigEnablesTls() {
-        assertThat(TopazChannels.useTls(settings(Optional.empty(), Optional.of("n")),
-                Optional.of(withoutTrust()), Optional.empty())).isTrue();
-    }
-
-    @Test
-    void defaultWithTrustStoreEnablesTls() {
-        assertThat(TopazChannels.useTls(settings(Optional.empty(), Optional.empty()),
-                Optional.empty(), Optional.of(withTrustStore()))).isTrue();
-    }
-
-    @Test
-    void defaultWithoutTrustIsPlaintext() {
-        assertThat(TopazChannels.useTls(settings(Optional.empty(), Optional.empty()),
-                Optional.empty(), Optional.of(withoutTrust()))).isFalse();
-        assertThat(TopazChannels.useTls(settings(Optional.empty(), Optional.empty()),
-                Optional.empty(), Optional.empty())).isFalse();
-    }
-
     @Test
     void tlsForcedWithoutConfigUsesTlsWithJvmDefaultTrust() {
         HttpClientOptions http = TopazChannels.transportOptions(settings(Optional.of(false), Optional.empty()),

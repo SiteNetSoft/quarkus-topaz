@@ -64,10 +64,14 @@ public final class AuthorizerClient {
         return deadline;
     }
 
+    /** Calls the authorizer {@code Is} RPC with a prepared request. */
     public Uni<IsResponse> is(IsRequest r) {
         return call(s -> s.is(r));
     }
 
+    /**
+     * Calls the authorizer {@code Is} RPC for the given identity, policy path, decisions and optional resource context.
+     */
     public Uni<IsResponse> is(IdentityContext id, String policyPath, List<String> decisions, Struct resource) {
         IsRequest.Builder b = IsRequest.newBuilder()
                 .setIdentityContext(id)
@@ -89,26 +93,32 @@ public final class AuthorizerClient {
                         .anyMatch(d -> d.getDecision().equals(decision) && d.getIs()));
     }
 
+    /** Calls the authorizer {@code DecisionTree} RPC. */
     public Uni<DecisionTreeResponse> decisionTree(DecisionTreeRequest r) {
         return call(s -> s.decisionTree(r));
     }
 
+    /** Calls the authorizer {@code Query} RPC. */
     public Uni<QueryResponse> query(QueryRequest r) {
         return call(s -> s.query(r));
     }
 
+    /** Calls the authorizer {@code Compile} RPC. */
     public Uni<CompileResponse> compile(CompileRequest r) {
         return call(s -> s.compile(r));
     }
 
+    /** Calls the authorizer {@code ListPolicies} RPC and returns the policy modules. */
     public Uni<List<Module>> listPolicies() {
         return call(s -> s.listPolicies(ListPoliciesRequest.getDefaultInstance())).map(ListPoliciesResponse::getResultList);
     }
 
+    /** Calls the authorizer {@code GetPolicy} RPC for the policy module with the given id. */
     public Uni<Module> getPolicy(String id) {
         return call(s -> s.getPolicy(GetPolicyRequest.newBuilder().setId(id).build())).map(GetPolicyResponse::getResult);
     }
 
+    /** Calls the authorizer {@code Info} RPC. */
     public Uni<InfoResponse> info() {
         return call(s -> s.info(InfoRequest.getDefaultInstance()));
     }
