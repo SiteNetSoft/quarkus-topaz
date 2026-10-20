@@ -313,7 +313,7 @@ A mapper that fails, returns `null` or exceeds the timeout denies the request. S
 `quarkus.topaz.enforcement.read-body=true` when a custom mapper reads the request body; it installs the body handler
 so that `RoutingContext.body()` is available. The default mappers do not read the body.
 
-==== Mapper threading
+=== Mapper threading
 
 Under the route policy the three mappers run on a worker thread, with the request's duplicated Vert.x context
 current, bounded by `quarkus.topaz.enforcement.timeout`. They may block, but `@RequestScoped` beans are not available
