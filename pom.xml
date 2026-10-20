@@ -77,6 +77,8 @@
             <argLine>@{argLine} ${test.argLine}</argLine>
             <systemPropertyVariables>
               <maven.home>${maven.home}</maven.home>
+              <!-- random port: under -T 4 several modules run @QuarkusTest/QuarkusUnitTest at once -->
+              <quarkus.http.test-port>0</quarkus.http.test-port>
             </systemPropertyVariables>
           </configuration>
         </plugin>
