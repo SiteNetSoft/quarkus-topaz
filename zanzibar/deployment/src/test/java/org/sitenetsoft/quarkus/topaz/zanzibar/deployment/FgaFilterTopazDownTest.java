@@ -16,8 +16,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.quarkus.security.test.utils.TestIdentityController;
 import io.quarkus.security.test.utils.TestIdentityProvider;
 import io.quarkus.test.QuarkusUnitTest;
@@ -83,7 +81,9 @@ public class FgaFilterTopazDownTest {
 
     private static boolean hasDeadlineCause(Throwable thrown) {
         for (Throwable t = thrown; t != null; t = t.getCause()) {
-            if (t instanceof StatusRuntimeException s && s.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
+            // the application classes come from another class loader, so compare by name and status text
+            if (t.getClass().getName().equals("io.grpc.StatusRuntimeException")
+                    && t.toString().startsWith("io.grpc.StatusRuntimeException: DEADLINE_EXCEEDED")) {
                 return true;
             }
         }
