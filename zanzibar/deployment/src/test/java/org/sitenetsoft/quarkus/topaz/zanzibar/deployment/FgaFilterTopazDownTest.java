@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.quarkus.security.test.utils.TestIdentityController;
 import io.quarkus.security.test.utils.TestIdentityProvider;
 import io.quarkus.test.QuarkusUnitTest;
@@ -54,7 +56,7 @@ public class FgaFilterTopazDownTest {
             .setLogRecordPredicate(r -> r.getLevel().intValue() == Level.SEVERE.intValue()
                     && String.valueOf(r.getLoggerName()).contains("Zanzibar"))
             .assertLogRecords(records -> assertThat(records).anyMatch(r -> mentionsDeadline(String.valueOf(r.getMessage()))
-                    || (r.getThrown() != null && mentionsDeadline(r.getThrown().toString()))
+                    || hasDeadlineCause(r.getThrown())
                     || mentionsDeadline(Arrays.toString(r.getParameters()))));
 
     @BeforeAll
@@ -76,11 +78,20 @@ public class FgaFilterTopazDownTest {
         // quarkus-zanzibar maps a failed check to InternalServerErrorException
         assertThat(status).isIn(500, 503);
         // the 1s client deadline, not the 3s filter timeout, ends the call (the log-record assertion confirms the cause)
-        assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(1)).isLessThan(Duration.ofSeconds(4));
+        assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(1)).isLessThan(Duration.ofMillis(2500));
+    }
+
+    private static boolean hasDeadlineCause(Throwable thrown) {
+        for (Throwable t = thrown; t != null; t = t.getCause()) {
+            if (t instanceof StatusRuntimeException s && s.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean mentionsDeadline(String text) {
-        return text.contains("DEADLINE_EXCEEDED") || text.contains("TimeoutException");
+        return text.contains("DEADLINE_EXCEEDED");
     }
 
     private static ServerSocket silentListener() {

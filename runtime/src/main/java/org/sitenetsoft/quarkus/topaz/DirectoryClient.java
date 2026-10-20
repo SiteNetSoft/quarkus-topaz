@@ -88,7 +88,7 @@ public final class DirectoryClient {
         return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
     }
 
-    /** Same as {@link #uni}; the timeout applies to the first item of the stream. */
+    /** Same as {@link #uni}; for a stream the guard is an inactivity timeout between items, not a first-item timeout. */
     private <S, T> Multi<T> multi(java.util.function.Supplier<S> stub, Function<S, Multi<T>> f) {
         Multi<T> call = Multi.createFrom().deferred(() -> f.apply(stub.get()));
         return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
