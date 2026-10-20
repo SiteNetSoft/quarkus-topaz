@@ -2,6 +2,7 @@ package org.sitenetsoft.quarkus.topaz.runtime;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
@@ -63,10 +64,22 @@ public final class TopazChannels {
         return http;
     }
 
-    public record ManagedChannelHolder(Channel channel, GrpcClient client) implements AutoCloseable {
+    public record ManagedChannelHolder(Channel channel, GrpcClient client, AtomicBoolean closed)
+            implements AutoCloseable {
+
+        public ManagedChannelHolder(Channel channel, GrpcClient client) {
+            this(channel, client, new AtomicBoolean());
+        }
+
         @Override
         public void close() {
+            closed.set(true);
             client.close();
+        }
+
+        /** True once {@link #close()} has been called. */
+        public boolean isClosed() {
+            return closed.get();
         }
     }
 }

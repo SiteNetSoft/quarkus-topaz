@@ -71,6 +71,11 @@ public final class TopazClient implements AutoCloseable {
         }
     }
 
+    /** The channel holders this client owns; exposed for tests. */
+    List<ManagedChannelHolder> holders() {
+        return holders;
+    }
+
     private static void closeAll(List<ManagedChannelHolder> holders, Vertx ownedVertx) {
         for (ManagedChannelHolder h : holders) {
             h.close();

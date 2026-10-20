@@ -14,6 +14,7 @@ import org.sitenetsoft.quarkus.topaz.zanzibar.ZanzibarTopazRelationshipManager;
 
 import org.sitenetsoft.quarkus.topaz.DirectoryClient;
 
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.quarkiverse.zanzibar.Relationship;
 import io.quarkiverse.zanzibar.RelationshipManager;
@@ -98,6 +99,11 @@ public class RelationshipManagerTest {
     }
 
     @Test
+    void directoryDeleteOfMissingRelationCompletes() {
+        await(directory.deleteRelation("todo", "todo-2", "owner", "user", "rick@the-citadel.com"));
+    }
+
+    @Test
     void emptyListsComplete() {
         await(manager.add(List.of()));
         await(manager.remove(List.of()));
@@ -106,7 +112,18 @@ public class RelationshipManagerTest {
     @Test
     void unknownTypeOnAddPropagates() {
         assertThatThrownBy(() -> await(manager.add(List.of(Relationship.of("spaceship", "s-1", "owner", "user", "rick@the-citadel.com")))))
+                .isInstanceOfSatisfying(StatusRuntimeException.class, e -> assertThat(e.getStatus().getCode())
+                        .isEqualTo(Status.Code.INVALID_ARGUMENT).isNotEqualTo(Status.Code.NOT_FOUND));
+    }
+
+    @Test
+    void mixedListStopsAtFirstFailure() {
+        Relationship spaceship = Relationship.of("spaceship", "s-1", "owner", "user", "rick@the-citadel.com");
+        assertThatThrownBy(() -> await(manager.add(List.of(RICK_OWNS_1, spaceship))))
                 .isInstanceOf(StatusRuntimeException.class);
+        assertThatThrownBy(() -> await(manager.add(List.of(spaceship, MORTY_OWNS_2))))
+                .isInstanceOf(StatusRuntimeException.class);
+        assertThat(await(manager.check(MORTY_OWNS_2))).isFalse();
     }
 
     @Test

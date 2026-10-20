@@ -52,7 +52,7 @@ public class FgaFilterTopazDownTest {
             .overrideConfigKey("quarkus.topaz.deadline", "1s")
             .overrideConfigKey("quarkus.zanzibar.filter.timeout", "3s")
             .setLogRecordPredicate(r -> r.getLevel().intValue() == Level.SEVERE.intValue()
-                    && r.getLoggerName().contains("Zanzibar"))
+                    && String.valueOf(r.getLoggerName()).contains("Zanzibar"))
             .assertLogRecords(records -> assertThat(records).anyMatch(r -> mentionsDeadline(String.valueOf(r.getMessage()))
                     || (r.getThrown() != null && mentionsDeadline(r.getThrown().toString()))
                     || mentionsDeadline(Arrays.toString(r.getParameters()))));

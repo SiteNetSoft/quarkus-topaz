@@ -104,7 +104,11 @@ class TopazClientTest {
 
     @Test
     void buildCreatesAndClosesChannels() {
-        TopazClient.builder().plainText(true).authorizer("localhost", 1).directory("localhost", 2).build().close();
+        TopazClient client = TopazClient.builder().plainText(true).authorizer("localhost", 1).directory("localhost", 2)
+                .build();
+        assertThat(client.holders()).hasSize(2).noneMatch(h -> h.isClosed());
+        client.close();
+        assertThat(client.holders()).hasSize(2).allMatch(h -> h.isClosed());
     }
 
     @Test
