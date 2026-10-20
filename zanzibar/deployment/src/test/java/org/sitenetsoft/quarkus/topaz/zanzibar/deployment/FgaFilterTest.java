@@ -66,12 +66,38 @@ public class FgaFilterTest {
     }
 
     @Test
+    // todo-3 is owned by rick and used only by the share tests, so no other test can change what they see
     void shareAndUnshare() {
-        morty().get("/fga/todos/todo-2").then().statusCode(403);
-        rick().put("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
-        morty().get("/fga/todos/todo-2").then().statusCode(200);
-        rick().delete("/fga/todos/todo-2/owners/morty@the-citadel.com").then().statusCode(204);
-        morty().get("/fga/todos/todo-2").then().statusCode(403);
+        morty().get("/fga/todos/todo-3").then().statusCode(403);
+        rick().put("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-3").then().statusCode(200);
+        rick().delete("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(204);
+        morty().get("/fga/todos/todo-3").then().statusCode(403);
+    }
+
+    @Test
+    void nonOwnerCannotShare() {
+        // morty tries to make himself an owner of rick's todo
+        morty().put("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(403);
+        morty().get("/fga/todos/todo-3").then().statusCode(403); // nothing was written
+    }
+
+    @Test
+    void nonOwnerCannotUnshare() {
+        morty().delete("/fga/todos/todo-3/owners/rick@the-citadel.com").then().statusCode(403);
+        rick().get("/fga/todos/todo-3").then().statusCode(200); // rick is still an owner
+    }
+
+    @Test
+    void anonymousCannotShare() {
+        given().put("/fga/todos/todo-3/owners/morty@the-citadel.com").then().statusCode(403);
+        morty().get("/fga/todos/todo-3").then().statusCode(403);
+    }
+
+    @Test
+    void anonymousCannotUnshare() {
+        given().delete("/fga/todos/todo-3/owners/rick@the-citadel.com").then().statusCode(403);
+        rick().get("/fga/todos/todo-3").then().statusCode(200);
     }
 
     @Test
