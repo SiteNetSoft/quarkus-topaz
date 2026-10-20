@@ -50,7 +50,7 @@ public class FgaTodoResource {
     @PUT
     @Path("/{id}/owners/{user}")
     @FGAPathObject(param = "id", type = "todo")
-    @FGARelation(FGARelation.ANY)
+    @FGARelation("owner")
     public Uni<Response> share(@PathParam("id") String id, @PathParam("user") String user) {
         return manager.add(List.of(Relationship.of("todo", id, "owner", "user", user)))
                 .map(v -> Response.noContent().build());
@@ -59,7 +59,7 @@ public class FgaTodoResource {
     @DELETE
     @Path("/{id}/owners/{user}")
     @FGAPathObject(param = "id", type = "todo")
-    @FGARelation(FGARelation.ANY)
+    @FGARelation("owner")
     public Uni<Response> unshare(@PathParam("id") String id, @PathParam("user") String user) {
         return manager.remove(List.of(Relationship.of("todo", id, "owner", "user", user)))
                 .map(v -> Response.noContent().build());

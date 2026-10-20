@@ -111,22 +111,31 @@ public class FgaTodoResource {
 public Response delete(@PathParam("id") String id) { ... }
 ----
 
-Sharing is a write through the `RelationshipManager`. `FGARelation.ANY` lets any related caller through the filter; the
-method then sets or removes the relation:
+Sharing is a write through the `RelationshipManager`. Only an owner may share, so the endpoint requires `owner` like
+`get`; the method then sets or removes the relation:
 
 [source,java]
 ----
 @PUT
 @Path("/{id}/owners/{user}")
 @FGAPathObject(param = "id", type = "todo")
-@FGARelation(FGARelation.ANY)
+@FGARelation("owner")
 public Uni<Response> share(@PathParam("id") String id, @PathParam("user") String user) {
     return manager.add(List.of(Relationship.of("todo", id, "owner", "user", user)))
             .map(v -> Response.noContent().build());
 }
 ----
 
-`unshare` is the same with `manager.remove`. The application's other endpoints are secured by the `topaz` route policy,
+`unshare` is the same with `manager.remove`.
+
+[WARNING]
+====
+`@FGARelation(FGARelation.ANY)` does not mean "any relation". It skips the check completely: quarkus-zanzibar lets the
+request through without requiring a user and without looking the object up in Topaz, so anonymous callers pass as well.
+Use it only on endpoints that are safe for everyone, never on one that writes relationships.
+====
+
+The application's other endpoints are secured by the `topaz` route policy,
 so its `application.properties` sets `quarkus.zanzibar.filter.deny-unannotated-resource-methods=false`.
 
 == Errors
