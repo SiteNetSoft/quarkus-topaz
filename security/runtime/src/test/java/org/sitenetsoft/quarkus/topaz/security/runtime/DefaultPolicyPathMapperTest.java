@@ -21,7 +21,7 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void usesMethodTemplate() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/");
         ResourceMethodInfo info = new ResourceMethodInfo("DELETE", "/todos/{id}", Map.of("id", "todo-1"));
 
         assertThat(mapper.map(request(HttpMethod.DELETE, "/todos/todo-1"), Optional.of(info)))
@@ -30,7 +30,7 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void stripsRootPathFromRawPath() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/api");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/api", "/");
 
         assertThat(mapper.map(request(HttpMethod.GET, "/api/todos"), Optional.empty()))
                 .isEqualTo("todoApp.GET.todos");
@@ -38,7 +38,7 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void stripsRootPathWithoutLeadingSlash() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "api");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "api", "/");
 
         assertThat(mapper.map(request(HttpMethod.GET, "/api/todos"), Optional.empty()))
                 .isEqualTo("todoApp.GET.todos");
@@ -46,7 +46,7 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void literalRawPathIsMapped() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/");
 
         assertThat(mapper.map(request(HttpMethod.GET, "/todos/todo-1"), Optional.empty()))
                 .isEqualTo("todoApp.GET.todos.todo-1");
@@ -55,7 +55,7 @@ class DefaultPolicyPathMapperTest {
     @ParameterizedTest
     @ValueSource(strings = { "/todos.public", "/todos/__id", "/todos/{id}" })
     void rawPathCannotPickThePackage(String path) {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/");
 
         assertThatThrownBy(() -> mapper.map(request(HttpMethod.GET, path), Optional.empty()))
                 .isInstanceOf(IllegalStateException.class)
@@ -65,7 +65,7 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void templateModeKeepsTemplateSegments() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/");
         ResourceMethodInfo info = new ResourceMethodInfo("GET", "/todos/{id}", Map.of("id", "__x.y"));
 
         assertThat(mapper.map(request(HttpMethod.GET, "/todos/__x.y"), Optional.of(info)))
@@ -74,11 +74,27 @@ class DefaultPolicyPathMapperTest {
 
     @Test
     void missingPolicyRootFails() {
-        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config(null), "/");
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config(null), "/", "/");
 
         assertThatThrownBy(() -> mapper.map(request(HttpMethod.GET, "/todos"), Optional.empty()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("quarkus.topaz.enforcement.policy-root");
+    }
+
+    @Test
+    void stripsRestPathInRawMode() {
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/", "/api");
+
+        assertThat(mapper.map(request(HttpMethod.GET, "/api/todos"), Optional.empty()))
+                .isEqualTo("todoApp.GET.todos");
+    }
+
+    @Test
+    void stripsRootThenRestPath() {
+        DefaultPolicyPathMapper mapper = new DefaultPolicyPathMapper(config("todoApp"), "/app", "/api");
+
+        assertThat(mapper.map(request(HttpMethod.GET, "/app/api/todos"), Optional.empty()))
+                .isEqualTo("todoApp.GET.todos");
     }
 
     private static TopazEnforcementConfig config(String policyRoot) {

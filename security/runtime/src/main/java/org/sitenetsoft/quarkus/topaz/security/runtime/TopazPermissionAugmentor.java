@@ -87,8 +87,9 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
                     .chain(id -> evaluator.evaluate(id, permission.getName(), Struct.getDefaultInstance()))
                     .map(DecisionEvaluator.Outcome::permitted)
                     .onFailure().recoverWithItem(e -> {
-                        LOG.warnf("Topaz denied %s for %s: %s", permission.getName(),
-                                identity.getPrincipal().getName(), e.toString());
+                        LOG.warnf("Topaz denied %s for authenticated: %s", permission.getName(), e.toString());
+                        LOG.debugf("Topaz denied %s for authenticated %s", permission.getName(),
+                                identity.getPrincipal().getName());
                         return false;
                     });
         }

@@ -18,12 +18,15 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
 
     private final TopazEnforcementConfig config;
     private final String rootPath;
+    private final String restPath;
 
     @Inject
     public DefaultPolicyPathMapper(TopazEnforcementConfig config,
-            @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath) {
+            @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath,
+            @ConfigProperty(name = "quarkus.rest.path", defaultValue = "/") String restPath) {
         this.config = config;
         this.rootPath = normalize(rootPath);
+        this.restPath = normalize(restPath);
     }
 
     @Override
@@ -33,7 +36,7 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         if (method.isPresent()) {
             return PolicyPaths.of(root, method.get().httpMethod(), method.get().pathTemplate());
         }
-        String path = stripRootPath(request.normalizedPath());
+        String path = strip(restPath, strip(rootPath, request.normalizedPath()));
         checkRawSegments(path);
         return PolicyPaths.of(root, request.request().method().name(), path);
     }
@@ -51,9 +54,10 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         }
     }
 
-    private String stripRootPath(String path) {
-        if (!rootPath.isEmpty() && (path.equals(rootPath) || path.startsWith(rootPath + "/"))) {
-            return path.substring(rootPath.length());
+    // The raw path still carries quarkus.http.root-path and then quarkus.rest.path; the policy path has neither.
+    private static String strip(String prefix, String path) {
+        if (!prefix.isEmpty() && (path.equals(prefix) || path.startsWith(prefix + "/"))) {
+            return path.substring(prefix.length());
         }
         return path;
     }

@@ -61,7 +61,9 @@ public class TopazCheckInterceptor {
                             binding.subjectType(), subject)
                             .map(allowed -> {
                                 if (!Boolean.TRUE.equals(allowed)) {
-                                    LOG.warnf("Topaz denied %s: %s:%s lacks %s on %s:%s", what,
+                                    LOG.warnf("Topaz denied %s: %s lacks %s on %s", what,
+                                            binding.subjectType(), binding.relation(), binding.objectType());
+                                    LOG.debugf("Topaz denied %s: %s:%s lacks %s on %s:%s", what,
                                             binding.subjectType(), subject, binding.relation(), binding.objectType(),
                                             objectId);
                                     throw new ForbiddenException();

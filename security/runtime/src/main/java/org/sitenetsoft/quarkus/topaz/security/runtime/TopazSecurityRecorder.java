@@ -27,9 +27,11 @@ public class TopazSecurityRecorder {
      * Fails startup when the policy root is unset but a derived policy path is needed.
      *
      * @param policyRootRequired whether the application uses the {@code topaz} policy through an annotation
+     * @param customPathMapper whether the application supplies its own {@code PolicyPathMapper}, which needs no
+     *        policy root
      */
-    public void validate(boolean policyRootRequired) {
-        if (config.getValue().policyRoot().isPresent()) {
+    public void validate(boolean policyRootRequired, boolean customPathMapper) {
+        if (customPathMapper || config.getValue().policyRoot().isPresent()) {
             return;
         }
         if (policyRootRequired || permissionUsesTopaz()) {
