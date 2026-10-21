@@ -38,7 +38,7 @@ fi
 while IFS= read -r pom; do
   echo "::error::${pom} still declares a -SNAPSHOT version."
   fail=1
-done < <(grep -rl --include=pom.xml --exclude-dir=target --exclude-dir=.superpowers -- '-SNAPSHOT' "${ROOT}" || true)
+done < <(grep -rl --include=pom.xml --exclude-dir=target -- '-SNAPSHOT' "${ROOT}" || true)
 [[ "${fail}" -eq 0 ]] || exit 1
 
 echo "version=${VERSION}"
