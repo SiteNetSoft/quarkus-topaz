@@ -9,6 +9,7 @@
   </parent>
   <artifactId>quarkus-topaz</artifactId>
   <name>Topaz - Runtime</name>
+  <description>Client, Dev Services and health for the Topaz authorizer and directory (aserto-dev/topaz)</description>
 
   <dependencies>
     <dependency>

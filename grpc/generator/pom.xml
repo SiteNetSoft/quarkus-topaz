@@ -10,6 +10,10 @@
   <artifactId>quarkus-topaz-grpc-generator</artifactId>
   <name>Topaz - gRPC - Generator</name>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>io.quarkus</groupId>

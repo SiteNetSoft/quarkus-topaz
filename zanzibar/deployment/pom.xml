@@ -9,6 +9,7 @@
   </parent>
   <artifactId>quarkus-topaz-zanzibar-deployment</artifactId>
   <name>Topaz Zanzibar - Deployment</name>
+  <description>Deployment module of the Topaz Zanzibar extension</description>
 
   <dependencies>
     <dependency>

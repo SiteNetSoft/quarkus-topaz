@@ -9,9 +9,10 @@
   </parent>
   <artifactId>quarkus-topaz-grpc</artifactId>
   <name>Topaz - gRPC - Stubs</name>
+  <description>Generated gRPC stubs for the Topaz authorizer and directory APIs</description>
 
   <properties>
-    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <doclint>none</doclint>
   </properties>
 
   <dependencies>

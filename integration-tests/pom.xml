@@ -12,6 +12,7 @@
   <name>Topaz - Integration Tests</name>
 
   <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <skipITs>true</skipITs>
   </properties>
 
