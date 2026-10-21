@@ -75,6 +75,10 @@ JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify
 
 With rootless Podman, add `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. See [Testing](docs/modules/ROOT/pages/testing.adoc).
 
+## Releasing
+
+The release procedure, its secrets and the local rehearsal are in [Releasing](docs/modules/ROOT/pages/releasing.adoc).
+
 ## License
 
 [Apache License 2.0](LICENSE)
