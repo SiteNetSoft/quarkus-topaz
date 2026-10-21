@@ -9,6 +9,7 @@
   </parent>
   <artifactId>quarkus-topaz-security-deployment</artifactId>
   <name>Topaz Security - Deployment</name>
+  <description>Deployment module of the Topaz security extension</description>
 
   <dependencies>
     <dependency>

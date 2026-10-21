@@ -9,6 +9,7 @@
   </parent>
   <artifactId>quarkus-topaz-security</artifactId>
   <name>Topaz Security - Runtime</name>
+  <description>Policy enforcement for Quarkus HTTP endpoints backed by the Topaz authorizer</description>
 
   <dependencies>
     <dependency>

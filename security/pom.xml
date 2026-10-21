@@ -10,6 +10,7 @@
   <artifactId>quarkus-topaz-security-parent</artifactId>
   <packaging>pom</packaging>
   <name>Topaz Security - Parent</name>
+  <description>Parent of the Topaz security extension</description>
 
   <modules>
     <module>runtime</module>

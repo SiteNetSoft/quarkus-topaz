@@ -10,6 +10,7 @@
   <artifactId>quarkus-topaz-zanzibar-parent</artifactId>
   <packaging>pom</packaging>
   <name>Topaz Zanzibar - Parent</name>
+  <description>Parent of the Topaz Zanzibar extension</description>
 
   <modules>
     <module>runtime</module>

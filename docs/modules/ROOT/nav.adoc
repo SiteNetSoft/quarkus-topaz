@@ -7,4 +7,5 @@
 * xref:dev-ui.adoc[Dev UI]
 * xref:native.adoc[Native]
 * xref:testing.adoc[Testing]
+* xref:releasing.adoc[Releasing]
 * xref:configuration.adoc[Configuration reference]

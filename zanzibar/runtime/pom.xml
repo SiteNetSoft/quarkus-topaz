@@ -9,6 +9,7 @@
   </parent>
   <artifactId>quarkus-topaz-zanzibar</artifactId>
   <name>Topaz Zanzibar - Runtime</name>
+  <description>Topaz Directory connector for Quarkus Zanzibar's RelationshipManager</description>
 
   <dependencies>
     <dependency>

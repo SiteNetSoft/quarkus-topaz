@@ -10,6 +10,7 @@
   <artifactId>quarkus-topaz-grpc-parent</artifactId>
   <packaging>pom</packaging>
   <name>Topaz - gRPC - Parent</name>
+  <description>Parent of the generated gRPC stubs for the Topaz authorizer and directory</description>
 
   <modules>
     <module>stubs</module>

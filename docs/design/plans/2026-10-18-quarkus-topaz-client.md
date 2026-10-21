@@ -563,7 +563,7 @@ Test archive contains `@GlobalInterceptor @ApplicationScoped class RecordingInte
 
 - [ ] **Step 1: Write the failing test** using `QuarkusDevModeTest` with the Task 8 resources and `new DevUIJsonRPCTest("org.sitenetsoft.quarkus-topaz")`: `listPoliciesReturnsTodoPackages` asserts the JSON array contains an entry whose `packagePath` starts with `todoApp.`; `manifestReturned` asserts the string contains `can_delete`.
 - [ ] **Step 2: Run to verify it fails.** 
-- [ ] **Step 3: Implement** (Lit components modelled on `~/Projects/SiteNetSoft/quarkus-tus/deployment/src/main/resources/dev-ui/qwc-tus-uploads.js`; table for policies, `<pre>` for the manifest).
+- [ ] **Step 3: Implement** (Lit components modelled on `quarkus-tus/deployment/src/main/resources/dev-ui/qwc-tus-uploads.js`; table for policies, `<pre>` for the manifest).
 - [ ] **Step 4: Run to verify it passes.**
 - [ ] **Step 5: Commit** `git commit -am "Add Topaz Dev UI card with console link, policies and manifest pages"`
 
