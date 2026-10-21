@@ -53,7 +53,7 @@ jobs:
           if [ "$REF_TYPE" = "tag" ]; then
             ARGS+=("$GITHUB_REF_NAME")
           fi
-          OUT=$(bin/release-check.sh "${ARGS[@]}")
+          OUT=$(bin/release-check.sh "${ARGS[@]}") || { echo "$OUT"; exit 1; }
           echo "$OUT"
           echo "version=${OUT##*version=}" >> "$GITHUB_OUTPUT"
 
@@ -110,7 +110,12 @@ jobs:
           DEPLOYMENT_ID=$(curl --fail-with-body -sS -X POST \
             -H "Authorization: Bearer $AUTH" \
             -F "bundle=@target/central-bundle.zip" \
-            "https://central.sonatype.com/api/v1/publisher/upload?name=quarkus-topaz-${VERSION}&publishingType=${PUBLISHING_TYPE}")
+            "https://central.sonatype.com/api/v1/publisher/upload?name=quarkus-topaz-${VERSION}&publishingType=${PUBLISHING_TYPE}") \
+            || { echo "$DEPLOYMENT_ID"; echo "::error::Upload to the Central Portal failed."; exit 1; }
+          if [ -z "$DEPLOYMENT_ID" ]; then
+            echo "::error::The Portal returned no deployment id."
+            exit 1
+          fi
           echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
           echo "Deployment ID: $DEPLOYMENT_ID (publishingType=$PUBLISHING_TYPE)"
 
@@ -127,7 +132,8 @@ jobs:
           for i in $(seq 1 40); do
             BODY=$(curl --fail-with-body -sS -X POST \
               -H "Authorization: Bearer $AUTH" \
-              "https://central.sonatype.com/api/v1/publisher/status?id=${DEPLOYMENT_ID}")
+              "https://central.sonatype.com/api/v1/publisher/status?id=${DEPLOYMENT_ID}") \
+              || { echo "$BODY"; echo "::error::Status request failed."; exit 1; }
             STATE=$(echo "$BODY" | grep -oP '"deploymentState"\s*:\s*"\K[^"]+' || echo UNKNOWN)
             echo "[$i] $STATE"
             case "$STATE" in
