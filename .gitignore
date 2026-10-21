@@ -2,5 +2,4 @@ target/
 .idea/
 *.iml
 .vscode/
-.superpowers/
 docs/modules/ROOT/pages/includes/quarkus-topaz*.adoc

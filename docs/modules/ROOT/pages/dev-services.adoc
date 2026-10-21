@@ -123,7 +123,7 @@ Testcontainers reaches rootless Podman through its user socket, with the Ryuk re
 
 [source,shell]
 ----
-export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock   # $XDG_RUNTIME_DIR/podman/podman.sock
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
 export TESTCONTAINERS_RYUK_DISABLED=true
 systemctl --user enable --now podman.socket
 ----

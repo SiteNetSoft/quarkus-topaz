@@ -1,7 +1,5 @@
 # Release workflow Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Pushing a `vX.Y.Z` tag publishes the eleven `org.sitenetsoft` artifacts, signed, to the Maven Central Portal and opens a GitHub release, with every precondition checked by scripts that also run locally.
 
 **Architecture:** Three layers. The POMs gain the metadata Central requires, deploy skips for the non-published modules, and a `release` profile that adds sources, Javadoc and GPG signing. Two shell scripts under `bin/` hold every check (version/tag/README, and the staging layout) so they are testable without credentials. `.github/workflows/release.yml` wires them together in the order quarkus-tus uses: check, test, sign-and-stage, verify, bundle, upload, wait, release.
@@ -14,13 +12,13 @@
 
 - Quarkus `3.40.1`; `quarkus.version` property; `io.quarkus:quarkus-bom` imported; nothing else version-pinned except what the BOM does not manage. The BOM manages no Maven plugins, so `maven-source-plugin`, `maven-javadoc-plugin` and `maven-gpg-plugin` are pinned through root properties `source-plugin.version`, `javadoc-plugin.version`, `gpg-plugin.version`.
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT` stays as is in this plan; no license headers in files.
-- `maven.compiler.release=21`; build with `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
-- Container runtime is rootless Podman: commands that start containers run with `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
+- `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
+- Container runtime is rootless Podman: commands that start containers run with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
 - Maven parallelism at most `-T 4` locally; one heavy job at a time; no native build in this plan.
 - Published artifact ids are exactly: `quarkus-topaz-parent`, `quarkus-topaz-grpc-parent`, `quarkus-topaz-grpc`, `quarkus-topaz`, `quarkus-topaz-deployment`, `quarkus-topaz-security-parent`, `quarkus-topaz-security`, `quarkus-topaz-security-deployment`, `quarkus-topaz-zanzibar-parent`, `quarkus-topaz-zanzibar`, `quarkus-topaz-zanzibar-deployment`. Nothing else is deployed.
 - No credentials, keys or `<distributionManagement>` in any committed file. Signing only under `-Prelease`.
 - Scripts: bash, `set -euo pipefail`, executable, in the style of `bin/generate.sh`.
-- Logs and scratch files under `.superpowers/logs/` or `target/`, never `/tmp`. Throwaway GPG homes go under `target/`.
+- Logs and scratch files under `target/logs/` or `target/`, never `/tmp`. Throwaway GPG homes go under `target/`.
 
 ## Review Focus
 
@@ -59,8 +57,8 @@ Properties: `<source-plugin.version>`, `<javadoc-plugin.version>`, `<gpg-plugin.
 
 Run:
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -B -T 4 -q -DskipTests -Prelease -Dgpg.skip deploy \
-  -DaltDeploymentRepository=staging::file://$PWD/target/staging-deploy > .superpowers/logs/release-stage.log 2>&1
+JAVA_HOME=/path/to/jdk-25 mvn -B -T 4 -q -DskipTests -Prelease -Dgpg.skip deploy \
+  -DaltDeploymentRepository=staging::file://$PWD/target/staging-deploy > target/logs/release-stage.log 2>&1
 find target/staging-deploy -name '*.jar' -o -name '*.pom' | sed 's#target/staging-deploy/org/sitenetsoft/##' | sort
 ```
 Expected: exactly the eleven artifact directories; every jar artifact has `<id>-0.1.0-SNAPSHOT.jar`, `-sources.jar`, `-javadoc.jar`; no `quarkus-topaz-grpc-generator`, `-integration-tests`, `-no-rest-tests`, `-docs` directories. Fix any Javadoc error the run surfaces (the message names the file and line).
@@ -70,8 +68,8 @@ Expected: exactly the eleven artifact directories; every jar artifact has `<id>-
 ```bash
 export GNUPGHOME=$PWD/target/gnupg && rm -rf "$GNUPGHOME" && mkdir -m 700 "$GNUPGHOME"
 gpg --batch --pinentry-mode loopback --passphrase '' --quick-gen-key 'release test <test@example.invalid>' default default never
-JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 MAVEN_GPG_PASSPHRASE='' mvn -B -T 4 -q -DskipTests -Prelease deploy \
-  -DaltDeploymentRepository=staging::file://$PWD/target/staging-deploy > .superpowers/logs/release-sign.log 2>&1
+JAVA_HOME=/path/to/jdk-25 MAVEN_GPG_PASSPHRASE='' mvn -B -T 4 -q -DskipTests -Prelease deploy \
+  -DaltDeploymentRepository=staging::file://$PWD/target/staging-deploy > target/logs/release-sign.log 2>&1
 find target/staging-deploy \( -name '*.jar' -o -name '*.pom' \) ! -exec test -f {}.asc \; -print
 ```
 Expected: the last command prints nothing (every jar and POM has an `.asc`). Confirm `mvn -B -T 4 -q -DskipTests verify` (no profile) still passes with no GPG key present.
@@ -190,7 +188,7 @@ followed by the bump to `0.2.0-SNAPSHOT` with the same `versions:set`; "Secrets 
 
 - [ ] **Step 2: Build the docs**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -B -T 4 -q -Pdocs -DskipTests package -pl docs -am > .superpowers/logs/release-docs.log 2>&1; grep -c WARN .superpowers/logs/release-docs.log`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -B -T 4 -q -Pdocs -DskipTests package -pl docs -am > target/logs/release-docs.log 2>&1; grep -c WARN target/logs/release-docs.log`
 Expected: BUILD SUCCESS, no Asciidoctor warnings, `docs/target/generated-docs/releasing.html` exists.
 
 - [ ] **Step 3: Commit**

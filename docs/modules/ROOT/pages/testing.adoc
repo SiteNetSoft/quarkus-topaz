@@ -26,20 +26,19 @@ Tests that start Topaz need a container runtime. With rootless Podman:
 
 [source,shell]
 ----
-DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
-JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -T 4 verify
+DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
+JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify
 ----
 
 * Java 25 runs the build; the code targets release 21.
-* Use at most `-T 4` and run one heavy build at a time. Test JVMs already run with `-XX:TieredStopAtLevel=1`.
 * Add `-Pdocs` to also build this documentation.
 
 A native run adds the mandatory native-image arguments:
 
 [source,shell]
 ----
-DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
-JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -pl integration-tests -am verify -Dnative \
+DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true \
+JAVA_HOME=/path/to/jdk-25 mvn -pl integration-tests -am verify -Dnative \
     -Dquarkus.native.container-build=true \
     -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
 ----

@@ -1,7 +1,5 @@
 # quarkus-topaz-zanzibar Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Ship `quarkus-topaz-zanzibar`: a `io.quarkiverse.zanzibar.RelationshipManager` backed by the Topaz Directory, so applications written against `quarkus-zanzibar`'s `@FGA*` annotations run on Topaz unchanged.
 
 **Architecture:** Two new reactor modules, `zanzibar/runtime` (`quarkus-topaz-zanzibar`) and `zanzibar/deployment` (`quarkus-topaz-zanzibar-deployment`). One `@ApplicationScoped` bean, `ZanzibarTopazRelationshipManager`, maps `check` to Reader `Check`, `add` to Writer `SetRelation` and `remove` to Writer `DeleteRelation` through the existing `DirectoryClient`; the deployment module registers the feature and the bean. `quarkus-zanzibar` itself owns the JAX-RS filter, the annotations, user extraction and its own `quarkus.zanzibar.*` configuration; this module adds exactly one key, the user type to use when the filter hands over a blank one.
@@ -14,10 +12,10 @@
 
 - Quarkus `3.40.1`; `quarkus.version` property; `io.quarkus:quarkus-bom` imported; nothing else version-pinned except what the BOM does not manage. Two such pins in this plan: `io.quarkiverse.zanzibar:quarkus-zanzibar` and its `-deployment` artifact at `2.15.0` through a root property `quarkus-zanzibar.version`, and `io.quarkus:quarkus-security-test-utils:${quarkus.version}` (test scope).
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT`, no license headers in files (LICENSE file only).
-- `maven.compiler.release=21`; build with `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
+- `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`. No dependency on any `com.aserto:*` artifact.
 - `quarkus-topaz-zanzibar` depends on `quarkus-topaz`, `quarkus-arc` and `io.quarkiverse.zanzibar:quarkus-zanzibar`. It is the only module that touches Quarkiverse artifacts; `quarkus-topaz` and `quarkus-topaz-security` must not gain one.
-- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
+- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
 - Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Module-scoped builds use `-pl zanzibar/deployment -am` (building `zanzibar/runtime` alone fails the extension-descriptor check, as it does for `security/runtime`).
 - Fail closed: `check` never completes with `true` on an error. A `NOT_FOUND` from the Directory on `check` means "no such relationship" and completes with `false`; every other `StatusRuntimeException` propagates unchanged (quarkus-zanzibar's filter turns it into a 500, which is its decision, not ours).
@@ -88,7 +86,7 @@ public class TopazZanzibarFeatureTest {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl zanzibar/deployment -am test -Dtest=TopazZanzibarFeatureTest -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl zanzibar/deployment -am test -Dtest=TopazZanzibarFeatureTest -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: compilation failure on `TopazZanzibarConfig` (or BUILD FAILURE because the module does not exist yet).
 
 - [ ] **Step 3: Create the three poms, the yaml, the config interface and the processor with the feature step; register the module and the version property in the root pom; add the docs dependency**
@@ -222,7 +220,7 @@ If Topaz answers `NOT_FOUND` rather than `INVALID_ARGUMENT` for an unknown objec
 
 - [ ] **Step 3: Run tests to verify they fail**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl zanzibar/deployment -am verify -Dtest='ZanzibarTopazRelationshipManagerTest,RelationshipManagerTest' -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl zanzibar/deployment -am verify -Dtest='ZanzibarTopazRelationshipManagerTest,RelationshipManagerTest' -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: compilation failure on `ZanzibarTopazRelationshipManager`.
 
 - [ ] **Step 4: Implement the bean and the processor's bean step**
@@ -377,7 +375,7 @@ git add integration-tests
 git commit -m "Add the FGA-annotated todo endpoints to the integration tests"
 ```
 
-Run (one heavy job, nothing else building): `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee .superpowers/logs/zanzibar-native.log`
+Run (one heavy job, nothing else building): `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee target/logs/zanzibar-native.log`
 Expected: BUILD SUCCESS; Failsafe runs `FgaTodoResourceIT` 7/7 alongside the existing ITs. If the native image fails on a missing reflection registration for a `quarkus-zanzibar` class, add a `ReflectiveClassBuildItem` for it in `TopazZanzibarProcessor` and commit that separately.
 
 ---
@@ -393,12 +391,12 @@ Expected: BUILD SUCCESS; Failsafe runs `FgaTodoResourceIT` 7/7 alongside the exi
 
 - [ ] **Step 2: Build the docs**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`
 Expected: `docs/target/generated-docs/zanzibar-connector.html` exists; `grep -c "quarkus.topaz.zanzibar.default-user-type" docs/target/generated-docs/configuration.html` ≥ 1.
 
 - [ ] **Step 3: Full build**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -T 4 verify -Pdocs 2>&1 | tee .superpowers/logs/zanzibar-verify.log`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify -Pdocs 2>&1 | tee target/logs/zanzibar-verify.log`
 Expected: BUILD SUCCESS across all modules; no `relocated`, `argLine` or `java.util.logging.manager` warnings.
 
 - [ ] **Step 4: Commit**

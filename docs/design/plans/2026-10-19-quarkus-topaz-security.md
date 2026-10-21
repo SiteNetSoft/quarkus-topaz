@@ -1,7 +1,5 @@
 # quarkus-topaz-security Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Ship `quarkus-topaz-security`: a named `topaz` `HttpSecurityPolicy`, the `@TopazAuthorize` and `@TopazCheck` interceptors, and an opt-in `@PermissionsAllowed` bridge, all enforcing through the existing `quarkus-topaz` client and failing closed.
 
 **Architecture:** Two new reactor modules, `security/runtime` (`quarkus-topaz-security`) and `security/deployment` (`quarkus-topaz-security-deployment`). One `DecisionEvaluator` builds `IsRequest`s from three overridable mapper beans (identity, policy path, resource context) and interprets the response; the HTTP policy, both interceptors and the permission bridge all delegate to it. REST awareness (JAX-RS template and path parameters after matching) lives behind a `ResourceMethodInfoResolver` bean that the deployment swaps in only when `quarkus-rest` is present.
@@ -14,10 +12,10 @@
 
 - Quarkus `3.40.1`; `quarkus.version` property; `io.quarkus:quarkus-bom` imported; nothing else version-pinned except what the BOM does not manage (`io.quarkus:quarkus-security-test-utils` is not BOM-managed and is pinned to `${quarkus.version}`, test scope only).
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT`, no license headers in files (LICENSE file only).
-- `maven.compiler.release=21`; build with `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
+- `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`. No dependency on any `com.aserto:*` artifact.
 - `quarkus-topaz-security` depends on `quarkus-topaz`, `quarkus-vertx-http`, `quarkus-security`, `quarkus-jackson`, and `quarkus-rest` in `provided` scope. `quarkus-topaz` itself must not gain a `quarkus-security` dependency.
-- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
+- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
 - Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Fail closed: a Topaz error, timeout, unresolved user, missing decision or missing policy path denies. Nothing is enforced unless the user binds the `topaz` policy or uses an annotation; no global policy.
 - Package roots: public API in `org.sitenetsoft.quarkus.topaz.security`, internals in `org.sitenetsoft.quarkus.topaz.security.runtime`, build steps in `org.sitenetsoft.quarkus.topaz.security.deployment`.
@@ -88,7 +86,7 @@ The fixture adds `.setLogRecordPredicate(r -> r.getMessage().contains("Installed
 
 - [ ] **Step 2: Run it to verify it fails**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl security/deployment -am test -Dtest=TopazSecurityFeatureTest -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl security/deployment -am test -Dtest=TopazSecurityFeatureTest -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: FAIL (module or classes missing).
 
 - [ ] **Step 3: Create the modules, yaml, config roots and processor** with `feature()` returning `new FeatureBuildItem(FEATURE)` and `indexRuntime()` returning `new IndexDependencyBuildItem("org.sitenetsoft", "quarkus-topaz-security")` (Quarkus reads annotation targets and constructor parameter names of `TopazRelation` from the Jandex index). Set `<parameters>true</parameters>` in the security runtime module's `maven-compiler-plugin` configuration so parameter names survive compilation. No `ExtensionSslNativeSupportBuildItem`: the client extension already registers it.
@@ -159,7 +157,7 @@ class DefaultResourceContextMapperTest {  // Mockito-mocked RoutingContext + Htt
 
 - [ ] **Step 2: Run them to verify they fail**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl security/runtime -am test -Dtest='PolicyPathsTest,DefaultIdentityMapperTest,DefaultResourceContextMapperTest' -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl security/runtime -am test -Dtest='PolicyPathsTest,DefaultIdentityMapperTest,DefaultResourceContextMapperTest' -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: FAIL (classes missing).
 
 - [ ] **Step 3: Implement the interfaces, defaults and `PolicyPaths`**, register the defaults in the processor.
@@ -219,7 +217,7 @@ public class RoutePolicyDecisionsAttributeTest {   // + quarkus.topaz.enforcemen
 
 - [ ] **Step 2: Run them to verify they fail**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl security/deployment -am test -Dtest='RoutePolicy*' -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl security/deployment -am test -Dtest='RoutePolicy*' -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: FAIL (no `topaz` policy: Quarkus fails startup with "unknown policy topaz", or 403s where 200 is expected).
 
 - [ ] **Step 3: Implement `DecisionEvaluator`, `TopazHttpSecurityPolicy`, the recorder validation and the processor wiring.**
@@ -476,7 +474,7 @@ public class SecuredTodoResourceIT extends SecuredTodoResourceTest {}
 
 - [ ] **Step 2: Run the JVM tests to verify they fail**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -T 4 -pl integration-tests -am verify -Dtest=SecuredTodoResourceTest -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -T 4 -pl integration-tests -am verify -Dtest=SecuredTodoResourceTest -Dsurefire.failIfNoSpecifiedTests=false`
 Expected: FAIL (resources missing).
 
 - [ ] **Step 3: Add the resources, config and dependencies.**
@@ -492,7 +490,7 @@ git add integration-tests
 git commit -m "Add secured todo endpoints to the integration tests"
 ```
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8` (after `mvn -T 4 -pl security/deployment -am install -DskipTests` so the native run sees fresh jars)
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8` (after `mvn -T 4 -pl security/deployment -am install -DskipTests` so the native run sees fresh jars)
 Expected: BUILD SUCCESS with `SecuredTodoResourceIT` 7/7 and `TodoResourceIT` 6/6. A reflection failure in `@TopazObjectId` resolution or Jackson conversion is fixed in the deployment processor (`ReflectiveClassBuildItem`) and committed before a second, final native run.
 
 ---
@@ -508,12 +506,12 @@ Expected: BUILD SUCCESS with `SecuredTodoResourceIT` 7/7 and `TodoResourceIT` 6/
 
 - [ ] **Step 2: Build the docs**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`
 Expected: `docs/target/generated-docs/security.html` exists; `grep -c "quarkus.topaz.enforcement.policy-root" docs/target/generated-docs/configuration.html` ≥ 1; every key named in `security.adoc` appears in the generated include.
 
 - [ ] **Step 3: Full build**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -T 4 verify -Pdocs`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify -Pdocs`
 Expected: BUILD SUCCESS, no new WARN lines compared with the client branch's final build (`relocated`, `argLine`, `java.util.logging.manager` must stay at zero).
 
 - [ ] **Step 4: Commit**

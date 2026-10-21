@@ -1,7 +1,5 @@
 # Pre-release fixes (0.1.0) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Close the fix-later findings parked by the client, security and zanzibar plans so that 0.1.0 ships with bounded waits everywhere, a deliberate public API, no secrets in logs, honest tests, and a spec that matches the code.
 
 **Architecture:** No new modules. Seven tasks, each scoped to one concern across the existing modules: bounded waits in the client (gRPC deadline on stalled connections, health and Dev UI timeouts); correctness fixes in the security evaluator and path mapper; the client's public API sweep; the security test gaps; the zanzibar and client test gaps; build and CI housekeeping; documentation and spec drift. Behaviour changes come first so the docs task at the end describes the final state.
@@ -14,14 +12,14 @@
 
 - Quarkus `3.40.1`; `quarkus.version` property; `io.quarkus:quarkus-bom` imported; nothing else version-pinned except what the BOM does not manage (`quarkus-zanzibar` 2.15.0, `quarkus-security-test-utils`, and after Task 6 the Jandex Maven plugin through a root property).
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT`, no license headers in files.
-- `maven.compiler.release=21`; build with `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
+- `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`; no `com.aserto:*` dependency; no `grpc-netty-shaded`.
-- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
+- Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
 - Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build. The host logged machine-check events on 2026-10-19 during builds: keep to one build at a time.
 - Fail closed: no convenience method returns `true` on an error; client errors are `io.grpc.StatusRuntimeException`; every security denial logs at WARN naming the policy path.
 - Public API after this plan: in `org.sitenetsoft.quarkus.topaz`: `TopazClient` and its `Builder` (except `settings`, which is internal), `AuthorizerClient`, `DirectoryClient`, `BlockingTopazClient`, `BlockingAuthorizerClient`, `BlockingDirectoryClient`, `IdentityContexts`, `Structs`, `ImportSummary`; in `org.sitenetsoft.quarkus.topaz.security`: everything already there; in `org.sitenetsoft.quarkus.topaz.zanzibar`: `ZanzibarTopazRelationshipManager`. Every `*.runtime` and `*.deployment` package is internal and says so in a `package-info.java`.
 - Module-scoped builds: `-pl deployment -am`, `-pl security/deployment -am`, `-pl zanzibar/deployment -am`, `-pl integration-tests -am`.
-- Logs and scratch files under `.superpowers/logs/`, never `/tmp`.
+- Logs and scratch files under `target/logs/`, never `/tmp`.
 
 ## Review Focus
 
@@ -78,7 +76,7 @@ public class DeadlineOnStalledConnectionTest {
 
 - [ ] **Step 2: Run it**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -T 4 -pl deployment -am verify -Dtest=DeadlineOnStalledConnectionTest -Dsurefire.failIfNoSpecifiedTests=false`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -q -T 4 -pl deployment -am verify -Dtest=DeadlineOnStalledConnectionTest -Dsurefire.failIfNoSpecifiedTests=false`
 
 Two outcomes, both handled:
 - **FAIL** (the call never completes; `await` times out after 10 s): this confirms the zanzibar finding. Go to Step 3.
@@ -369,8 +367,8 @@ git commit -m "Run the previous-Topaz job on every deployment module, pin the pa
 
 - [ ] **Step 4: Build the docs, then the whole reactor**
 
-Run: `JAVA_HOME=... mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`, then `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -T 4 verify -Pdocs 2>&1 | tee .superpowers/logs/pre-release-verify.log`
-Expected: BUILD SUCCESS; no `Port already bound`; no new WARN categories compared with `.superpowers/logs/zanzibar-final-verify.log`.
+Run: `JAVA_HOME=... mvn -q -T 4 -Pdocs -pl docs -am package -DskipTests`, then `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -T 4 verify -Pdocs 2>&1 | tee target/logs/pre-release-verify.log`
+Expected: BUILD SUCCESS; no `Port already bound`; no new WARN categories compared with `target/logs/zanzibar-final-verify.log`.
 
 - [ ] **Step 5: Native (after commit, alone)**
 
@@ -378,7 +376,7 @@ Expected: BUILD SUCCESS; no `Port already bound`; no new WARN categories compare
 git add docs security/runtime
 git commit -m "Record the security and zanzibar drift in the spec and complete the mapper Javadoc"
 ```
-Run: `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee .superpowers/logs/pre-release-native.log`
+Run: `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee target/logs/pre-release-native.log`
 Expected: BUILD SUCCESS, Failsafe all green (the client's new deadline guard and the moved interceptor class are exercised natively).
 
 ---

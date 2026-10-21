@@ -73,7 +73,7 @@ Uni<Boolean> allowed = topaz.authorizer().isAllowed(IdentityContexts.subject("ri
 JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify
 ```
 
-With rootless Podman, add `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. See [Testing](docs/modules/ROOT/pages/testing.adoc).
+With rootless Podman, add `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. See [Testing](docs/modules/ROOT/pages/testing.adoc).
 
 ## License
 

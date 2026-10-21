@@ -12,9 +12,9 @@ mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=t
     -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
 ----
 
-The `additional-build-args` keep the native-image compiler at C1 and eight threads. This repository uses them
-everywhere because full-parallelism builds have proven unstable on its build hosts; they cost build time, not
-correctness. If your project already sets `quarkus.native.additional-build-args`, append to its value.
+The `additional-build-args` keep the native-image compiler at C1 and eight threads, so the build fits on ordinary
+CI runners and workstations; they cost build time, not correctness, and you can drop them on a large build host. If
+your project already sets `quarkus.native.additional-build-args`, append to its value.
 
 == Security
 

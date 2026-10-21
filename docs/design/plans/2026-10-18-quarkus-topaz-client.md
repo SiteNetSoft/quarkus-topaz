@@ -1,7 +1,5 @@
 # Quarkus Topaz Client Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Ship `org.sitenetsoft:quarkus-topaz`, the client extension of the design: generated gRPC stubs, injectable Authorizer and Directory clients, API key and TLS support, a Dev Service that boots Topaz with the user's policies and manifest, health, tracing, Dev UI, native support, docs and CI.
 
 **Architecture:** A Maven reactor. `grpc/stubs` holds committed Mutiny and blocking stubs generated from the pinned buf modules. `runtime` builds two Vert.x gRPC channels (authorizer, directory) from `quarkus.topaz.*` config through a public `TopazClient.builder()` that also works without CDI; a recorder exposes the client as synthetic beans. `deployment` adds build steps, the Dev Service (container, generated config, readiness wait, manifest and data load), health registration and the Dev UI card. The security and Zanzibar extensions of the design are separate plans that build on this one's `TopazClient` API.
@@ -14,10 +12,10 @@
 
 - Quarkus `3.40.1`; `quarkus.version` property; `io.quarkus:quarkus-bom` imported; nothing else version-pinned except what the BOM does not manage.
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT`, Apache 2.0 license header-free (LICENSE file only, as quarkus-tus).
-- `maven.compiler.release=21`; build with `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64` (the machine's default `java` is 17).
+- `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25` (the machine's default `java` is 17).
 - Protos pinned: `buf.build/aserto-dev/authorizer:v0.24.0`, `buf.build/aserto-dev/directory:v0.34.1`. Topaz image pinned: `ghcr.io/aserto-dev/topaz:0.33.22`.
 - No dependency on any `com.aserto:*` artifact. No `grpc-netty-shaded`.
-- Container runtime is rootless Podman. Every test or build command that starts containers runs with `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. `docker` is not installed; the proto export script uses `podman run docker.io/bufbuild/buf`.
+- Container runtime is rootless Podman. Every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. `docker` is not installed; the proto export script uses `podman run docker.io/bufbuild/buf`.
 - Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Scratch files from the Dev Service go under the build output directory, never `/tmp`.
 - Fail closed: no convenience method returns `true` on an error; errors propagate as `io.grpc.StatusRuntimeException`.
@@ -37,7 +35,7 @@
 ### Task 1: Reactor scaffold and empty extension
 
 **Files:**
-- Create: `pom.xml`, `runtime/pom.xml`, `deployment/pom.xml`, `.gitignore`, `LICENSE`, `README.md`, `CLAUDE.md`
+- Create: `pom.xml`, `runtime/pom.xml`, `deployment/pom.xml`, `.gitignore`, `LICENSE`, `README.md`
 - Create: `runtime/src/main/resources/META-INF/quarkus-extension.yaml`
 - Create: `deployment/src/main/java/org/sitenetsoft/quarkus/topaz/deployment/TopazProcessor.java`
 - Test: `deployment/src/test/java/org/sitenetsoft/quarkus/topaz/deployment/TopazFeatureTest.java`
@@ -50,7 +48,7 @@
 Run from the repo root (it already holds `docs/` and `.git`):
 
 ```bash
-cd /home/jn/Projects/SiteNetSoft/quarkus-topaz && JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 \
+JAVA_HOME=/path/to/jdk-25 \
 mvn -N io.quarkus.platform:quarkus-maven-plugin:3.40.1:create-extension -DgroupId=org.sitenetsoft -DextensionId=topaz -DextensionName="Topaz" -DwithoutTests -DquarkusVersion=3.40.1
 ```
 
@@ -82,7 +80,7 @@ Dependencies in `deployment/pom.xml` test scope: `io.quarkus:quarkus-junit-inter
 
 - [ ] **Step 5: Run it to verify it fails**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 mvn -q -pl deployment -am test -Dtest=TopazFeatureTest`
+Run: `JAVA_HOME=/path/to/jdk-25 mvn -q -pl deployment -am test -Dtest=TopazFeatureTest`
 Expected: FAIL (no feature named topaz logged, or `TopazProcessor` missing).
 
 - [ ] **Step 6: Implement `TopazProcessor`**
@@ -93,9 +91,9 @@ Expected: FAIL (no feature named topaz logged, or `TopazProcessor` missing).
 
 Same command. Expected: PASS.
 
-- [ ] **Step 8: Write `.gitignore`, `README.md`, `CLAUDE.md`, `LICENSE`**
+- [ ] **Step 8: Write `.gitignore`, `README.md`, `LICENSE`**
 
-`.gitignore`: `target/`, `.idea/`, `*.iml`, `.vscode/`. `README.md`: one paragraph, status "pre-release", link to the spec. `CLAUDE.md`: the Global Constraints of this plan verbatim plus pointers to `~/Projects/SiteNetSoft/ai-skills/dev-practices/quarkus/index.md` and `meta/skill-authoring/index.md`. `LICENSE`: Apache 2.0 text copied from `~/Projects/SiteNetSoft/quarkus-tus/LICENSE`.
+`.gitignore`: `target/`, `.idea/`, `*.iml`, `.vscode/`. `README.md`: one paragraph, status "pre-release", link to the spec. `LICENSE`: Apache 2.0 text copied from quarkus-tus.
 
 - [ ] **Step 9: Commit**
 
@@ -131,7 +129,7 @@ Mirror `quarkus-authzed-client/bin/generate.sh` with these changes: use `podman 
 
 - [ ] **Step 4: Run the generation**
 
-Run: `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 bin/generate.sh`
+Run: `JAVA_HOME=/path/to/jdk-25 bin/generate.sh`
 Expected: `grpc/stubs/src/main/java/aserto/authorizer/v2/MutinyAuthorizerGrpc.java` and `grpc/stubs/src/main/java/aserto/directory/reader/v3/MutinyReaderGrpc.java` exist; no `aserto/directory/*/v2` directory; no `google/` directory.
 
 - [ ] **Step 5: Write the failing smoke test**
@@ -202,7 +200,7 @@ types:
 
 - [ ] **Step 3: Run it**
 
-Run: `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -q -pl deployment -am test -Dtest=TopazPlaintextSpikeTest`
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -q -pl deployment -am test -Dtest=TopazPlaintextSpikeTest`
 Expected: PASS. If Topaz refuses to start without `certs`, read its log: if there is a boolean to disable TLS per listener, use it and re-run; if plaintext is impossible, stop and report. The fallback (Topaz-generated certs trusted through `TlsCertificateBuildItem`) changes Tasks 5, 7 and 8 and must be re-planned before continuing.
 
 - [ ] **Step 4: Record the result**
@@ -590,7 +588,7 @@ Test archive contains `@GlobalInterceptor @ApplicationScoped class RecordingInte
 
 ```bash
 git add -A && git commit -m "Add integration tests with a todo sample application"
-DOCKER_HOST=unix:///run/user/1000/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 \
+DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 \
 mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
   -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
 ```
