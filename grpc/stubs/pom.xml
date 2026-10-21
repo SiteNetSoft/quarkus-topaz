@@ -12,7 +12,7 @@
   <description>Generated gRPC stubs for the Topaz authorizer and directory APIs</description>
 
   <properties>
-    <doclint>none</doclint>
+    <javadoc.doclint>none</javadoc.doclint>
   </properties>
 
   <dependencies>

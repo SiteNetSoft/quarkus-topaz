@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" child.project.url.inherit.append.path="false" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -24,7 +24,7 @@
       <organizationUrl>https://github.com/SiteNetSoft</organizationUrl>
     </developer>
   </developers>
-  <scm>
+  <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
     <connection>scm:git:https://github.com/SiteNetSoft/quarkus-topaz.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/SiteNetSoft/quarkus-topaz.git</developerConnection>
     <url>https://github.com/SiteNetSoft/quarkus-topaz</url>
@@ -40,6 +40,7 @@
   </modules>
 
   <properties>
+    <javadoc.doclint>all,-missing</javadoc.doclint>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -158,7 +159,7 @@
           <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
-              <doclint>all,-missing</doclint>
+              <doclint>${javadoc.doclint}</doclint>
             </configuration>
             <executions>
               <execution>

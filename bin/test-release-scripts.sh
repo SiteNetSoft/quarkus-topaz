@@ -30,6 +30,8 @@ fixture() {
 </project>
 POM
   printf '%s\n' "$3" >"${dir}/README.md"
+  mkdir -p "${dir}/docs/modules/ROOT/pages/includes"
+  echo ":project-version: $2" >"${dir}/docs/modules/ROOT/pages/includes/attributes.adoc"
   echo "${dir}"
 }
 
@@ -104,6 +106,41 @@ release_check_no_tag() {
   check "$FUNCNAME" 0 "version=0.1.0"
 }
 
+release_check_attributes_snapshot() {
+  local r; r="$(fixture "$FUNCNAME" 0.1.0 'Use it.')"
+  echo ':project-version: 0.1.0-SNAPSHOT' >"${r}/docs/modules/ROOT/pages/includes/attributes.adoc"
+  RELEASE_CHECK_ROOT="$r" run "${BIN}/release-check.sh" v0.1.0
+  check "$FUNCNAME" 1 "attributes.adoc still"
+}
+
+release_check_nested_pom_snapshot() {
+  local r; r="$(fixture "$FUNCNAME" 0.1.0 'Use it.')"
+  mkdir -p "${r}/sub"
+  printf '<project><version>0.1.0-SNAPSHOT</version></project>\n' >"${r}/sub/pom.xml"
+  RELEASE_CHECK_ROOT="$r" run "${BIN}/release-check.sh" v0.1.0
+  check "$FUNCNAME" 1 "still declares"
+}
+
+release_check_missing_readme() {
+  local r; r="$(fixture "$FUNCNAME" 0.1.0 'Use it.')"
+  rm "${r}/README.md"
+  RELEASE_CHECK_ROOT="$r" run "${BIN}/release-check.sh" v0.1.0
+  check "$FUNCNAME" 1 "README.md not found"
+}
+
+release_check_no_pom() {
+  local r; r="$(fixture "$FUNCNAME" 0.1.0 'Use it.')"
+  rm "${r}/pom.xml"
+  RELEASE_CHECK_ROOT="$r" run "${BIN}/release-check.sh" v0.1.0
+  check "$FUNCNAME" 1 "Could not read"
+}
+
+release_check_readme_status_sentence() {
+  local r; r="$(fixture "$FUNCNAME" 0.1.0 'Status: pre-release, nothing is published yet.')"
+  RELEASE_CHECK_ROOT="$r" run "${BIN}/release-check.sh" v0.1.0
+  check "$FUNCNAME" 1 "README.md still"
+}
+
 staging_ok() {
   local s; s="$(staging "$FUNCNAME" 0.1.0 0.1.0 signed)"
   run "${BIN}/check-staging.sh" "$s"
@@ -162,7 +199,8 @@ rm -rf "${FIX_DIR}"
 mkdir -p "${FIX_DIR}"
 
 for t in release_check_ok release_check_snapshot_refused release_check_tag_mismatch release_check_readme_snapshot \
-  release_check_no_tag staging_ok staging_unsigned_flag staging_missing_signature staging_missing_javadoc \
+  release_check_no_tag release_check_attributes_snapshot release_check_nested_pom_snapshot \
+  release_check_missing_readme release_check_no_pom release_check_readme_status_sentence staging_ok staging_unsigned_flag staging_missing_signature staging_missing_javadoc \
   staging_metadata_present staging_extra_artifact staging_missing_artifact staging_snapshot_names; do
   "${t}"
 done

@@ -75,20 +75,24 @@ The version lives in the POMs, and `-Pdocs` makes the Maven plugin update the do
 [source,bash]
 ----
 mvn -Pdocs org.codehaus.mojo:versions-maven-plugin:2.18.0:set -DnewVersion=0.1.0 -DgenerateBackupPoms=false
-sed -i 's/0.1.0-SNAPSHOT/0.1.0/g' README.md
+sed -i 's/0.1.0-SNAPSHOT/0.1.0/g' README.md CLAUDE.md
+sed -i 's/^:project-version:.*/:project-version: 0.1.0/' docs/modules/ROOT/pages/includes/attributes.adoc
 bin/release-check.sh v0.1.0
 git commit -am "Release 0.1.0" && git tag v0.1.0 && git push origin master v0.1.0
 ----
 
-The `sed` replaces the three coordinates in the README. Also drop the sentence "Status: pre-release, nothing is published yet." from the first paragraph by hand; `bin/release-check.sh` fails while either is still there. The `{project-version}` attribute used by these pages is set in `docs/modules/ROOT/pages/includes/attributes.adoc`, which `versions:set` does not touch, so change it in the same commit.
+The first `sed` replaces all four coordinates in the README, and the `0.1.0-SNAPSHOT` constraint line in `CLAUDE.md`. The second sets the `{project-version}` attribute used by these pages in `docs/modules/ROOT/pages/includes/attributes.adoc`, which `versions:set` does not touch. Also drop the sentence "Status: pre-release, nothing is published yet." from the first paragraph by hand. `bin/release-check.sh` fails while any of these still says `-SNAPSHOT`, and also fails on any `pom.xml` that still declares a snapshot version.
 
 Then move `master` on to the next development version with the same command and push:
 
 [source,bash]
 ----
 mvn -Pdocs org.codehaus.mojo:versions-maven-plugin:2.18.0:set -DnewVersion=0.2.0-SNAPSHOT -DgenerateBackupPoms=false
+sed -i 's/0.1.0/0.2.0-SNAPSHOT/' CLAUDE.md
 git commit -am "Start 0.2.0-SNAPSHOT" && git push origin master
 ----
+
+In this bump `attributes.adoc` stays at the released version, so the master docs show what users can actually download, while `CLAUDE.md` moves to the new snapshot.
 
 === Secrets it needs
 
