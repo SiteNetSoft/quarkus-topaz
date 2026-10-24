@@ -1,6 +1,6 @@
 # quarkus-topaz
 
-Quarkus extension for [Topaz](https://github.com/aserto-dev/topaz) (aserto-dev/topaz): a reactive gRPC client for the authorizer and directory, Dev Services, a readiness health check and a Dev UI card. Status: pre-release, nothing is published yet.
+Quarkus extension for [Topaz](https://github.com/aserto-dev/topaz) (aserto-dev/topaz): a reactive gRPC client for the authorizer and directory, Dev Services, a readiness health check and a Dev UI card.
 
 ## Installation
 
@@ -10,14 +10,14 @@ Maven:
 <dependency>
     <groupId>org.sitenetsoft</groupId>
     <artifactId>quarkus-topaz</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'org.sitenetsoft:quarkus-topaz:0.1.0-SNAPSHOT'
+implementation 'org.sitenetsoft:quarkus-topaz:0.1.0'
 ```
 
 Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP security policy for routes (policy paths derived from the request, e.g. `todoApp.DELETE.todos.__id`), `@TopazAuthorize` and `@TopazCheck` interceptors for CDI bean methods, and an opt-in `@PermissionsAllowed` bridge. Every error denies. See [Security](docs/modules/ROOT/pages/security.adoc).
@@ -26,7 +26,7 @@ Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP
 <dependency>
     <groupId>org.sitenetsoft</groupId>
     <artifactId>quarkus-topaz-security</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ Quarkus-zanzibar users can use `quarkus-topaz-zanzibar`: it supplies the `Relati
 <dependency>
     <groupId>org.sitenetsoft</groupId>
     <artifactId>quarkus-topaz-zanzibar</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
