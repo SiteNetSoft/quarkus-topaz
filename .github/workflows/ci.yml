@@ -23,7 +23,7 @@ jobs:
 
       # GitHub runners have Docker, so the Dev Service tests need no Podman settings here.
       - name: Build
-        run: mvn -B -T 4 verify
+        run: mvn -B -ntp -T 4 verify
 
       - name: Upload test results
         if: always()
@@ -53,7 +53,7 @@ jobs:
           cache: maven
 
       - name: Build and test native image
-        run: mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+        run: mvn -B -ntp -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
 
   # The deployment tests again against the previous Topaz release, to catch protocol or behaviour drift.
   topaz-previous:
@@ -71,4 +71,4 @@ jobs:
           cache: maven
 
       - name: Test against Topaz 0.33.21
-        run: mvn -B -pl deployment,security/deployment,zanzibar/deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21
+        run: mvn -B -ntp -pl deployment,security/deployment,zanzibar/deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21

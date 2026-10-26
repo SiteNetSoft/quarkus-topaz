@@ -76,7 +76,7 @@ jobs:
 
       # GitHub runners have Docker, so the Dev Service tests need no Podman settings here.
       - name: Build and test
-        run: mvn -B -T 4 verify
+        run: mvn -B -ntp -T 4 verify
 
       - name: Import the signing key
         env:

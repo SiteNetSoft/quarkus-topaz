@@ -32,6 +32,10 @@ JAVA_HOME=/path/to/jdk-25 mvn -T 4 verify
 
 * Java 25 runs the build; the code targets release 21.
 * Add `-Pdocs` to also build this documentation.
+* Add `-ntp` when the local repository is cold. A `@QuarkusTest` fork can deadlock while the Quarkus bootstrap
+  downloads an artifact and prints the download line through surefire's captured output
+  (https://github.com/quarkusio/quarkus/issues/57751[quarkus#57751]); `-ntp` turns that output off, and the
+  Quarkus bootstrap honours it inside the fork.
 
 A native run adds the mandatory native-image arguments:
 
@@ -52,5 +56,7 @@ mvn -pl deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/asert
 
 == CI
 
-GitHub Actions runs `mvn -B -T 4 verify`, the native integration tests, and the deployment tests against the
-previous Topaz release. GitHub runners have Docker, so the Podman variables are not set there.
+GitHub Actions runs `mvn -B -ntp -T 4 verify`, the native integration tests, and the deployment tests against the
+previous Topaz release. GitHub runners have Docker, so the Podman variables are not set there. Every command passes
+`-ntp` because the runners start with an empty local repository, which is exactly the condition for the deadlock
+above; without it the `@QuarkusTest` modules hung until the job's six-hour limit on the `ubuntu-26.04` runner image.
