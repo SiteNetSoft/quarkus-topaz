@@ -246,3 +246,13 @@ Scope, author's call:
 - The exact Topaz identifier grammar for 5.4.
 - Whether 5.6 is one task or part of the test-helper work in 5.2.
 - The order of the module commits in the conventions pass.
+
+## 8. As built
+
+- The policy-root check compares the exact bean class with `DefaultPolicyPathMapper`. A subclass of
+  `DefaultPolicyPathMapper` therefore counts as custom, and startup does not check `policy-root` for it. A subclass
+  that calls `super.map` still needs `policy-root`. Without it, the subclass denies every request and fails closed.
+- A default mapper returns `false` from `blocking()` only for its exact built-in class. A subclass counts as blocking
+  unless it overrides `blocking()`, so its enforcement points take the hop to a worker thread.
+- The fast path treats the cache and the resolver as built-in only for the exact classes `NoopDecisionCache` and
+  `NoopResourceMethodInfoResolver`, or the REST resolver by name. A subclass of either counts as custom.
