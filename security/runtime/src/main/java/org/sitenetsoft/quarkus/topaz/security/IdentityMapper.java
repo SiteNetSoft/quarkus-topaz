@@ -16,16 +16,18 @@ import io.vertx.ext.web.RoutingContext;
  * <p>
  * Threading: {@code map} runs on a thread that may block, unless the mapper returns {@code false} from
  * {@link #blocking()}. During an HTTP request, the request's Vert.x duplicated context stays current. The {@code
- * quarkus.topaz.enforcement.timeout} bounds the whole evaluation, and a mapper that runs out of time yields a denial.
+ * quarkus.topaz.enforcement.timeout} bounds the whole evaluation. A mapper that runs out of time yields a denial.
  * A mapper must not use {@code @RequestScoped} beans. The {@code RoutingContext} is not thread-safe, so do not pass it
  * to other threads.
  */
 public interface IdentityMapper {
 
     /**
+     * Map the caller's identity to an identity context.
+     *
      * @param identity the caller's identity
      * @param request the current HTTP request, empty outside an HTTP request
-     * @return the identity context; a failure denies the request
+     * @return the identity context, where a failure denies the request
      */
     Uni<IdentityContext> map(SecurityIdentity identity, Optional<RoutingContext> request);
 

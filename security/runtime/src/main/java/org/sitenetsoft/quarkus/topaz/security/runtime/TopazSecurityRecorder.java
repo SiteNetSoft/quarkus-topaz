@@ -15,7 +15,7 @@ import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
 
 /**
- * Validates the enforcement configuration at startup.
+ * The recorder that validates the enforcement configuration at startup.
  */
 @Recorder
 public class TopazSecurityRecorder {
@@ -48,8 +48,9 @@ public class TopazSecurityRecorder {
         }
     }
 
-    // The application supplies its own mapper when the resolved bean is not the default one. A custom mapper
-    // derives the path itself, so it needs no policy root. Reading the bean class does not create the instance.
+    // The application supplies its own mapper when the resolved bean is not the default one.
+    // A custom mapper derives the path itself, so it needs no policy root.
+    // Reading the bean class does not create the instance.
     private static boolean hasCustomPathMapper() {
         Instance<PolicyPathMapper> mapper = Arc.container().select(PolicyPathMapper.class);
         return mapper.isResolvable() && !DefaultPolicyPathMapper.class.equals(mapper.getHandle().getBean().getBeanClass());

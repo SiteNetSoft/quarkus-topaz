@@ -17,34 +17,49 @@ import io.smallrye.config.WithDefault;
 public interface TopazEnforcementConfig {
 
     /**
-     * The policy root (Rego package prefix) that decisions are evaluated under.
+     * Get the policy root, which is the Rego package prefix that decisions are evaluated under.
+     *
+     * @return the policy root, if set
      */
     Optional<String> policyRoot();
 
     /**
-     * The name of the decision that must be true for a request to be allowed.
+     * Get the name of the decision that must be true for a request to be allowed.
+     *
+     * @return the decision name
      */
     @WithDefault("allowed")
     String decision();
 
     /**
-     * Further decisions to request from the authorizer alongside the main one.
+     * Get the further decisions to request from the authorizer alongside the main one.
+     *
+     * @return the further decisions, if set
      */
     Optional<List<String>> additionalDecisions();
 
     /**
-     * What to do with requests that carry no identity.
+     * Get what to do with requests that carry no identity.
+     *
+     * @return the handling of anonymous requests
      */
     @WithDefault("deny")
     Anonymous anonymous();
 
     /**
-     * The deadline for a whole evaluation: the mappers (identity, policy path, resource context) and the Topaz call
-     * together, not each call separately. An evaluation that exceeds it is denied.
+     * Get the deadline for a whole evaluation.
+     * <p>
+     * The deadline covers the mappers (identity, policy path and resource context) and the Topaz call together. It does
+     * not apply to each call separately. An evaluation that exceeds it is denied.
+     *
+     * @return the deadline
      */
     @WithDefault("5s")
     Duration timeout();
 
+    /**
+     * The handling of requests that carry no identity.
+     */
     enum Anonymous {
         /** Reject anonymous requests without calling the authorizer. */
         DENY,

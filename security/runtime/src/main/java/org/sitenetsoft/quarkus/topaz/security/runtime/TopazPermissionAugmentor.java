@@ -22,14 +22,19 @@ import io.quarkus.security.runtime.QuarkusSecurityIdentity;
 import io.smallrye.mutiny.Uni;
 
 /**
- * Bridges {@code @PermissionsAllowed} to Topaz; installed only when
- * {@code quarkus.topaz.enforcement.permissions.enabled=true}.
+ * The augmentor that bridges {@code @PermissionsAllowed} to Topaz.
  * <p>
- * Adds a permission checker to every authenticated identity (anonymous identities are left unchanged). A
- * {@link TopazRelation} is checked against the directory; any other permission is evaluated as the policy path named by
- * {@link Permission#getName()} with an empty resource context; a permission with actions (for example
- * {@code @PermissionsAllowed("todoApp.GET.todos:write")}) is not supported and is denied. Fails closed: an error, a
- * timeout ({@code quarkus.topaz.enforcement.timeout}) or a mapper failure yields {@code false}.
+ * It is installed only when {@code quarkus.topaz.enforcement.permissions.enabled=true}.
+ * <p>
+ * It adds a permission checker to every authenticated identity and leaves anonymous identities unchanged. The checker
+ * checks a {@link TopazRelation} against the directory. It evaluates any other permission as the policy path named by
+ * {@link Permission#getName()}, with an empty resource context.
+ * <p>
+ * A permission with actions is not supported and is denied. An example is
+ * {@code @PermissionsAllowed("todoApp.GET.todos:write")}.
+ * <p>
+ * The checker fails closed. An error, a timeout set by {@code quarkus.topaz.enforcement.timeout} or a mapper failure
+ * yields {@code false}.
  */
 @ApplicationScoped
 public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
@@ -43,6 +48,16 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
     private final TopazEnforcementConfig config;
     private final MapperDispatch dispatch;
 
+    /**
+     * Create the augmentor.
+     *
+     * @param evaluator the decision evaluator
+     * @param directory the directory client
+     * @param identityMapper the identity mapper
+     * @param subjectMapper the subject mapper
+     * @param config the enforcement configuration
+     * @param dispatch the mapper dispatcher
+     */
     @Inject
     TopazPermissionAugmentor(DecisionEvaluator evaluator, DirectoryClient directory, IdentityMapper identityMapper,
             SubjectMapper subjectMapper, TopazEnforcementConfig config, MapperDispatch dispatch) {
@@ -69,6 +84,13 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
                 .build());
     }
 
+    /**
+     * Check one permission for an identity.
+     *
+     * @param identity the identity
+     * @param permission the permission
+     * @return {@code true} when Topaz permits, {@code false} on a denial, an error or a timeout
+     */
     private Uni<Boolean> check(SecurityIdentity identity, Permission permission) {
         Uni<Boolean> check;
         if (permission instanceof TopazRelation relation) {
@@ -78,12 +100,12 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
                         return false;
                     });
         } else if (permission.getActions() != null && !permission.getActions().isEmpty()) {
-            // a policy path has no notion of actions; ignoring them would grant more than was asked for
+            // A policy path has no notion of actions, and ignoring them would grant more than was asked for.
             LOG.warnf("Topaz denied %s with actions '%s': actions are not supported by the Topaz bridge",
                     permission.getName(), permission.getActions());
             return Uni.createFrom().item(false);
         } else {
-            // the evaluator never fails and logs its own denials
+            // The evaluator never fails and logs its own denials.
             check = dispatch.run(() -> Objects.requireNonNull(
                     identityMapper.map(identity, Optional.empty()), "IdentityMapper returned null")
                     .chain(id -> evaluator.evaluate(id, permission.getName(), Struct.getDefaultInstance()))
@@ -102,6 +124,13 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
                 });
     }
 
+    /**
+     * Check a relation permission against the directory.
+     *
+     * @param identity the identity
+     * @param relation the relation permission
+     * @return {@code true} when the directory reports the relation
+     */
     private Uni<Boolean> relation(SecurityIdentity identity, TopazRelation relation) {
         return Objects.requireNonNull(subjectMapper.map(identity), "SubjectMapper returned null")
                 .chain(subject -> directory.check(relation.objectType(), relation.objectId(), relation.relation(),

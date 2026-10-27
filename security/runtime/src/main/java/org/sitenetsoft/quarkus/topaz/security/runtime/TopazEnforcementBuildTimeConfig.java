@@ -13,19 +13,28 @@ import io.smallrye.config.WithDefault;
 public interface TopazEnforcementBuildTimeConfig {
 
     /**
-     * Whether the request body is read and made available to the policy.
+     * Get whether the request body is read and made available to the policy.
+     *
+     * @return {@code true} when the request body is read
      */
     @WithDefault("false")
     boolean readBody();
 
     /**
-     * Permission checks.
+     * Get the permission check configuration.
+     *
+     * @return the permission check configuration
      */
     Permissions permissions();
 
+    /**
+     * The configuration of permission-based checks.
+     */
     interface Permissions {
         /**
-         * Whether permission-based checks are enabled.
+         * Get whether permission-based checks are enabled.
+         *
+         * @return {@code true} when permission-based checks are enabled
          */
         @WithDefault("false")
         boolean enabled();

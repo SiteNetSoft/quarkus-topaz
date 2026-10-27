@@ -14,13 +14,15 @@ public final class PolicyPaths {
     }
 
     /**
-     * Builds a policy path. {@code /} separators become {@code .}; template segments {@code {name}} and
-     * {@code {name:regex}} become {@code __name}; leading, trailing and empty segments are dropped.
+     * Build a policy path.
+     * <p>
+     * Each {@code /} separator becomes {@code .}. Template segments {@code {name}} and {@code {name:regex}} become
+     * {@code __name}. Leading, trailing and empty segments are dropped.
      *
-     * @param root the policy root, e.g. {@code todoApp}
-     * @param httpMethod the HTTP method, e.g. {@code GET}; upper-cased
-     * @param path a path or path template, e.g. {@code /todos/{id}}
-     * @return the policy path, e.g. {@code todoApp.GET.todos.__id}
+     * @param root the policy root, for example {@code todoApp}
+     * @param httpMethod the HTTP method, for example {@code GET}, which is upper-cased
+     * @param path a path or path template, for example {@code /todos/{id}}
+     * @return the policy path, for example {@code todoApp.GET.todos.__id}
      */
     public static String of(String root, String httpMethod, String path) {
         StringJoiner joined = new StringJoiner(".").add(root).add(httpMethod.toUpperCase(Locale.ROOT));
@@ -42,7 +44,7 @@ public final class PolicyPaths {
         return joined.toString();
     }
 
-    // A '/' inside {...} belongs to a regex, not to the path: split only at brace depth zero.
+    // Split the path at '/' only at brace depth zero, because a '/' inside {...} belongs to a regex.
     private static List<String> segments(String path) {
         List<String> segments = new ArrayList<>();
         StringBuilder current = new StringBuilder();

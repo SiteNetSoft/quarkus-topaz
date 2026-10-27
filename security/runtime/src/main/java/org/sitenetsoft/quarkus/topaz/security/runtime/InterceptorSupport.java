@@ -23,20 +23,29 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Shared plumbing of the Topaz interceptors: the current identity and request, the reactive or blocking dispatch, and
- * the mapping of a denial to a security exception.
+ * The shared plumbing of the Topaz interceptors.
+ * <p>
+ * It provides the current identity and request, the reactive or blocking dispatch, and the mapping of a denial to a
+ * security exception.
  */
 @Singleton
 public class InterceptorSupport {
 
     private static final Logger LOG = Logger.getLogger(InterceptorSupport.class);
 
+    /** The message of the exception thrown when a blocking method is checked on the event loop. */
     static final String EVENT_LOOP_MESSAGE = "@TopazAuthorize/@TopazCheck on a blocking method cannot run on the event"
             + " loop; return Uni or run on a worker thread";
 
     private final CurrentIdentityAssociation identity;
     private final CurrentVertxRequest request;
 
+    /**
+     * Create the support bean.
+     *
+     * @param identity the current identity association
+     * @param request the current Vert.x request
+     */
     @Inject
     InterceptorSupport(CurrentIdentityAssociation identity, CurrentVertxRequest request) {
         this.identity = identity;
@@ -44,6 +53,8 @@ public class InterceptorSupport {
     }
 
     /**
+     * Get the current identity.
+     *
      * @return the current identity, resolved lazily
      */
     public Uni<SecurityIdentity> identity() {
@@ -51,7 +62,9 @@ public class InterceptorSupport {
     }
 
     /**
-     * @return the current HTTP request; empty outside an HTTP request
+     * Get the current HTTP request.
+     *
+     * @return the current HTTP request, or empty outside an HTTP request
      */
     public Optional<RoutingContext> request() {
         if (!Arc.container().requestContext().isActive()) {
@@ -61,9 +74,11 @@ public class InterceptorSupport {
     }
 
     /**
-     * Turns a check into a security exception: {@link UnauthorizedException} and {@link ForbiddenException} pass
-     * through, any other failure is logged and becomes a {@link ForbiddenException}. The check fails with a
-     * {@link ForbiddenException} when it does not complete within {@code timeout}.
+     * Turn a check into a security exception.
+     * <p>
+     * {@link UnauthorizedException} and {@link ForbiddenException} pass through. Any other failure is logged and becomes
+     * a {@link ForbiddenException}. The check fails with a {@link ForbiddenException} when it does not complete within
+     * {@code timeout}.
      *
      * @param check the check
      * @param what what is checked, for the log
@@ -94,15 +109,15 @@ public class InterceptorSupport {
     }
 
     /**
-     * Runs the intercepted method once {@code check} succeeds.
+     * Run the intercepted method once {@code check} succeeds.
      * <p>
      * A method returning {@link Uni} or {@link Multi} is checked on subscription. Any other method blocks on the check,
      * which requires a thread that may block.
      *
      * @param ctx the invocation
-     * @param check completes when the call is permitted; fails with {@link UnauthorizedException} or
+     * @param check completes when the call is permitted and fails with {@link UnauthorizedException} or
      *        {@link ForbiddenException} otherwise
-     * @param timeout the check's own deadline; a blocking wait gives up one second after it
+     * @param timeout the check's own deadline, after which a blocking wait gives up one second later
      * @return the method's result
      * @throws Exception the method's exception, or the check's
      */

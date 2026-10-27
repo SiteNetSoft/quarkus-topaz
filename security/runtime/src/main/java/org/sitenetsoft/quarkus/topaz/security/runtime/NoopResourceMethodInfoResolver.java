@@ -11,13 +11,22 @@ import io.quarkus.arc.DefaultBean;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Resolves no resource method, so the policy path is derived from the raw request path and path parameters are not
- * available. It is a {@code @DefaultBean} used when no REST integration is present: to replace it, provide your own
- * bean implementing {@link ResourceMethodInfoResolver}.
+ * The default {@link ResourceMethodInfoResolver}, which resolves no resource method.
+ * <p>
+ * The policy path is then derived from the raw request path, and path parameters are not available.
+ * <p>
+ * It is a {@code @DefaultBean} used when no REST integration is present. To replace it, provide your own bean
+ * implementing {@link ResourceMethodInfoResolver}.
  */
 @Singleton
 @DefaultBean
 public class NoopResourceMethodInfoResolver implements ResourceMethodInfoResolver {
+
+    /**
+     * Create the NoopResourceMethodInfoResolver.
+     */
+    public NoopResourceMethodInfoResolver() {
+    }
 
     @Override
     public Optional<ResourceMethodInfo> resolve(RoutingContext ctx) {
