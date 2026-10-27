@@ -28,26 +28,32 @@ import io.quarkus.runtime.configuration.ConfigurationException;
 import io.smallrye.mutiny.Multi;
 
 /**
- * Loads the manifest and data into a Topaz Dev Service, or (for a shared container someone else started) only
- * compares manifests.
+ * Loader of the manifest and the data of a Topaz Dev Service.
+ * For a shared container that another application started, it only compares manifests.
  */
 final class TopazSeeder {
 
     private static final Logger LOG = Logger.getLogger(TopazSeeder.class);
 
+    /** Name of the objects data file. */
     static final String OBJECTS_FILE = "objects.json";
+    /** Name of the relations data file. */
     static final String RELATIONS_FILE = "relations.json";
 
     private static final Duration CALL_TIMEOUT = Duration.ofSeconds(30);
-    /** GetManifest right after SetManifest can briefly return only the metadata (Task 3 spike). */
+    // GetManifest right after SetManifest can briefly return only the metadata.
     private static final Duration MANIFEST_VISIBLE_TIMEOUT = Duration.ofSeconds(5);
 
     private TopazSeeder() {
     }
 
     /**
-     * @param data the requests from {@link #requests(Path)}, parsed at build time so bad data fails the build
-     * @param dataDir where they came from, for messages
+     * Load the manifest and the data into Topaz.
+     *
+     * @param client the client of the container
+     * @param manifest the manifest file, if any
+     * @param data the requests from {@link #requests(Path)}, parsed at build time so that bad data fails the build
+     * @param dataDir the directory the requests came from, for messages
      */
     static void seed(TopazClient client, Optional<Path> manifest, Optional<List<ImportRequest>> data,
             Optional<Path> dataDir) {
@@ -69,7 +75,13 @@ final class TopazSeeder {
         }
     }
 
-    /** For a container this application did not start: warn when its manifest differs, never overwrite it. */
+    /**
+     * Compare the manifest of a container that this application did not start.
+     * It warns when the manifest differs and never overwrites it.
+     *
+     * @param client the client of the container
+     * @param manifest the expected manifest file
+     */
     static void checkDrift(TopazClient client, Path manifest) {
         String expected = read(manifest);
         String actual;
@@ -103,7 +115,13 @@ final class TopazSeeder {
         }
     }
 
-    /** Parses the data files strictly: unknown fields are errors. */
+    /**
+     * Parse the data files strictly.
+     * An unknown field is an error.
+     *
+     * @param dataDir the directory of {@code objects.json} and {@code relations.json}
+     * @return the import requests
+     */
     static List<ImportRequest> requests(Path dataDir) {
         Path objects = dataDir.resolve(OBJECTS_FILE);
         Path relations = dataDir.resolve(RELATIONS_FILE);

@@ -12,8 +12,10 @@ import io.grpc.StatusRuntimeException;
 import io.vertx.core.Vertx;
 
 /**
- * Ready once {@code Authorizer.Info} answers and {@code Model.GetManifest} answers or reports {@code NOT_FOUND}
- * (no manifest yet), i.e. both gRPC listeners serve requests, not merely accept connections.
+ * Wait strategy that declares Topaz ready once both gRPC listeners serve requests.
+ * {@code Authorizer.Info} must answer.
+ * {@code Model.GetManifest} must answer or report {@code NOT_FOUND}, which means no manifest yet.
+ * Accepting connections is not enough.
  */
 final class TopazReadyWaitStrategy extends AbstractWaitStrategy {
 
@@ -22,10 +24,16 @@ final class TopazReadyWaitStrategy extends AbstractWaitStrategy {
 
     private final Optional<String> apiKey;
 
+    /**
+     * Create the strategy.
+     *
+     * @param apiKey the API key the container requires, if any
+     */
     TopazReadyWaitStrategy(Optional<String> apiKey) {
         this.apiKey = apiKey;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void waitUntilReady() {
         long deadline = System.nanoTime() + startupTimeout.toNanos();

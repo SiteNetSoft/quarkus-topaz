@@ -18,24 +18,36 @@ import java.util.stream.Stream;
 import io.quarkus.runtime.configuration.ConfigurationException;
 
 /**
- * Resolves {@code quarkus.topaz.devservices.*} locations to local paths. {@code classpath:} resources (files or
- * directories, also inside jars) are copied under the output directory so they can be copied into the container;
- * {@code filesystem:} and bare locations are used as they are.
+ * Resolver of {@code quarkus.topaz.devservices.*} locations to local paths.
+ * It copies {@code classpath:} resources under the output directory, so that they can be copied into the container.
+ * The resources are files or directories, also inside jars.
+ * It uses {@code filesystem:} and bare locations as they are.
  */
 final class LocationResolver {
 
+    /** Prefix of a classpath location. */
     static final String CLASSPATH = "classpath:";
+    /** Prefix of a file system location. */
     static final String FILESYSTEM = "filesystem:";
 
     private final Path outputDir;
 
+    /**
+     * Create a resolver.
+     *
+     * @param outputDir the directory that receives the copies of classpath resources
+     */
     LocationResolver(Path outputDir) {
         this.outputDir = outputDir;
     }
 
     /**
+     * Resolve a location to a local path.
+     *
      * @param key the config key below {@code quarkus.topaz.devservices.}, for the error message
-     * @param name the name of the copy under the output directory (classpath locations only)
+     * @param location the configured location
+     * @param name the name of the copy under the output directory, for classpath locations only
+     * @return the local path
      */
     Path resolve(String key, String location, String name) {
         if (location.startsWith(CLASSPATH)) {

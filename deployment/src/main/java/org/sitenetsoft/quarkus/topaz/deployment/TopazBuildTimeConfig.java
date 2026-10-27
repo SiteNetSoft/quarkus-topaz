@@ -17,19 +17,28 @@ public interface TopazBuildTimeConfig {
 
     /**
      * Health check settings.
+     *
+     * @return the health check settings
      */
     HealthConfig health();
 
     /**
      * Dev Services settings.
+     *
+     * @return the Dev Services settings
      */
     TopazDevServicesConfig devservices();
 
+    /**
+     * Group of the health check settings.
+     */
     @ConfigGroup
     interface HealthConfig {
 
         /**
          * Whether a readiness health check for Topaz is published when a SmallRye Health extension is present.
+         *
+         * @return whether the readiness health check is published
          */
         @WithDefault("true")
         boolean enabled();
