@@ -13,15 +13,24 @@ import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 
 /**
- * Resolves the subject id used by {@code @TopazCheck}: the principal name, or the {@code sub} claim of a JWT when one
- * is present; an anonymous caller fails with {@code UnauthorizedException}. It is a {@code @DefaultBean}: to replace
- * it, provide your own bean implementing {@link SubjectMapper}.
+ * The default {@link SubjectMapper}, which resolves the subject id used by {@code @TopazCheck}.
+ * <p>
+ * The subject id is the {@code sub} claim of a JWT when one is present and the principal name otherwise. An anonymous
+ * caller fails with {@code UnauthorizedException}.
+ * <p>
+ * It is a {@code @DefaultBean}. To replace it, provide your own bean implementing {@link SubjectMapper}.
  */
 @Singleton
 @DefaultBean
 public class DefaultSubjectMapper implements SubjectMapper {
 
     private static final boolean JWT_PRESENT = isJwtPresent();
+
+    /**
+     * Create the DefaultSubjectMapper.
+     */
+    public DefaultSubjectMapper() {
+    }
 
     @Override
     public Uni<String> map(SecurityIdentity identity) {
@@ -53,6 +62,11 @@ public class DefaultSubjectMapper implements SubjectMapper {
         return false;
     }
 
+    /**
+     * Tell whether the MicroProfile JWT API is on the classpath.
+     *
+     * @return {@code true} when the API is present
+     */
     private static boolean isJwtPresent() {
         try {
             Class.forName("org.eclipse.microprofile.jwt.JsonWebToken", false, DefaultSubjectMapper.class.getClassLoader());
@@ -62,7 +76,7 @@ public class DefaultSubjectMapper implements SubjectMapper {
         }
     }
 
-    /** Isolates the {@link JsonWebToken} reference so it is only linked when the API is present. */
+    /** Isolate the {@link JsonWebToken} reference so it links only when the API is present. */
     private static final class Jwt {
 
         static boolean isJwt(Principal principal) {

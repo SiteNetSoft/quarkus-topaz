@@ -15,7 +15,7 @@ import org.sitenetsoft.quarkus.topaz.security.TopazObjectId;
  */
 final class ObjectIds {
 
-    // the @TopazObjectId getter (preferred) or field of a class, searched up its superclasses
+    // The @TopazObjectId getter, preferred, or field of a class, searched up its superclasses.
     private static final ClassValue<Optional<AccessibleObject>> MEMBERS = new ClassValue<>() {
         @Override
         protected Optional<AccessibleObject> computeValue(Class<?> type) {
@@ -27,8 +27,15 @@ final class ObjectIds {
     }
 
     /**
-     * @return the object id: {@link TopazCheck#objectId()} when not empty, else the {@link TopazObjectId} argument,
-     *         else the {@link TopazObjectId} field or getter of the first argument whose class declares one
+     * Resolve the object id of a check.
+     * <p>
+     * The id is {@link TopazCheck#objectId()} when not empty. Otherwise it is the {@link TopazObjectId} argument.
+     * Otherwise it is the {@link TopazObjectId} field or getter of the first argument whose class declares one.
+     *
+     * @param binding the check annotation
+     * @param method the intercepted method
+     * @param args the call arguments
+     * @return the object id
      * @throws IllegalStateException when no object id can be resolved, it is null or blank, or two parameters are
      *         annotated
      */

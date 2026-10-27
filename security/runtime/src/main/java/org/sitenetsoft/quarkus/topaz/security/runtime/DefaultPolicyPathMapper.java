@@ -13,11 +13,14 @@ import io.quarkus.arc.DefaultBean;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Builds the policy path in the Aserto middleware convention, {@code <policy-root>.<METHOD>.<path>}, with {@code /}
- * replaced by {@code .} and {@code {param}} by {@code __param}, after stripping {@code quarkus.http.root-path} and
- * {@code quarkus.rest.path} from the path. It is a {@code @DefaultBean}: to replace it, provide your own bean
- * implementing {@link PolicyPathMapper}; with a custom mapper {@code quarkus.topaz.enforcement.policy-root} is no
- * longer required.
+ * The default {@link PolicyPathMapper}, which builds the policy path in the Aserto middleware convention.
+ * <p>
+ * The convention is {@code <policy-root>.<METHOD>.<path>}. The mapper strips {@code quarkus.http.root-path} and
+ * {@code quarkus.rest.path} from the path. It then replaces {@code /} with {@code .} and {@code {param}} with
+ * {@code __param}.
+ * <p>
+ * It is a {@code @DefaultBean}. To replace it, provide your own bean implementing {@link PolicyPathMapper}. With a
+ * custom mapper, {@code quarkus.topaz.enforcement.policy-root} is no longer required.
  */
 @Singleton
 @DefaultBean
@@ -27,6 +30,13 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     private final String rootPath;
     private final String restPath;
 
+    /**
+     * Create the mapper.
+     *
+     * @param config the enforcement configuration
+     * @param rootPath the value of {@code quarkus.http.root-path}
+     * @param restPath the value of {@code quarkus.rest.path}
+     */
     @Inject
     public DefaultPolicyPathMapper(TopazEnforcementConfig config,
             @ConfigProperty(name = "quarkus.http.root-path", defaultValue = "/") String rootPath,
@@ -58,8 +68,10 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         return false;
     }
 
-    // Before REST matching the path comes straight from the caller. A '.' would add Rego package segments, and a
-    // segment starting with '__' or '{' would name a template policy, so the caller could pick the package.
+    // Reject path segments that would let the caller pick the Rego package.
+    // Before REST matching, the path comes straight from the caller.
+    // A '.' would add package segments.
+    // A segment starting with '__' or '{' would name a template policy.
     private static void checkRawSegments(String path) {
         for (String segment : path.split("/")) {
             String s = segment.trim();
@@ -72,7 +84,7 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         }
     }
 
-    // The raw path still carries quarkus.http.root-path and then quarkus.rest.path; the policy path has neither.
+    // The raw path still carries quarkus.http.root-path and then quarkus.rest.path. The policy path has neither.
     private static String strip(String prefix, String path) {
         if (!prefix.isEmpty() && (path.equals(prefix) || path.startsWith(prefix + "/"))) {
             return path.substring(prefix.length());
@@ -80,7 +92,7 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         return path;
     }
 
-    /** Returns the root path with a leading and no trailing {@code /}, or empty for {@code /}. */
+    /** Return the root path with a leading and no trailing {@code /}, or empty for {@code /}. */
     private static String normalize(String rootPath) {
         String p = rootPath.trim();
         while (p.endsWith("/")) {

@@ -10,13 +10,15 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * The named {@code topaz} HTTP security policy, selected with {@code quarkus.http.auth.permission.<name>.policy=topaz}
- * or {@code @AuthorizationPolicy(name = "topaz")}.
+ * The named {@code topaz} HTTP security policy.
+ * <p>
+ * Select it with {@code quarkus.http.auth.permission.<name>.policy=topaz} or
+ * {@code @AuthorizationPolicy(name = "topaz")}.
  * <p>
  * Anonymous callers are denied without a call when {@code quarkus.topaz.enforcement.anonymous=deny}. Otherwise the
- * request is evaluated by the {@link DecisionEvaluator}. When additional decisions are configured, a permitted
- * identity is augmented with the attribute {@value #DECISIONS_ATTRIBUTE}: a {@code Map<String, Boolean>} of every
- * returned decision.
+ * {@link DecisionEvaluator} evaluates the request. When additional decisions are configured, a permitted identity
+ * gets the attribute {@value #DECISIONS_ATTRIBUTE}. Its value is a {@code Map<String, Boolean>} of every returned
+ * decision.
  */
 @Singleton
 public class TopazHttpSecurityPolicy implements HttpSecurityPolicy {
@@ -30,6 +32,12 @@ public class TopazHttpSecurityPolicy implements HttpSecurityPolicy {
     private final DecisionEvaluator evaluator;
     private final TopazEnforcementConfig config;
 
+    /**
+     * Create the policy.
+     *
+     * @param evaluator the decision evaluator
+     * @param config the enforcement configuration
+     */
     @Inject
     TopazHttpSecurityPolicy(DecisionEvaluator evaluator, TopazEnforcementConfig config) {
         this.evaluator = evaluator;

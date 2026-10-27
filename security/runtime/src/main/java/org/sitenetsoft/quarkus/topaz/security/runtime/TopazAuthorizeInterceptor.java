@@ -32,7 +32,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Enforces {@link TopazAuthorize}.
+ * The interceptor that enforces {@link TopazAuthorize}.
  */
 @Interceptor
 @TopazAuthorize
@@ -49,6 +49,19 @@ public class TopazAuthorizeInterceptor {
     private final ObjectMapper objectMapper;
     private final MapperDispatch dispatch;
 
+    /**
+     * Create the interceptor.
+     *
+     * @param support the shared interceptor plumbing
+     * @param evaluator the decision evaluator
+     * @param config the enforcement configuration
+     * @param identityMapper the identity mapper
+     * @param policyPathMapper the policy path mapper
+     * @param resourceContextMapper the resource context mapper
+     * @param resolver the resource method resolver
+     * @param objectMapper the Jackson mapper that converts {@link TopazResource} arguments
+     * @param dispatch the mapper dispatcher
+     */
     @Inject
     TopazAuthorizeInterceptor(InterceptorSupport support, DecisionEvaluator evaluator, TopazEnforcementConfig config,
             IdentityMapper identityMapper, PolicyPathMapper policyPathMapper,
@@ -65,26 +78,43 @@ public class TopazAuthorizeInterceptor {
         this.dispatch = dispatch;
     }
 
+    /**
+     * Check the decision before the intercepted method runs.
+     *
+     * @param ctx the invocation
+     * @return the result of the intercepted method
+     * @throws Exception the exception of the intercepted method, or of the check
+     */
     @AroundInvoke
     Object intercept(InvocationContext ctx) throws Exception {
         TopazAuthorize binding = ctx.getInterceptorBinding(TopazAuthorize.class);
-        // read on the calling thread, where the request context is active
+        // Read the request on the calling thread, where the request context is active.
         Optional<RoutingContext> request = support.request();
         Uni<SecurityIdentity> identity = support.identity();
         Object[] args = ctx.getParameters();
         Method method = ctx.getMethod();
-        // failClosed covers the identity lookup too: a failing or hanging identity denies within the timeout
+        // Deny on any failure. failClosed covers the identity lookup, so a failing or hanging identity denies.
         Uni<Void> check = InterceptorSupport.failClosed(identity.chain(id -> {
             if (id.isAnonymous() && config.anonymous() == TopazEnforcementConfig.Anonymous.DENY) {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
-            // the inline assembly runs on this thread, so this thread decides whether it may block
+            // The inline assembly runs on this thread, so this thread decides whether it may block.
             return dispatch.run(() -> authorize(binding, id, request, method, args), MapperDispatch.Point.AUTHORIZE,
                     InterceptorSupport.blockingDispatch(method));
         }), method.getDeclaringClass().getName() + "#" + method.getName(), config.timeout());
         return InterceptorSupport.dispatch(ctx, check, config.timeout());
     }
 
+    /**
+     * Evaluate the decision for one call.
+     *
+     * @param binding the annotation
+     * @param id the caller's identity
+     * @param request the current HTTP request, if any
+     * @param method the intercepted method
+     * @param args the call arguments
+     * @return a result that fails with {@link ForbiddenException} when the decision denies
+     */
     private Uni<Void> authorize(TopazAuthorize binding, SecurityIdentity id, Optional<RoutingContext> request,
             Method method, Object[] args) {
         String policyPath = binding.path().isEmpty() ? derivePath(request) : binding.path();
@@ -108,12 +138,26 @@ public class TopazAuthorizeInterceptor {
                 });
     }
 
+    /**
+     * Derive the policy path from the current HTTP request.
+     *
+     * @param request the current HTTP request, if any
+     * @return the policy path
+     */
     private String derivePath(Optional<RoutingContext> request) {
         RoutingContext r = request.orElseThrow(() -> new IllegalStateException(
                 "@TopazAuthorize without a path can only be used during an HTTP request"));
         return policyPathMapper.map(r, resolver.resolve(r));
     }
 
+    /**
+     * Add the {@link TopazResource} arguments to the resource context.
+     *
+     * @param resource the resource context from the mapper
+     * @param method the intercepted method
+     * @param args the call arguments
+     * @return the resource context with the arguments added
+     */
     private Struct overlay(Struct resource, Method method, Object[] args) {
         Struct.Builder builder = (resource == null ? Struct.getDefaultInstance() : resource).toBuilder();
         Parameter[] parameters = method.getParameters();

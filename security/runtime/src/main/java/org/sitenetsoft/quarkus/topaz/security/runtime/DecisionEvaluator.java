@@ -38,12 +38,13 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Evaluates Topaz decisions for a request. Every enforcement point delegates here.
+ * The evaluator of Topaz decisions for a request. Every enforcement point delegates here.
  * <p>
- * Fails closed: an authorizer error, a timeout, a mapper failure or a response without the configured decision yields
- * a denying {@link Outcome} and a WARN log naming the policy path. The mappers run through {@link MapperDispatch}
- * under the request's Vert.x context and are bounded by the enforcement timeout. Successful decisions go through the
- * {@link DecisionCache}; errors are never cached.
+ * It fails closed. An authorizer error, a timeout, a mapper failure or a response without the configured decision
+ * yields a denying {@link Outcome} and a WARN log naming the policy path.
+ * <p>
+ * The mappers run through {@link MapperDispatch} under the request's Vert.x context. The enforcement timeout bounds
+ * them. Successful decisions go through the {@link DecisionCache}. Errors are never cached.
  */
 @Singleton
 public final class DecisionEvaluator {
@@ -59,6 +60,7 @@ public final class DecisionEvaluator {
      */
     public record Outcome(boolean permitted, Map<String, Boolean> decisions) {
 
+        /** The outcome of a failed evaluation. */
         static final Outcome DENIED = new Outcome(false, Map.of());
     }
 
@@ -71,6 +73,18 @@ public final class DecisionEvaluator {
     private final ResourceMethodInfoResolver resolver;
     private final MapperDispatch dispatch;
 
+    /**
+     * Create the evaluator.
+     *
+     * @param authorizer the authorizer client
+     * @param config the enforcement configuration
+     * @param cache the decision cache
+     * @param identityMapper the identity mapper
+     * @param policyPathMapper the policy path mapper
+     * @param resourceContextMapper the resource context mapper
+     * @param resolver the resource method resolver
+     * @param dispatch the mapper dispatcher
+     */
     @Inject
     DecisionEvaluator(AuthorizerClient authorizer, TopazEnforcementConfig config, DecisionCache cache,
             IdentityMapper identityMapper, PolicyPathMapper policyPathMapper,
@@ -91,13 +105,14 @@ public final class DecisionEvaluator {
      * <p>
      * The resolver and the three mappers run through {@link MapperDispatch}. A mapper may block, unless it returns
      * {@code false} from {@code blocking()}.
+     * <p>
      * The enforcement timeout bounds the whole evaluation, mappers included, and a timeout denies. Mappers must not
      * hand the {@code RoutingContext} to other threads, because it is not thread-safe. The outcome comes back on
      * the caller's Vert.x context when there is one.
      *
      * @param identity the caller
      * @param request the HTTP request
-     * @return the outcome, never a failure
+     * @return the outcome, which is never a failure
      */
     public Uni<Outcome> evaluateRequest(SecurityIdentity identity, RoutingContext request) {
         String unresolved = "<unresolved policy path for " + request.request().method().name() + " "
@@ -119,12 +134,12 @@ public final class DecisionEvaluator {
     }
 
     /**
-     * Evaluates the configured decision and the additional decisions.
+     * Evaluate the configured decision and the additional decisions.
      *
      * @param identity the identity context sent to the authorizer
      * @param policyPath the policy path
-     * @param resource the resource context, may be {@code null}
-     * @return the outcome; never a failure
+     * @param resource the resource context, which may be {@code null}
+     * @return the outcome, which is never a failure
      */
     public Uni<Outcome> evaluate(IdentityContext identity, String policyPath, Struct resource) {
         return evaluate(identity, policyPath, config.decision(), config.additionalDecisions().orElse(List.of()),
@@ -132,14 +147,14 @@ public final class DecisionEvaluator {
     }
 
     /**
-     * Evaluates the given decision and extra decisions.
+     * Evaluate the given decision and extra decisions.
      *
      * @param identity the identity context sent to the authorizer
      * @param policyPath the policy path
      * @param decision the decision that must be true for {@link Outcome#permitted()}
-     * @param extraDecisions further decisions to request, may be empty
-     * @param resource the resource context, may be {@code null}
-     * @return the outcome; never a failure
+     * @param extraDecisions further decisions to request, which may be empty
+     * @param resource the resource context, which may be {@code null}
+     * @return the outcome, which is never a failure
      */
     public Uni<Outcome> evaluate(IdentityContext identity, String policyPath, String decision,
             List<String> extraDecisions, Struct resource) {
@@ -160,7 +175,7 @@ public final class DecisionEvaluator {
         if (cached.size() == decisions.size()) {
             return Uni.createFrom().item(new Outcome(cached.get(decision), Map.copyOf(cached)));
         }
-        // deferred: the client builds the request synchronously, and evaluate must never throw
+        // Defer the call, because the client builds the request synchronously and evaluate must never throw.
         return Uni.createFrom().deferred(() -> authorizer.is(identity, policyPath, decisions, resource))
                 .ifNoItem().after(config.timeout()).fail()
                 .map(response -> {
@@ -183,7 +198,17 @@ public final class DecisionEvaluator {
                 .onFailure().recoverWithItem(e -> deny(policyPath, describe(identity), e));
     }
 
-    // The identity may be a raw JWT: the key is a digest so that a cache never holds a credential in clear.
+    /**
+     * Build the cache key of one decision.
+     * <p>
+     * The identity may be a raw JWT. The key is a digest, so a cache never holds a credential in clear.
+     *
+     * @param identity the identity context
+     * @param policyPath the policy path
+     * @param decision the decision name
+     * @param resourceJson the resource context as JSON
+     * @return the lowercase hex SHA-256 digest of the inputs
+     */
     static String cacheKey(IdentityContext identity, String policyPath, String decision, String resourceJson) {
         String material = identity.getType() + "|" + identity.getIdentity() + "|" + policyPath + "|" + decision + "|"
                 + resourceJson;
@@ -206,7 +231,7 @@ public final class DecisionEvaluator {
 
     private static Outcome deny(String policyPath, Described who, Throwable cause) {
         LOG.warnf("Topaz denied %s for %s: %s", policyPath, who.type(), cause.toString());
-        // the subject is personal data (often an e-mail address): DEBUG only
+        // The subject is personal data, often an e-mail address, so log it at DEBUG only.
         LOG.debugf("Topaz denied %s for %s %s", policyPath, who.type(), who.subject());
         return Outcome.DENIED;
     }
@@ -214,7 +239,7 @@ public final class DecisionEvaluator {
     private record Described(String type, String subject) {
     }
 
-    // A JWT is a credential: neither the WARN nor the DEBUG line carries it, only its type.
+    // A JWT is a credential. Neither the WARN nor the DEBUG line carries it, only its type.
     private static Described describe(IdentityContext identity) {
         if (identity == null) {
             return new Described("<no identity>", "");

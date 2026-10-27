@@ -19,13 +19,22 @@ import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Builds the resource context from the JAX-RS path parameters, when the route is known, and the query parameters; it
- * never reads the request body. It is a {@code @DefaultBean}: to replace it, provide your own bean implementing {@link
- * ResourceContextMapper}.
+ * The default {@link ResourceContextMapper}, which builds the resource context from the request parameters.
+ * <p>
+ * The context holds the JAX-RS path parameters, when the route is known, and the query parameters. The mapper never
+ * reads the request body.
+ * <p>
+ * It is a {@code @DefaultBean}. To replace it, provide your own bean implementing {@link ResourceContextMapper}.
  */
 @Singleton
 @DefaultBean
 public class DefaultResourceContextMapper implements ResourceContextMapper {
+
+    /**
+     * Create the DefaultResourceContextMapper.
+     */
+    public DefaultResourceContextMapper() {
+    }
 
     @Override
     public Uni<Struct> map(RoutingContext request, Optional<ResourceMethodInfo> method) {

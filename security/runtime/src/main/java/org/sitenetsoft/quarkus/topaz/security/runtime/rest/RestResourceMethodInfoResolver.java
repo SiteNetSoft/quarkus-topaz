@@ -19,15 +19,23 @@ import io.vertx.ext.web.RoutingContext;
 /**
  * Resolves the Quarkus REST resource method matched for the current request.
  * <p>
- * Only effective once REST matching has happened, i.e. for policies applied with {@code applies-to=jaxrs} or
- * {@code @AuthorizationPolicy}. Before matching, and on any failure, it returns {@link Optional#empty()}; it never
- * throws. Registered only when the REST capability is present; without quarkus-rest the deployment processor excludes
- * this class from bean discovery (the runtime jar is indexed, so it would otherwise be discovered).
+ * It is effective only once REST matching has happened, that is for policies applied with {@code applies-to=jaxrs} or
+ * {@code @AuthorizationPolicy}. Before matching, and on any failure, it returns {@link Optional#empty()}. It never
+ * throws.
+ * <p>
+ * It is registered only when the REST capability is present. Without quarkus-rest, the deployment processor excludes
+ * this class from bean discovery. The runtime jar is indexed, so bean discovery would find the class otherwise.
  */
 @Singleton
 public class RestResourceMethodInfoResolver implements ResourceMethodInfoResolver {
 
     private static final Logger LOG = Logger.getLogger(RestResourceMethodInfoResolver.class);
+
+    /**
+     * Create the RestResourceMethodInfoResolver.
+     */
+    public RestResourceMethodInfoResolver() {
+    }
 
     @Override
     public Optional<ResourceMethodInfo> resolve(RoutingContext request) {
@@ -52,20 +60,31 @@ public class RestResourceMethodInfoResolver implements ResourceMethodInfoResolve
             return Optional.of(new ResourceMethodInfo(httpMethod,
                     joinTemplates(template(target.getClassPath()), template(target.getPath())), params));
         } catch (RuntimeException | LinkageError e) {
-            // Fail closed: the evaluator then maps the raw path, which has no policy. LinkageError covers a
-            // classpath without quarkus-rest, should this class ever be registered there.
+            // Fail closed: the evaluator then maps the raw path, which has no policy.
+            // LinkageError covers a classpath without quarkus-rest, should this class ever be registered there.
             LOG.debug("Could not resolve the REST resource method", e);
             return Optional.empty();
         }
     }
 
+    /**
+     * Get the text of a path template.
+     *
+     * @param template the template, possibly null
+     * @return the template text, or empty for a null template
+     */
     private static String template(URITemplate template) {
         return template == null ? "" : template.template;
     }
 
     /**
-     * Joins a class path template and a method path template into one path starting with {@code /}, without double
-     * or trailing slashes (the root stays {@code /}).
+     * Join a class path template and a method path template into one path.
+     * <p>
+     * The path starts with {@code /} and has no double or trailing slashes. The root stays {@code /}.
+     *
+     * @param classPath the class path template
+     * @param methodPath the method path template
+     * @return the joined path
      */
     static String joinTemplates(String classPath, String methodPath) {
         String joined = ("/" + classPath + "/" + methodPath).replaceAll("/{2,}", "/");
