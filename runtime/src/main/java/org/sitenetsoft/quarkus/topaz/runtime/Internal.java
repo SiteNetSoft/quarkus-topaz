@@ -7,7 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a package as internal to the extension: not API, may change in any release.
+ * Marks a package as internal to the extension.
+ * Such a package is not API and may change in any release.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
