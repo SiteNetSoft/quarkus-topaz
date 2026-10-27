@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import jakarta.inject.Singleton;
@@ -41,15 +39,14 @@ public class RoutePolicySlowMapperTest {
             .overrideConfigKey("quarkus.topaz.devservices.manifest-location", "classpath:topaz/manifest.yaml")
             .overrideConfigKey("quarkus.topaz.devservices.data-location", "classpath:topaz/data")
             .overrideConfigKey("quarkus.topaz.enforcement.policy-root", "todoApp")
-            .overrideConfigKey("quarkus.topaz.enforcement.timeout", "1s")
+            .overrideConfigKey("quarkus.topaz.enforcement.timeout", "500ms")
             .overrideConfigKey("quarkus.http.auth.permission.todos.paths", "/todos*")
             .overrideConfigKey("quarkus.http.auth.permission.todos.policy", "topaz")
             .setLogRecordPredicate(r -> r.getLevel().intValue() >= Level.WARNING.intValue()
                     && DecisionEvaluator.class.getName().equals(r.getLoggerName()))
             .assertLogRecords(records -> assertThat(records)
-                    .anyMatch(r -> ((ExtLogRecord) r).getFormattedMessage().contains("todoApp.GET.todos")));
-
-    static final CountDownLatch RELEASE = new CountDownLatch(1);
+                    .anyMatch(r -> ((ExtLogRecord) r).getFormattedMessage().contains("todoApp.GET.todos")
+                            && ((ExtLogRecord) r).getFormattedMessage().contains("TimeoutException")));
 
     @BeforeAll
     static void identities() {
@@ -57,14 +54,11 @@ public class RoutePolicySlowMapperTest {
     }
 
     @Test
-    void slowMapperIsDeniedWithinTheTimeout() throws InterruptedException {
+    void slowMapperIsDeniedWithinTheTimeout() {
         long start = System.nanoTime();
         given().auth().preemptive().basic("rick@the-citadel.com", "rick")
                 .get("/todos").then().statusCode(403);
-        assertThat((System.nanoTime() - start) / 1_000_000).isLessThan(4000);
-        // let the blocked mapper finish while the application is still running, so that nothing fires after shutdown
-        RELEASE.countDown();
-        Thread.sleep(300);
+        assertThat((System.nanoTime() - start) / 1_000_000).isLessThan(1500);
     }
 
     @Singleton
@@ -73,7 +67,7 @@ public class RoutePolicySlowMapperTest {
         @Override
         public Uni<IdentityContext> map(SecurityIdentity identity, Optional<RoutingContext> request) {
             try {
-                RELEASE.await(5, TimeUnit.SECONDS);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
