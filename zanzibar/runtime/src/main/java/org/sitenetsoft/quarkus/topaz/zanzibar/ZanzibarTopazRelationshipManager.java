@@ -17,14 +17,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 /**
- * {@link RelationshipManager} backed by the Topaz Directory.
+ * Implements {@link RelationshipManager} on the Topaz Directory.
  * <p>
- * Fails closed: a {@code NOT_FOUND} answer to a check means "not related" ({@code false}), and {@link #remove} ignores
- * a {@code NOT_FOUND} for a relation that does not exist. Every other failure propagates as a
+ * The manager fails closed. A {@code NOT_FOUND} answer to a check means "not related" ({@code false}). The method
+ * {@link #remove} ignores a {@code NOT_FOUND} for a relation that does not exist. Every other failure propagates as a
  * {@link StatusRuntimeException} and never yields {@code true}.
  * <p>
- * {@link #add} and {@link #remove} are not atomic: they call the Directory once per element, in order, and stop at the
- * first failure; the elements before it stay applied.
+ * The methods {@link #add} and {@link #remove} are not atomic. They call the Directory once per element, in order.
+ * They stop at the first failure, and the elements before it stay applied.
  */
 @ApplicationScoped
 public class ZanzibarTopazRelationshipManager implements RelationshipManager {
@@ -32,6 +32,12 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
     private final DirectoryClient directory;
     private final TopazZanzibarConfig config;
 
+    /**
+     * Create the manager.
+     *
+     * @param directory the client for the Topaz Directory
+     * @param config the connector configuration
+     */
     @Inject
     ZanzibarTopazRelationshipManager(DirectoryClient directory, TopazZanzibarConfig config) {
         this.directory = directory;
@@ -39,8 +45,8 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
     }
 
     /**
-     * Checks the relationship with a Directory {@code Check}, which evaluates relations and permissions alike.
-     * {@code NOT_FOUND} answers {@code false}; other failures propagate.
+     * Check the relationship with a Directory {@code Check}, which evaluates relations and permissions alike.
+     * A {@code NOT_FOUND} answers {@code false}. Other failures propagate.
      */
     @Override
     public Uni<Boolean> check(Relationship r) {
@@ -51,8 +57,9 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
     }
 
     /**
-     * Sets each relationship with a Directory {@code SetRelation}, in order; setting an existing relation succeeds.
-     * Not atomic: the first failure propagates and the earlier elements stay set.
+     * Set each relationship with a Directory {@code SetRelation}, in order.
+     * Setting an existing relation succeeds.
+     * The call is not atomic. The first failure propagates and the earlier elements stay set.
      */
     @Override
     public Uni<Void> add(List<Relationship> rs) {
@@ -63,8 +70,9 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
     }
 
     /**
-     * Deletes each relationship with a Directory {@code DeleteRelation}, in order; a relation that does not exist is
-     * ignored. Not atomic: the first other failure propagates and the earlier elements stay removed.
+     * Delete each relationship with a Directory {@code DeleteRelation}, in order.
+     * A relation that does not exist is ignored.
+     * The call is not atomic. The first other failure propagates and the earlier elements stay removed.
      */
     @Override
     public Uni<Void> remove(List<Relationship> rs) {
@@ -79,8 +87,12 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
     }
 
     /**
-     * Copies a relationship field by field into a Directory relation. A blank user type falls back to
-     * {@code defaultUserType}.
+     * Copy a relationship field by field into a Directory relation.
+     * A blank user type falls back to {@code defaultUserType}.
+     *
+     * @param r the relationship to convert
+     * @param defaultUserType the subject type for a relationship with a blank user type
+     * @return the Directory relation
      */
     static Relation toRelation(Relationship r, String defaultUserType) {
         String userType = r.userType().isBlank() ? defaultUserType : r.userType();
@@ -90,7 +102,12 @@ public class ZanzibarTopazRelationshipManager implements RelationshipManager {
                 .build();
     }
 
-    /** True when {@code t} is a gRPC {@code NOT_FOUND} failure. */
+    /**
+     * Test whether a failure is a gRPC {@code NOT_FOUND} status.
+     *
+     * @param t the failure to test
+     * @return {@code true} when {@code t} is a {@link StatusRuntimeException} with status {@code NOT_FOUND}
+     */
     static boolean isNotFound(Throwable t) {
         return t instanceof StatusRuntimeException s && s.getStatus().getCode() == Status.Code.NOT_FOUND;
     }
