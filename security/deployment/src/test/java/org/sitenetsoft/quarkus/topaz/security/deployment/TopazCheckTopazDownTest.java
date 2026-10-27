@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
 import java.util.Arrays;
@@ -26,14 +24,13 @@ import io.quarkus.test.QuarkusUnitTest;
  */
 public class TopazCheckTopazDownTest {
 
-    // Accepted connections queue in the backlog and are never read, so the HTTP/2 handshake never completes.
-    private static final ServerSocket SILENT = silentListener();
+    private static final ServerSocket SILENT = SilentListener.open();
 
     @RegisterExtension
     static final QuarkusUnitTest TEST = new QuarkusUnitTest()
             .withApplicationRoot(jar -> jar
                     .addClasses(ServiceResource.class, SecuredService.class, TestIdentities.class,
-                            TestIdentityProvider.class, TestIdentityController.class))
+                            TestIdentityProvider.class, TestIdentityController.class, SilentListener.class))
             .overrideConfigKey("quarkus.http.auth.basic", "true")
             .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .overrideConfigKey("quarkus.topaz.authorizer.host", "127.0.0.1")
@@ -66,13 +63,5 @@ public class TopazCheckTopazDownTest {
                 .delete("/service/owned/todo-1").then().statusCode(403);
         Duration elapsed = Duration.ofNanos(System.nanoTime() - t0);
         assertThat(elapsed).isGreaterThanOrEqualTo(Duration.ofSeconds(2)).isLessThan(Duration.ofSeconds(5));
-    }
-
-    private static ServerSocket silentListener() {
-        try {
-            return new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }

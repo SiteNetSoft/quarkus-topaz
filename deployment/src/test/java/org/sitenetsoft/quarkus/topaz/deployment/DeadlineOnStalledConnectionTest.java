@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
 
@@ -26,11 +24,11 @@ import io.smallrye.mutiny.Uni;
  */
 public class DeadlineOnStalledConnectionTest {
 
-    // Accepted connections queue in the backlog and are never read, so the HTTP/2 handshake never completes.
-    private static final ServerSocket SILENT = silentListener();
+    private static final ServerSocket SILENT = SilentListener.open();
 
     @RegisterExtension
     static final QuarkusUnitTest TEST = new QuarkusUnitTest()
+            .withApplicationRoot(jar -> jar.addClass(SilentListener.class))
             .overrideConfigKey("quarkus.topaz.devservices.enabled", "false")
             .overrideConfigKey("quarkus.topaz.authorizer.host", "127.0.0.1")
             .overrideConfigKey("quarkus.topaz.directory.host", "127.0.0.1")
@@ -77,13 +75,5 @@ public class DeadlineOnStalledConnectionTest {
                 .extracting(e -> ((StatusRuntimeException) e).getStatus().getCode())
                 .isEqualTo(Status.Code.DEADLINE_EXCEEDED);
         assertThat(Duration.ofNanos(System.nanoTime() - t0)).isBetween(Duration.ofSeconds(1), Duration.ofSeconds(3));
-    }
-
-    private static ServerSocket silentListener() {
-        try {
-            return new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }
