@@ -315,11 +315,74 @@ so that `RoutingContext.body()` is available. The default mappers do not read th
 
 === Mapper threading
 
-Under the route policy the three mappers run on a worker thread, with the request's duplicated Vert.x context
-current, bounded by `quarkus.topaz.enforcement.timeout`. They may block, but `@RequestScoped` beans are not available
-there: inject `RoutingContext` or `SecurityIdentity` data instead. A mapper that times out is denied, yet it keeps its
-worker thread until it returns, so a mapper that can hang can exhaust the worker pool. Under `@TopazAuthorize` and the
-`@PermissionsAllowed` bridge the mappers run on the calling thread and should not block.
+One rule covers the four enforcement points. These are the route policy, `@TopazAuthorize`, `@TopazCheck` and the
+`@PermissionsAllowed` bridge. A mapper runs on a thread that may block, with the request's Vert.x duplicated context
+current. The fast path is the one exception. When no component of an enforcement point blocks, the mappers run on the
+calling thread. `quarkus.topaz.enforcement.timeout` bounds the mappers, and a mapper that runs out of time yields a
+denial.
+
+The extension picks the thread when the check subscribes. It takes the first branch that applies:
+
+. When the fast path applies, the mappers run on the calling thread.
+. When the caller may block, the mappers also run on the calling thread.
+. Otherwise the mappers run on a worker thread.
+
+A blocking method under `@TopazAuthorize` or `@TopazCheck` is a caller that may block. When the calling thread may not block, the result comes back on the caller's Vert.x context.
+
+On a blocking method, the mappers run on the request thread. A mapper that hangs holds that thread until it returns.
+The timeout still turns the result into a denial, never a permit. Nothing interrupts a blocking mapper, so the 403
+waits for the mapper to return.
+
+A mapper that times out on a worker thread keeps that thread until it returns. A mapper that can hang can therefore
+exhaust the worker pool.
+
+The `@PermissionsAllowed` bridge always runs its mapper on a worker thread, unless its fast path applies. A permission
+checker cannot see how the secured method dispatches. An exhausted worker pool or a pool of one thread can then deny a
+blocking `@PermissionsAllowed` method at the timeout.
+
+Each mapper interface has a `blocking()` method. It returns `true` by default, so a custom mapper runs on a thread
+that may block. The four default mappers return `false`. No mapper may use `@RequestScoped` beans. A mapper that
+returns `false` must not block either. A mapper opts in to the fast path when it overrides `blocking()`:
+
+[source,java]
+----
+@Singleton
+public class PrincipalSubjectMapper implements SubjectMapper {
+
+    @Override
+    public Uni<String> map(SecurityIdentity identity) {
+        return Uni.createFrom().item(identity.getPrincipal().getName());
+    }
+
+    @Override
+    public boolean blocking() {
+        return false;
+    }
+}
+----
+
+The fast path of an enforcement point needs every component in its row to be free of blocking. A mapper is free of
+blocking when its `blocking()` method returns `false`. The `DecisionCache` counts only when it is the built-in cache
+that caches nothing. The `ResourceMethodInfoResolver` counts only when it is one of the two built-in resolvers. A custom
+cache or resolver always rules out the fast path.
+
+[cols="1,2"]
+|===
+|Enforcement point |Components
+
+|Route policy |`ResourceMethodInfoResolver`, `PolicyPathMapper`, `IdentityMapper`, `ResourceContextMapper`,
+`DecisionCache`
+|`@TopazAuthorize` |`ResourceMethodInfoResolver`, `PolicyPathMapper`, `IdentityMapper`, `ResourceContextMapper`,
+`DecisionCache`
+|`@TopazCheck` |`SubjectMapper`
+|`@PermissionsAllowed` with a policy name |`IdentityMapper`, `DecisionCache`
+|`@PermissionsAllowed` with a `TopazRelation` |`SubjectMapper`
+|===
+
+A blocking call from an ordered Vert.x worker context gets a denial at the timeout when it reaches Topaz. The handler
+of a worker verticle runs on such a context. This holds for `@TopazAuthorize`, `@TopazCheck` and `@PermissionsAllowed`.
+The gRPC client delivers the response on the caller's context, and that context is busy waiting. This is a known
+limitation.
 
 === Decision cache
 
