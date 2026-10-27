@@ -116,8 +116,8 @@ final class MapperDispatch {
      * context, so the duplicated context stays current on the worker.
      * <p>
      * The timeout turns a late result into a denial in every branch. Nothing interrupts an assembly that blocks on the
-     * subscribing thread, so on a blocking method the 403 waits for it to return. The item comes back on the
-     * subscriber's Vert.x context when there is one.
+     * subscribing thread, so on a blocking method the 403 waits for it to return. When the subscribing thread may not
+     * block, the item comes back on its Vert.x context.
      *
      * @param <T> the item type
      * @param assembly the supplier that calls the mappers and returns the result
@@ -128,16 +128,21 @@ final class MapperDispatch {
     <T> Uni<T> run(Supplier<Uni<T>> assembly, Point point, boolean callerMayBlock) {
         return Uni.createFrom().deferred(() -> {
             Context context = Vertx.currentContext();
+            boolean mayBlock = BlockingOperationControl.isBlockingAllowed();
             Uni<Void> start = Uni.createFrom().voidItem();
-            if (!fastPath.contains(point) && !(callerMayBlock && BlockingOperationControl.isBlockingAllowed())) {
+            if (!fastPath.contains(point) && !(callerMayBlock && mayBlock)) {
                 start = start.emitOn(executor(context));
             }
             // The assembly runs after the subscription. The timeout is then armed while the mappers run, so it
             // bounds a mapper that blocks or throws instead of emitting.
             Uni<T> result = start.chain(assembly::get)
                     .ifNoItem().after(config.timeout()).fail();
-            // A cache hit can complete on the worker and a timeout on the timer thread. Resume on the caller's context.
-            return context == null ? result : result.emitOn(task -> context.runOnContext(v -> task.run()));
+            // A cache hit can complete on the worker and a timeout on the timer thread. Resume on the caller's context
+            // only when the caller may not block. A caller that may block waits for the item on its own thread.
+            if (context == null || mayBlock) {
+                return result;
+            }
+            return result.emitOn(task -> context.runOnContext(v -> task.run()));
         });
     }
 
