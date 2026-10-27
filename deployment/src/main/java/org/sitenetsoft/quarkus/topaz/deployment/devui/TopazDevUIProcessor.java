@@ -10,11 +10,24 @@ import org.sitenetsoft.quarkus.topaz.runtime.devui.TopazJsonRpcService;
 
 import java.util.Optional;
 
+/**
+ * Build steps of the Topaz Dev UI card.
+ */
 class TopazDevUIProcessor {
+
+    /** Create the processor. */
+    TopazDevUIProcessor() {
+    }
 
     private static final String CONSOLE_URL = "quarkus.topaz.console-url";
     private static final String ICON = "font-awesome-solid:shield-halved";
 
+    /**
+     * Build the Topaz card with the console link and the policy and manifest pages.
+     *
+     * @param devServices the Dev Services configuration, if Dev Services started Topaz
+     * @return the card page build item
+     */
     @BuildStep(onlyIf = IsLocalDevelopment.class)
     CardPageBuildItem card(Optional<DevServicesLauncherConfigResultBuildItem> devServices) {
         CardPageBuildItem card = new CardPageBuildItem();
@@ -33,6 +46,11 @@ class TopazDevUIProcessor {
         return card;
     }
 
+    /**
+     * Register the JSON-RPC service of the card.
+     *
+     * @return the JSON-RPC providers build item
+     */
     @BuildStep(onlyIf = IsLocalDevelopment.class)
     JsonRPCProvidersBuildItem jsonRpc() {
         return new JsonRPCProvidersBuildItem(TopazJsonRpcService.class);

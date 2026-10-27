@@ -39,20 +39,30 @@ import io.quarkus.runtime.configuration.ConfigurationException;
 import io.vertx.core.Vertx;
 
 /**
- * Starts a Topaz container in dev and test mode, or reuses a shared or Compose one, and points the client at it.
+ * Build steps of the Topaz Dev Service.
+ * They start a Topaz container in dev and test mode, or reuse a shared or Compose one.
+ * They point the client at the container.
  */
 @BuildSteps(onlyIf = { IsDevServicesSupportedByLaunchMode.class, DevServicesConfig.Enabled.class })
 public class DevServicesTopazProcessor {
 
     private static final Logger LOG = Logger.getLogger(DevServicesTopazProcessor.class);
 
+    /** Name of the extension feature. */
     static final String FEATURE = "topaz";
+    /** Config key of the authorizer host. */
     static final String AUTHORIZER_HOST = "quarkus.topaz.authorizer.host";
+    /** Config key of the authorizer port. */
     static final String AUTHORIZER_PORT_KEY = "quarkus.topaz.authorizer.port";
+    /** Config key of the directory host. */
     static final String DIRECTORY_HOST = "quarkus.topaz.directory.host";
+    /** Config key of the directory port. */
     static final String DIRECTORY_PORT_KEY = "quarkus.topaz.directory.port";
+    /** Config key of the plaintext switch. */
     static final String PLAIN_TEXT = "quarkus.topaz.plain-text";
+    /** Config key of the API key. */
     static final String API_KEY = "quarkus.topaz.api-key";
+    /** Config key of the console URL. */
     static final String CONSOLE_URL = "quarkus.topaz.console-url";
 
     private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofSeconds(60);
@@ -60,6 +70,22 @@ public class DevServicesTopazProcessor {
     private static final ContainerLocator LOCATOR = ContainerLocator.locateContainerWithLabels(AUTHORIZER_PORT,
             TopazContainer.DEV_SERVICE_LABEL);
 
+    /** Create the processor. */
+    public DevServicesTopazProcessor() {
+    }
+
+    /**
+     * Start the Topaz Dev Service, or reuse a running one.
+     *
+     * @param launchMode the launch mode
+     * @param dockerStatus the status of the container runtime
+     * @param compose the Compose project of the Dev Services
+     * @param sharedNetwork the shared network build items
+     * @param config the build-time configuration
+     * @param devServicesConfig the global Dev Services configuration
+     * @param output the build output location
+     * @param result the producer of Dev Services results
+     */
     @BuildStep
     void startTopaz(LaunchModeBuildItem launchMode, DockerStatusBuildItem dockerStatus,
             DevServicesComposeProjectBuildItem compose, List<DevServicesSharedNetworkBuildItem> sharedNetwork,
@@ -79,6 +105,7 @@ public class DevServicesTopazProcessor {
                     + " quarkus.topaz.devservices.policy.image are mutually exclusive");
         }
 
+        // Resolve the policy, manifest and data locations. Bad data fails the build here.
         Path dir = output.getOutputDirectory().resolve("topaz-devservices");
         LocationResolver resolver = new LocationResolver(dir);
         Optional<Path> policy = cfg.policy().directory().map(l -> resolver.resolve("policy.directory", l, "policies"));
@@ -93,6 +120,7 @@ public class DevServicesTopazProcessor {
             return;
         }
 
+        // Reuse a running container if there is one.
         boolean useSharedNetwork = DevServicesSharedNetworkBuildItem.isSharedNetworkRequired(devServicesConfig,
                 sharedNetwork);
         String image = cfg.imageName().orElseGet(() -> getDefaultImageNameFor("topaz"));
@@ -104,6 +132,7 @@ public class DevServicesTopazProcessor {
             return;
         }
 
+        // Start a new container and seed it after the start.
         Path configFile = TopazConfigFile.write(dir, cfg);
         Duration timeout = devServicesConfig.timeout().orElse(DEFAULT_STARTUP_TIMEOUT);
 
@@ -138,7 +167,17 @@ public class DevServicesTopazProcessor {
                 .build());
     }
 
-    /** A labelled shared container (dev mode) or a Compose service, if one runs; {@code null} otherwise. */
+    /**
+     * Find a labelled shared container in dev mode, or a Compose service.
+     *
+     * @param compose the Compose project of the Dev Services
+     * @param cfg the Dev Services configuration
+     * @param image the Topaz image name
+     * @param mode the launch mode
+     * @param useSharedNetwork whether the application joins a shared network
+     * @param manifest the expected manifest file, if any
+     * @return the discovered service, or {@code null} if none runs
+     */
     private static DevServicesResultBuildItem discover(DevServicesComposeProjectBuildItem compose,
             TopazDevServicesConfig cfg, String image, LaunchMode mode, boolean useSharedNetwork,
             Optional<Path> manifest) {

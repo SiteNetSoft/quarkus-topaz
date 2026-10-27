@@ -25,26 +25,58 @@ import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import io.quarkus.tls.deployment.spi.TlsRegistryBuildItem;
 import io.quarkus.vertx.deployment.VertxBuildItem;
 
+/**
+ * Build steps of the Topaz extension.
+ */
 class TopazProcessor {
 
+    /** Name of the extension feature. */
     static final String FEATURE = "topaz";
 
+    /** Create the processor. */
+    TopazProcessor() {
+    }
+
+    /**
+     * Register the {@code topaz} feature.
+     *
+     * @return the feature build item
+     */
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
     }
 
+    /**
+     * Enable SSL support in native mode.
+     *
+     * @return the SSL support build item
+     */
     @BuildStep
     ExtensionSslNativeSupportBuildItem ssl() {
         return new ExtensionSslNativeSupportBuildItem(FEATURE);
     }
 
+    /**
+     * Index the generated gRPC stubs.
+     *
+     * @return the index dependency build item
+     */
     @BuildStep
     IndexDependencyBuildItem indexStubs() {
         return new IndexDependencyBuildItem("org.sitenetsoft", "quarkus-topaz-grpc");
     }
 
-    // The client classes are final, so they cannot be client-proxied: @Singleton instead of @ApplicationScoped.
+    /**
+     * Register the client beans.
+     * The client classes are final and cannot be client-proxied, so the beans are {@code @Singleton}.
+     *
+     * @param recorder the recorder that creates the clients
+     * @param vertx the Vert.x build item
+     * @param tls the TLS registry build item
+     * @param shutdown the shutdown context
+     * @param beans the producer of synthetic beans
+     */
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
     void beans(TopazRecorder recorder, VertxBuildItem vertx, TlsRegistryBuildItem tls,
@@ -58,6 +90,13 @@ class TopazProcessor {
                 .setRuntimeInit().unremovable().runtimeValue(recorder.directory(client)).done());
     }
 
+    /**
+     * Register the readiness health check when SmallRye Health is present.
+     *
+     * @param capabilities the capabilities of the application
+     * @param buildTimeConfig the build-time configuration
+     * @param health the producer of health build items
+     */
     @BuildStep
     void healthCheck(Capabilities capabilities, TopazBuildTimeConfig buildTimeConfig,
             BuildProducer<HealthBuildItem> health) {
