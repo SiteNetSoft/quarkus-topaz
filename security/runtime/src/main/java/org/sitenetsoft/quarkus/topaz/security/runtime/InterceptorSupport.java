@@ -1,5 +1,6 @@
 package org.sitenetsoft.quarkus.topaz.security.runtime;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -77,6 +78,19 @@ public class InterceptorSupport {
                     LOG.warnf("Topaz denied %s: %s", what, e.toString());
                     return new ForbiddenException();
                 });
+    }
+
+    /**
+     * Tell whether the check of an intercepted method may block the current thread.
+     *
+     * @param method the intercepted method
+     * @return {@code true} when the method returns neither {@link Uni} nor {@link Multi} and the current thread may
+     *         block
+     */
+    static boolean blockingDispatch(Method method) {
+        Class<?> returnType = method.getReturnType();
+        return !Uni.class.isAssignableFrom(returnType) && !Multi.class.isAssignableFrom(returnType)
+                && BlockingOperationControl.isBlockingAllowed();
     }
 
     /**

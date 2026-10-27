@@ -68,8 +68,9 @@ final class MapperDispatch {
      * <p>
      * When the caller cannot block, the assembly runs on a worker thread through the current Vert.x context. The
      * duplicated context then stays current on the worker. The item comes back on the caller's Vert.x context when
-     * there is one. When the caller may block, the assembly runs on the subscribing thread. A blocking assembly is
-     * then bounded by the caller's own wait, because the timer cannot interrupt the thread that runs it.
+     * there is one. When the caller may block, the assembly runs on the subscribing thread. The timeout still turns the
+     * result into a denial. Nothing interrupts a blocking assembly, so on a blocking method the 403 waits for it to
+     * return.
      *
      * @param <T> the item type
      * @param assembly the supplier that calls the mappers and returns the result

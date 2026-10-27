@@ -47,12 +47,13 @@ public class TopazAuthorizeInterceptor {
     private final ResourceContextMapper resourceContextMapper;
     private final ResourceMethodInfoResolver resolver;
     private final ObjectMapper objectMapper;
+    private final MapperDispatch dispatch;
 
     @Inject
     TopazAuthorizeInterceptor(InterceptorSupport support, DecisionEvaluator evaluator, TopazEnforcementConfig config,
             IdentityMapper identityMapper, PolicyPathMapper policyPathMapper,
             ResourceContextMapper resourceContextMapper, ResourceMethodInfoResolver resolver,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper, MapperDispatch dispatch) {
         this.support = support;
         this.evaluator = evaluator;
         this.config = config;
@@ -61,6 +62,7 @@ public class TopazAuthorizeInterceptor {
         this.resourceContextMapper = resourceContextMapper;
         this.resolver = resolver;
         this.objectMapper = objectMapper;
+        this.dispatch = dispatch;
     }
 
     @AroundInvoke
@@ -71,12 +73,14 @@ public class TopazAuthorizeInterceptor {
         Uni<SecurityIdentity> identity = support.identity();
         Object[] args = ctx.getParameters();
         Method method = ctx.getMethod();
+        boolean callerMayBlock = InterceptorSupport.blockingDispatch(method);
         // failClosed covers the identity lookup too: a failing or hanging identity denies within the timeout
         Uni<Void> check = InterceptorSupport.failClosed(identity.chain(id -> {
             if (id.isAnonymous() && config.anonymous() == TopazEnforcementConfig.Anonymous.DENY) {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
-            return authorize(binding, id, request, method, args);
+            return dispatch.run(() -> authorize(binding, id, request, method, args), MapperDispatch.Point.AUTHORIZE,
+                    callerMayBlock);
         }), method.getDeclaringClass().getName() + "#" + method.getName(), config.timeout());
         return InterceptorSupport.dispatch(ctx, check, config.timeout());
     }
