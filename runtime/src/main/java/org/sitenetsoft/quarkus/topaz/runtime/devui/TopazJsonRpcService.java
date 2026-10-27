@@ -1,6 +1,5 @@
 package org.sitenetsoft.quarkus.topaz.runtime.devui;
 
-import java.time.Duration;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,6 +8,7 @@ import jakarta.inject.Inject;
 import org.sitenetsoft.quarkus.topaz.TopazClient;
 import org.sitenetsoft.quarkus.topaz.runtime.ResolvedServiceSettings;
 import org.sitenetsoft.quarkus.topaz.runtime.TopazConfig;
+import org.sitenetsoft.quarkus.topaz.runtime.health.TopazHealthCheck;
 
 import io.smallrye.mutiny.Uni;
 
@@ -23,8 +23,6 @@ public class TopazJsonRpcService {
 
     public record Policy(String id, String packagePath) {
     }
-
-    static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
 
     @Inject
     TopazClient client;
@@ -41,16 +39,17 @@ public class TopazJsonRpcService {
 
     public Uni<List<Policy>> listPolicies() {
         return client.authorizer().listPolicies()
-                .ifNoItem().after(HEALTH_TIMEOUT).failWith(TopazJsonRpcService::stalled)
+                .ifNoItem().after(TopazHealthCheck.HEALTH_TIMEOUT).failWith(TopazJsonRpcService::stalled)
                 .map(modules -> modules.stream().map(m -> new Policy(m.getId(), m.getPackagePath())).toList());
     }
 
     public Uni<String> getManifest() {
         return client.directory().getManifest()
-                .ifNoItem().after(HEALTH_TIMEOUT).failWith(TopazJsonRpcService::stalled);
+                .ifNoItem().after(TopazHealthCheck.HEALTH_TIMEOUT).failWith(TopazJsonRpcService::stalled);
     }
 
     private static Throwable stalled() {
-        return new IllegalStateException("Topaz did not answer within 10s");
+        return new IllegalStateException(
+                "Topaz did not answer within " + TopazHealthCheck.HEALTH_TIMEOUT.toSeconds() + "s");
     }
 }

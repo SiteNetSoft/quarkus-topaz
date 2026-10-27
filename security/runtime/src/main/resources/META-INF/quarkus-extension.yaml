@@ -15,4 +15,4 @@ metadata:
   status: "preview"
   config:
     - "quarkus.topaz.enforcement."
-  guide: "https://sitenetsoft.github.io/quarkus-topaz/"
+  guide: "https://sitenetsoft.org/quarkus-topaz/"

@@ -25,7 +25,10 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class TopazHealthCheck implements AsyncHealthCheck {
 
-    static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
+    /**
+     * The time Topaz has to answer a health probe before the probe fails.
+     */
+    public static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
 
     @Inject
     TopazClient client;
