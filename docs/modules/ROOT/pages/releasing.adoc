@@ -2,7 +2,13 @@
 
 include::./includes/attributes.adoc[]
 
-Eleven artifacts are published under `org.sitenetsoft`, all at the same version. Four modules are not published and set `maven.deploy.skip`: `quarkus-topaz-grpc-generator` (the proto generation application behind `bin/generate.sh`), `quarkus-topaz-integration-tests`, `quarkus-topaz-security-no-rest-tests` and `quarkus-topaz-docs`.
+The build publishes eleven artifacts under `org.sitenetsoft`, all at the same version. Four modules set
+`maven.deploy.skip` and stay unpublished:
+
+* `quarkus-topaz-grpc-generator`, the proto generation application behind `bin/generate.sh`.
+* `quarkus-topaz-integration-tests`.
+* `quarkus-topaz-security-no-rest-tests`.
+* `quarkus-topaz-docs`.
 
 [cols="2,1,3"]
 |===
@@ -22,11 +28,12 @@ Eleven artifacts are published under `org.sitenetsoft`, all at the same version.
 
 | `quarkus-topaz`
 | jar
-| Client runtime. Applications declare this one; see xref:index.adoc[Quarkus Topaz].
+| Client runtime. Applications declare this one. See xref:index.adoc[Quarkus Topaz].
 
 | `quarkus-topaz-deployment`
 | jar
-| Build-time augmentation for the client. Resolved by Quarkus from the runtime jar's descriptor; never declared directly.
+| Build-time augmentation for the client. Quarkus resolves it from the descriptor of the runtime jar. Applications
+never declare it.
 
 | `quarkus-topaz-security-parent`
 | pom
@@ -34,11 +41,11 @@ Eleven artifacts are published under `org.sitenetsoft`, all at the same version.
 
 | `quarkus-topaz-security`
 | jar
-| Route policy and interceptors; see xref:security.adoc[Security].
+| Route policy and interceptors. See xref:security.adoc[Security].
 
 | `quarkus-topaz-security-deployment`
 | jar
-| Build-time augmentation for the security extension; never declared directly.
+| Build-time augmentation for the security extension. Applications never declare it.
 
 | `quarkus-topaz-zanzibar-parent`
 | pom
@@ -46,31 +53,56 @@ Eleven artifacts are published under `org.sitenetsoft`, all at the same version.
 
 | `quarkus-topaz-zanzibar`
 | jar
-| The quarkus-zanzibar connector; see xref:zanzibar-connector.adoc[Zanzibar connector].
+| The quarkus-zanzibar connector. See xref:zanzibar-connector.adoc[Zanzibar connector].
 
 | `quarkus-topaz-zanzibar-deployment`
 | jar
-| Build-time augmentation for the connector; never declared directly.
+| Build-time augmentation for the connector. Applications never declare it.
 |===
 
-IMPORTANT: The artifact ids must stay exactly as above. Each runtime jar's `META-INF/quarkus-extension.properties` names its deployment artifact, and Quarkus resolves the deployment module from it at augmentation time. Renaming a module without updating the other breaks every consumer at build time, not at runtime.
+IMPORTANT: The artifact ids must stay exactly as above. The `META-INF/quarkus-extension.properties` file of each
+runtime jar names its deployment artifact. Quarkus resolves the deployment module from it at augmentation time. If
+you rename only one module of a pair, every consumer breaks at build time, not at runtime.
 
 == The release workflow
 
-`.github/workflows/release.yml` publishes to the https://central.sonatype.com[Central Portal]. It runs when a `v*` tag is pushed, and can also be dispatched by hand from `master` only. Runs are serialised, so two tags pushed close together do not race into the Portal.
+`.github/workflows/release.yml` publishes to the https://central.sonatype.com[Central Portal]. It runs when you push
+a `v*` tag. You can also dispatch it by hand, from `master` only. The workflow runs one release at a time, so two tags
+pushed close together do not race into the Portal.
 
-. `bin/release-check.sh` refuses a `-SNAPSHOT` version, a tag that does not match the POM version, and a README that still advertises a snapshot or says nothing is published yet. It prints the version it found, which the later steps reuse.
-. It runs `mvn -T 4 verify`, the full build and the integration tests. The native image is not rebuilt: a tag points at a commit that already went through `ci.yml` on `master`.
-. It imports the signing key and fails at once if `SIGNING_KEY` is not set, since Central rejects unsigned artifacts.
-. It runs `mvn -Prelease deploy` into a file repository at `target/staging-deploy`, which signs every jar and POM and attaches the sources and Javadoc jars.
-. It deletes the `maven-metadata.xml*` files, then runs `bin/check-staging.sh target/staging-deploy`. The file-repository deploy always writes the metadata, a Portal bundle must not contain it, and the check rejects it by design, so the delete comes first. The check verifies that exactly the eleven artifacts above are present at one version, each with its POM, jars and a signature for every file. An unsigned or partial bundle is accepted by the upload endpoint and only fails minutes later, so this fails early while the log still says why.
-. It zips the staging directory to `target/central-bundle.zip`, kept as a workflow artifact for 30 days, and uploads it to the Portal.
-. It polls the Portal until the deployment is `VALIDATED`, `PUBLISHED` or `FAILED`, and fails on `FAILED` or after ten minutes.
-. On a tag it creates the GitHub release with generated notes, as a draft unless the deployment is already `PUBLISHED`.
+. `bin/release-check.sh` refuses a `-SNAPSHOT` version and a tag that does not match the POM version. It also
+refuses a README that still advertises a snapshot or says that nothing is published yet. It prints the version it
+found, and the later steps reuse that version.
+
+. It runs `mvn -T 4 verify`, the full build and the integration tests. It does not rebuild the native image. A tag
+points at a commit that already went through `ci.yml` on `master`.
+
+. It imports the signing key. It fails at once if `SIGNING_KEY` is not set, since Central rejects unsigned artifacts.
+
+. It runs `mvn -Prelease deploy` into a file repository at `target/staging-deploy`. This deploy signs every jar and
+POM and attaches the sources and Javadoc jars.
+
+. It deletes the `maven-metadata.xml*` files. The file-repository deploy always writes them, but a Portal bundle
+must not contain them.
+
+. It runs `bin/check-staging.sh target/staging-deploy`, which rejects metadata files. The check verifies that
+exactly the eleven artifacts above are present at one version. Each artifact needs its POM, its jars and a signature
+for every file. The upload endpoint accepts an unsigned or partial bundle that fails only minutes later. The check
+fails early instead, while the log still says why.
+
+. It zips the staging directory to `target/central-bundle.zip` and uploads the zip to the Portal. The workflow keeps
+the zip as a workflow artifact for 30 days.
+
+. It polls the Portal until the deployment is `VALIDATED`, `PUBLISHED` or `FAILED`. It fails on `FAILED` or after
+ten minutes.
+
+. On a tag, it creates the GitHub release with generated notes. The release is a draft unless the deployment is
+already `PUBLISHED`.
 
 === Setting the version
 
-The version lives in the POMs, and `-Pdocs` makes the Maven plugin update the docs module too. Set it, replace the pre-release text in the README, run the preflight locally, then commit, tag and push:
+The version lives in the POMs. With `-Pdocs`, the Maven plugin updates the docs module too. Set the version, replace
+the pre-release text in the README and run the preflight locally. Then commit, tag and push:
 
 [source,bash]
 ----
@@ -81,7 +113,11 @@ bin/release-check.sh v0.1.0
 git commit -am "Release 0.1.0" && git tag v0.1.0 && git push origin master v0.1.0
 ----
 
-The first `sed` replaces all four coordinates in the README. The second sets the `{project-version}` attribute used by these pages in `docs/modules/ROOT/pages/includes/attributes.adoc`, which `versions:set` does not touch. Also drop the sentence "Status: pre-release, nothing is published yet." from the first paragraph by hand. `bin/release-check.sh` fails while any of these still says `-SNAPSHOT`, and also fails on any `pom.xml` that still declares a snapshot version.
+The first `sed` replaces all four coordinates in the README. The second sets the `{project-version}` attribute in
+`docs/modules/ROOT/pages/includes/attributes.adoc`. These pages use that attribute, and `versions:set` does not touch
+it. Also drop the sentence "Status: pre-release, nothing is published yet." from the first paragraph by hand.
+`bin/release-check.sh` fails while any of these still says `-SNAPSHOT`. It also fails on any `pom.xml` that still
+declares a snapshot version.
 
 Then move `master` on to the next development version with the same command and push:
 
@@ -91,7 +127,8 @@ mvn -Pdocs org.codehaus.mojo:versions-maven-plugin:2.18.0:set -DnewVersion=0.2.0
 git commit -am "Start 0.2.0-SNAPSHOT" && git push origin master
 ----
 
-In this bump `attributes.adoc` stays at the released version, so the master docs show what users can actually download.
+In this bump, `attributes.adoc` stays at the released version. The docs on `master` then show what users can
+download.
 
 === Secrets it needs
 
@@ -100,20 +137,28 @@ In this bump `attributes.adoc` stays at the released version, so the master docs
 | Secret | Purpose
 
 | `SIGNING_KEY`
-| ASCII-armoured private PGP key: `gpg --armor --export-secret-keys KEY_ID`. Its public half must be on a key server (`keyserver.ubuntu.com` or `keys.openpgp.org`), or Central rejects the signatures.
+| ASCII-armoured private PGP key: `gpg --armor --export-secret-keys KEY_ID`. Its public half must be on a key server,
+such as `keyserver.ubuntu.com` or `keys.openpgp.org`. Otherwise Central rejects the signatures.
 
 | `SIGNING_PASSWORD`
 | The key's passphrase. The workflow hands it to the GPG plugin as `MAVEN_GPG_PASSPHRASE`, with loopback pinentry.
 
 | `CENTRAL_USERNAME`, `CENTRAL_PASSWORD`
-| A Central Portal user token (Portal -> View Account -> Generate User Token), not the account password. The `org.sitenetsoft` namespace must be verified on the Portal for the token's account.
+| A Central Portal user token, not the account password. Generate it on the Portal under View Account -> Generate
+User Token. The account of the token must have the `org.sitenetsoft` namespace verified on the Portal.
 |===
 
-Nothing in the build stores credentials. Local builds need none, because signing and the sources and Javadoc jars belong to the `release` profile, which is off by default.
+Nothing in the build stores credentials. Local builds need none. Signing and the sources and Javadoc jars belong to
+the `release` profile, which is off by default.
 
 === Publishing type
 
-A tag push uploads with `publishingType=USER_MANAGED`: the deployment stops at *validated* and nothing reaches Central until someone presses *Publish* at https://central.sonatype.com/publishing/deployments. The workflow marks this with a warning and creates the GitHub release as a *draft*, so the tag never advertises artifacts that are not downloadable; publish the draft after releasing the deployment. A manual dispatch can choose `AUTOMATIC`, which releases immediately and cannot be undone.
+A tag push uploads with `publishingType=USER_MANAGED`. The deployment stops at *validated*. Nothing reaches Central
+until someone presses *Publish* at https://central.sonatype.com/publishing/deployments.
+
+The workflow marks this with a warning and creates the GitHub release as a *draft*. The tag then never advertises
+artifacts that users cannot download. Publish the draft after you release the deployment. A manual dispatch can
+choose `AUTOMATIC`, which releases at once and cannot be undone.
 
 == Checking before you publish
 
@@ -122,9 +167,13 @@ A tag push uploads with `publishingType=USER_MANAGED`: the deployment stops at *
 mvn -T 4 install -DskipTests
 ----
 
-This writes the artifacts to `~/.m2/repository/org/sitenetsoft/`. Then build a sample application against the local repository, declaring only `org.sitenetsoft:quarkus-topaz:{project-version}` (and the security or Zanzibar artifacts if you use them), to confirm the extensions resolve and augment. That is the check that catches an artifact id or descriptor mistake before a consumer does.
+This writes the artifacts to `~/.m2/repository/org/sitenetsoft/`. Then build a sample application against the local
+repository. Declare only `org.sitenetsoft:quarkus-topaz:{project-version}`, plus the security or Zanzibar artifacts
+if you use them. Confirm that the extensions resolve and augment. This check catches a wrong artifact id or
+descriptor before a consumer does.
 
-To inspect the exact bundle the workflow would upload, without a key or credentials, repeat its steps with signing off:
+To inspect the exact bundle that the workflow would upload, repeat its steps with signing off. You need no key and no
+credentials:
 
 [source,bash]
 ----
@@ -133,4 +182,6 @@ find target/staging-deploy -name 'maven-metadata.xml*' -delete
 bin/check-staging.sh target/staging-deploy --unsigned
 ----
 
-The metadata files are deleted first for the same reason as in the workflow: the file-repository deploy always writes them and the check rejects them. On a `-SNAPSHOT` version the staged files carry timestamped names, which the check accepts. `--unsigned` skips the signature requirement and nothing else.
+The commands delete the metadata files first, for the same reason as in the workflow. The file-repository deploy
+always writes them, and the check rejects them. On a `-SNAPSHOT` version, the staged files carry timestamped names,
+which the check accepts. `--unsigned` skips the signature requirement and nothing else.

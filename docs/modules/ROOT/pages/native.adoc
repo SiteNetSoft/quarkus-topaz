@@ -1,10 +1,10 @@
 = Native
 
 The extension needs no native configuration from you. It indexes the generated gRPC stubs, so Quarkus gRPC
-registers their protobuf classes for reflection, and enables SSL support in the native image for TLS connections
+registers their protobuf classes for reflection. It also enables SSL support in the native image for TLS connections
 to Topaz. The CI native job checks this with the todo application.
 
-Build the integration tests' todo application natively with a container build:
+Build the todo application of the integration tests natively with a container build:
 
 [source,shell]
 ----
@@ -12,23 +12,26 @@ mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=t
     -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
 ----
 
-The `additional-build-args` keep the native-image compiler at C1 and eight threads, so the build fits on ordinary
-CI runners and workstations; they cost build time, not correctness, and you can drop them on a large build host. If
-your project already sets `quarkus.native.additional-build-args`, append to its value.
+The `additional-build-args` keep the native-image compiler at C1 and eight threads. The build then fits on ordinary
+CI runners and workstations. These arguments cost build time, not correctness. You can drop them on a large build
+host. If your project already sets `quarkus.native.additional-build-args`, append to its value.
 
 == Security
 
-`quarkus-topaz-security` reads some application types reflectively and registers them automatically: the classes that
-declare a `@TopazObjectId` field or getter, and the parameter types annotated `@TopazResource`. It does not follow
-those types further. Nested types, collection element types and arrays inside a `@TopazResource` POJO must be
-registered by the application, for example with `@RegisterForReflection`.
+`quarkus-topaz-security` reads some application types by reflection and registers them for you:
+
+* The classes that declare a `@TopazObjectId` field or getter.
+* The parameter types annotated `@TopazResource`.
+
+It does not follow those types further. The application must register the nested types, collection element types
+and arrays inside a `@TopazResource` POJO. Use `@RegisterForReflection`, for example.
 
 == Zanzibar connector
 
-`quarkus-topaz-zanzibar` needs no native configuration; the CI native job exercises it through the `/fga/todos`
+`quarkus-topaz-zanzibar` needs no native configuration. The CI native job exercises it through the `/fga/todos`
 endpoints of the todo application.
 
 == Integration tests
 
 `@QuarkusIntegrationTest` classes run against the native executable. To seed or inspect Topaz from the test JVM, use
-xref:client.adoc#building-a-client-outside-cdi[`TopazClient.builder()`], which does not need CDI.
+xref:client.adoc#building-a-client-outside-cdi[`TopazClient.builder()`]. The builder does not need CDI.

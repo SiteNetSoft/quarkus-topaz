@@ -1,6 +1,6 @@
 # quarkus-topaz
 
-Quarkus extension for [Topaz](https://github.com/aserto-dev/topaz) (aserto-dev/topaz): a reactive gRPC client for the authorizer and directory, Dev Services, a readiness health check and a Dev UI card.
+Quarkus extension for [Topaz](https://github.com/aserto-dev/topaz), the aserto-dev/topaz authorizer. It provides a reactive gRPC client for the authorizer and the directory. It also adds a Dev Service, a readiness health check and a Dev UI card.
 
 ## Installation
 
@@ -20,7 +20,13 @@ Gradle:
 implementation 'org.sitenetsoft:quarkus-topaz:0.1.0'
 ```
 
-Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP security policy for routes (policy paths derived from the request, e.g. `todoApp.DELETE.todos.__id`), `@TopazAuthorize` and `@TopazCheck` interceptors for CDI bean methods, and an opt-in `@PermissionsAllowed` bridge. Every error denies. See [Security](docs/modules/ROOT/pages/security.adoc).
+Enforcement lives in a second artifact, `quarkus-topaz-security`. It provides:
+
+- A `topaz` HTTP security policy for routes. It derives the policy path from the request, such as `todoApp.DELETE.todos.__id`.
+- `@TopazAuthorize` and `@TopazCheck` interceptors for CDI bean methods.
+- An opt-in `@PermissionsAllowed` bridge.
+
+Every error denies. See [Security](docs/modules/ROOT/pages/security.adoc).
 
 ```xml
 <dependency>
@@ -30,7 +36,7 @@ Enforcement lives in a second artifact, `quarkus-topaz-security`: a `topaz` HTTP
 </dependency>
 ```
 
-Quarkus-zanzibar users can use `quarkus-topaz-zanzibar`: it supplies the `RelationshipManager` backed by the Topaz Directory, so `@FGARelation` and the other quarkus-zanzibar annotations are answered by Topaz. Adding it enables quarkus-zanzibar's filter, which denies unannotated REST endpoints by default. See [Zanzibar connector](docs/modules/ROOT/pages/zanzibar-connector.adoc).
+Quarkus-zanzibar users can add `quarkus-topaz-zanzibar`. It supplies a `RelationshipManager` backed by the Topaz directory. Topaz then answers `@FGARelation` and the other quarkus-zanzibar annotations. The artifact also enables the quarkus-zanzibar filter, which by default denies REST endpoints without an annotation. See [Zanzibar connector](docs/modules/ROOT/pages/zanzibar-connector.adoc).
 
 ```xml
 <dependency>
@@ -42,7 +48,7 @@ Quarkus-zanzibar users can use `quarkus-topaz-zanzibar`: it supplies the `Relati
 
 ## Quick start
 
-Put a Rego policy, a directory manifest and seed data under `src/main/resources/topaz/` and point the Dev Service at them:
+Put a Rego policy, a directory manifest and seed data under `src/main/resources/topaz/`. Point the Dev Service at them:
 
 ```properties
 quarkus.topaz.devservices.policy.directory=classpath:topaz/policies
@@ -64,7 +70,7 @@ Uni<Boolean> allowed = topaz.authorizer().isAllowed(IdentityContexts.subject("ri
 
 ## Documentation
 
-- [Documentation](docs/modules/ROOT/pages/index.adoc), built with `mvn package -Pdocs` into `docs/target/generated-docs/`
+- [Documentation](docs/modules/ROOT/pages/index.adoc). `mvn package -Pdocs` builds it into `docs/target/generated-docs/`.
 - [Design spec](docs/design/specs/2026-10-18-quarkus-topaz-design.md)
 
 ## Building
@@ -77,7 +83,7 @@ With rootless Podman, add `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.soc
 
 ## Releasing
 
-The release procedure, its secrets and the local rehearsal are in [Releasing](docs/modules/ROOT/pages/releasing.adoc).
+[Releasing](docs/modules/ROOT/pages/releasing.adoc) describes the release procedure, its secrets and the local rehearsal.
 
 ## License
 
