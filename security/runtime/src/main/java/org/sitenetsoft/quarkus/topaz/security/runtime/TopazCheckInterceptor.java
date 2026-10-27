@@ -52,14 +52,14 @@ public class TopazCheckInterceptor {
         Object[] args = ctx.getParameters();
         Method method = ctx.getMethod();
         String what = method.getDeclaringClass().getName() + "#" + method.getName();
-        boolean callerMayBlock = InterceptorSupport.blockingDispatch(method);
         // failClosed covers the identity lookup and the object id resolution too: any failure denies
         Uni<Void> check = InterceptorSupport.failClosed(identity.chain(id -> {
             if (id.isAnonymous()) {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
+            // the inline assembly runs on this thread, so this thread decides whether it may block
             return dispatch.run(() -> check(binding, id, method, args, what), MapperDispatch.Point.CHECK,
-                    callerMayBlock);
+                    InterceptorSupport.blockingDispatch(method));
         }), what, config.timeout());
         return InterceptorSupport.dispatch(ctx, check, config.timeout());
     }
