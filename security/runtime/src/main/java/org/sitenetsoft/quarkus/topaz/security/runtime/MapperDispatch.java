@@ -88,9 +88,9 @@ final class MapperDispatch {
         boolean path = !policyPathMapper.blocking();
         boolean resource = !resourceContextMapper.blocking();
         boolean subject = !subjectMapper.blocking();
-        boolean noCache = cache instanceof NoopDecisionCache;
+        boolean noCache = cache.getClass() == NoopDecisionCache.class;
         // Referenced by name so this class never loads the REST resolver, which needs quarkus-rest on the classpath.
-        boolean builtInResolver = resolver instanceof NoopResourceMethodInfoResolver
+        boolean builtInResolver = resolver.getClass() == NoopResourceMethodInfoResolver.class
                 || resolver.getClass().getName().equals(REST_RESOLVER);
         Set<Point> points = EnumSet.noneOf(Point.class);
         if (builtInResolver && path && identity && resource && noCache) {

@@ -59,13 +59,14 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
     }
 
     /**
-     * Report that this mapper never blocks.
+     * Report whether this mapper may block.
+     * The built-in mapper does not block. A subclass counts as blocking unless it overrides this method.
      *
-     * @return {@code false}
+     * @return {@code false} for the built-in class, {@code true} for a subclass
      */
     @Override
     public boolean blocking() {
-        return false;
+        return getClass() != DefaultPolicyPathMapper.class;
     }
 
     // Reject path segments that would let the caller pick the Rego package.
