@@ -41,15 +41,17 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
     private final IdentityMapper identityMapper;
     private final SubjectMapper subjectMapper;
     private final TopazEnforcementConfig config;
+    private final MapperDispatch dispatch;
 
     @Inject
     TopazPermissionAugmentor(DecisionEvaluator evaluator, DirectoryClient directory, IdentityMapper identityMapper,
-            SubjectMapper subjectMapper, TopazEnforcementConfig config) {
+            SubjectMapper subjectMapper, TopazEnforcementConfig config, MapperDispatch dispatch) {
         this.evaluator = evaluator;
         this.directory = directory;
         this.identityMapper = identityMapper;
         this.subjectMapper = subjectMapper;
         this.config = config;
+        this.dispatch = dispatch;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
     private Uni<Boolean> check(SecurityIdentity identity, Permission permission) {
         Uni<Boolean> check;
         if (permission instanceof TopazRelation relation) {
-            check = Uni.createFrom().deferred(() -> relation(identity, relation))
+            check = dispatch.run(() -> relation(identity, relation), MapperDispatch.Point.BRIDGE_RELATION, false)
                     .onFailure().recoverWithItem(e -> {
                         LOG.warnf("Topaz relation check failed for %s: %s", relation, e.toString());
                         return false;
@@ -82,10 +84,10 @@ public class TopazPermissionAugmentor implements SecurityIdentityAugmentor {
             return Uni.createFrom().item(false);
         } else {
             // the evaluator never fails and logs its own denials
-            check = Uni.createFrom().deferred(() -> Objects.requireNonNull(
-                    identityMapper.map(identity, Optional.empty()), "IdentityMapper returned null"))
+            check = dispatch.run(() -> Objects.requireNonNull(
+                    identityMapper.map(identity, Optional.empty()), "IdentityMapper returned null")
                     .chain(id -> evaluator.evaluate(id, permission.getName(), Struct.getDefaultInstance()))
-                    .map(DecisionEvaluator.Outcome::permitted)
+                    .map(DecisionEvaluator.Outcome::permitted), MapperDispatch.Point.BRIDGE_DECISION, false)
                     .onFailure().recoverWithItem(e -> {
                         LOG.warnf("Topaz denied %s for authenticated: %s", permission.getName(), e.toString());
                         LOG.debugf("Topaz denied %s for authenticated %s", permission.getName(),
