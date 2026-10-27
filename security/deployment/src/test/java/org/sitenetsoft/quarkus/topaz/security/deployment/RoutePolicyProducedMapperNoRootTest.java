@@ -16,9 +16,6 @@ import io.quarkus.security.test.utils.TestIdentityProvider;
 import io.quarkus.test.QuarkusUnitTest;
 import io.vertx.ext.web.RoutingContext;
 
-/**
- * An application that supplies its own {@link PolicyPathMapper} needs no policy-root.
- */
 public class RoutePolicyProducedMapperNoRootTest {
 
     @RegisterExtension
