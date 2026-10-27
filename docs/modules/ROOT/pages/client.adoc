@@ -2,8 +2,8 @@
 
 == Beans
 
-The extension produces three `@Singleton` beans that share two gRPC channels, one to the authorizer and one
-to the directory:
+The extension produces three `@Singleton` beans. They share two gRPC channels, one to the authorizer and one to the
+directory:
 
 [source,java]
 ----
@@ -12,20 +12,21 @@ to the directory:
 @Inject DirectoryClient directory;   // the same instance as topaz.directory()
 ----
 
-The channels are Vert.x gRPC client channels on the Quarkus event loop. Generated stubs keep their proto packages
-(`aserto.authorizer.v2`, `aserto.directory.reader.v3`, ...) and come from the `quarkus-topaz-grpc` artifact.
+The channels are Vert.x gRPC client channels on the Quarkus event loop. The generated stubs come from the
+`quarkus-topaz-grpc` artifact. They keep their proto packages, such as `aserto.authorizer.v2` and
+`aserto.directory.reader.v3`.
 
 == API
 
-All methods return Mutiny types. Each client also exposes its raw Mutiny stubs for requests the convenience
-methods do not cover. Packages named `runtime` are internal.
+All methods return Mutiny types. Each client also exposes its raw Mutiny stubs. Use them for requests that the
+convenience methods do not cover. Packages named `runtime` are internal.
 
 [cols="1,3"]
 |===
 |Method |Purpose
 
 2+h|`AuthorizerClient`
-|`isAllowed(identity, policyPath, decision, resource)` |One decision as `Uni<Boolean>`; see <<is-allowed>>.
+|`isAllowed(identity, policyPath, decision, resource)` |One decision as `Uni<Boolean>`. See <<is-allowed>>.
 |`is(identity, policyPath, decisions, resource)` / `is(IsRequest)` |Several decisions as an `IsResponse`.
 |`decisionTree(...)`, `query(...)`, `compile(...)` |The other authorizer calls.
 |`listPolicies()`, `getPolicy(id)` |The loaded policy modules.
@@ -35,11 +36,11 @@ methods do not cover. Packages named `runtime` are internal.
 2+h|`DirectoryClient`
 |`check(objectType, objectId, relation, subjectType, subjectId)` |Whether the subject has the relation or
 permission on the object.
-|`checks(List<CheckRequest>)` |Several checks in one call; results in request order.
+|`checks(List<CheckRequest>)` |Several checks in one call. The results keep the request order.
 |`getObject`, `setObject`, `deleteObject` |Objects.
 |`getRelation`, `setRelation`, `deleteRelation` |Relations.
-|`getManifest()`, `setManifest(yaml)`, `deleteManifest()` |The directory manifest as YAML; chunking is handled
-for you.
+|`getManifest()`, `setManifest(yaml)`, `deleteManifest()` |The directory manifest as YAML. The client handles the
+chunking.
 |`importData(Multi<ImportRequest>)` |Streams an import and returns an `ImportSummary` of counts and errors.
 |`export(ExportRequest)` |Streams the directory contents.
 |`reader()`, `writer()`, `model()`, `importer()`, `exporter()` |The raw Mutiny stubs.
@@ -47,35 +48,41 @@ for you.
 
 == Identity contexts
 
-`IdentityContexts` builds the `IdentityContext` passed to authorizer calls:
+`IdentityContexts` builds the `IdentityContext` that the authorizer calls take:
 
 [cols="1,3"]
 |===
 |Factory |Caller
 
 |`none()` |Anonymous.
-|`subject(String)` |A subject (user key, email, ...) that Topaz resolves through the directory.
+|`subject(String)` |A subject, such as a user key or an email, that Topaz resolves through the directory.
 |`jwt(String)` |A JWT whose `sub` claim Topaz resolves through the directory. Topaz does not validate the token.
-|`manual(String)` |An identity passed to the policy as is, without directory resolution.
+|`manual(String)` |An identity that Topaz passes to the policy as is, without directory resolution.
 |===
 
-For `subject` and `jwt`, the identity must exist in the directory as an `identity` object with an `identifier`
-relation to a `user`; otherwise Topaz answers `NOT_FOUND` (error `E30017`). The quick start's manifest and data show
-that shape.
+For `subject` and `jwt`, the identity must exist in the directory as an `identity` object. That object needs an
+`identifier` relation to a `user`. Otherwise Topaz answers `NOT_FOUND` with error `E30017`. The manifest and data of
+the quick start show that shape.
 
-Topaz does not validate the token passed to `jwt(...)`: it does not check the signature, it parses the token and
-resolves its `sub` claim through the directory. Authenticate the request in your application (e.g. quarkus-oidc)
-before forwarding the token; pass the raw token only so Topaz can read its subject.
+Topaz does not validate the token that you pass to `jwt(...)`. It does not check the signature. It parses the token
+and resolves its `sub` claim through the directory. Authenticate the request in your application before you forward
+the token, for example with quarkus-oidc. Pass the raw token only so that Topaz can read its subject.
 
 [[is-allowed]]
 == `isAllowed` fails closed
 
-`isAllowed` asks for one named decision and returns `true` only when the response contains that decision with value
-`true`. A decision the policy does not produce is `false`.
+`isAllowed` asks for one named decision. It returns `true` only when the response contains that decision with value
+`true`. A decision that the policy does not produce counts as `false`.
 
-Errors are never turned into a boolean. A gRPC failure, an unknown policy path (Topaz answers `INVALID_ARGUMENT`), an
-unresolvable identity or an expired deadline fails the `Uni` with `io.grpc.StatusRuntimeException`. Handle it where
-the decision is enforced, for example by answering 403:
+`isAllowed` never turns an error into a boolean. Each of these errors fails the `Uni` with
+`io.grpc.StatusRuntimeException`:
+
+* A gRPC failure.
+* An unknown policy path. Topaz answers it with `INVALID_ARGUMENT`.
+* An identity that Topaz cannot resolve.
+* An expired deadline.
+
+Handle the exception where you enforce the decision, for example by answering 403:
 
 [source,java]
 ----
@@ -85,41 +92,53 @@ return topaz.authorizer().isAllowed(subject(user), policy, "allowed", Map.of("id
 
 == Deadlines
 
-`quarkus.topaz.deadline`, or `quarkus.topaz.authorizer.deadline` / `quarkus.topaz.directory.deadline`, sets a
-per-call deadline. It starts when a `Uni` or `Multi` is subscribed to, so each retry gets a fresh deadline. The
-deadline bounds the whole call, streams (manifest, import, export) included, as a gRPC `withDeadlineAfter`
-deadline. In addition the client fails a call that receives nothing for one deadline period with
-`DEADLINE_EXCEEDED`, so a stalled connection cannot hang the convenience methods. For a `Multi` this guard is an
-inactivity timeout between items, not a first-item timeout. A refused connection fails immediately with
-`UNAVAILABLE`.
+`quarkus.topaz.deadline` sets a per-call deadline for both services. `quarkus.topaz.authorizer.deadline` and
+`quarkus.topaz.directory.deadline` override it for one service. The deadline starts when a subscriber subscribes to
+the `Uni` or `Multi`, so each retry gets a fresh deadline. The client applies it as a gRPC `withDeadlineAfter`
+deadline that bounds the whole call. This includes the streams of the manifest, import and export calls.
 
-The raw stubs (`reader()`, `writer()`, `model()`, `importer()`, `exporter()` and the authorizer `stub()`) carry only the
-gRPC deadline and are not protected against a stalled handshake: add your own `ifNoItem()` or use the convenience
-methods. Timeout failures are emitted on a Mutiny timer thread, not on the caller's Vert.x context; recover with
-`emitOn` if the recovery needs the context.
+The client also guards against a stalled connection. It fails a call with `DEADLINE_EXCEEDED` when the call receives
+nothing for one deadline period. This guard keeps a stalled connection from hanging the convenience methods. For a
+`Multi`, the guard is an inactivity timeout between items, not a first-item timeout. A refused connection fails at
+once with `UNAVAILABLE`.
 
-Without a deadline, calls have no time limit, except that the health check and the Dev UI give up after 10 seconds.
+The raw stubs carry only the gRPC deadline. These stubs are `reader()`, `writer()`, `model()`, `importer()`,
+`exporter()` and the authorizer `stub()`. The client does not guard them against a stalled handshake. Add your own
+`ifNoItem()`, or use the convenience methods.
+
+Mutiny emits a timeout failure on a Mutiny timer thread, not on the Vert.x context of the calling thread. Recover with
+`emitOn` if the recovery needs that context.
+
+Without a deadline, calls have no time limit. The health check and the Dev UI still give up after 10 seconds.
 
 == Connection security
 
-`quarkus.topaz.plain-text=true` gives plaintext channels and wins over any TLS configuration. Otherwise TLS is
-configured per service through `quarkus.topaz.authorizer.tls-configuration-name` or
-`quarkus.topaz.directory.tls-configuration-name`, falling back to `quarkus.topaz.tls-configuration-name`, each
-naming a configuration of the Quarkus TLS registry. With no name set, the registry's default TLS configuration is
-used when it defines a trust store or trust-all; otherwise the channel is plaintext. `plain-text=false` requires
-TLS: with no named configuration and no usable registry default, the channel uses TLS with the JVM default trust
-store; it never falls back to plaintext. A TLS configuration name the registry does not know fails startup.
+`quarkus.topaz.plain-text=true` gives plaintext channels and wins over any TLS configuration.
 
-`quarkus.topaz.api-key` (or the per-service `api-key`) is sent as `authorization: basic <key>` on every call.
-`quarkus.topaz.tenant-id` adds an `aserto-tenant-id` header for legacy Aserto deployments; Topaz ignores it.
+Otherwise each service takes its TLS configuration by name from the Quarkus TLS registry. The client reads the name
+from `quarkus.topaz.authorizer.tls-configuration-name` or `quarkus.topaz.directory.tls-configuration-name`. Without a
+per-service name, it falls back to `quarkus.topaz.tls-configuration-name`.
+
+With no name set, the client looks at the default TLS configuration of the registry. It uses that configuration
+when it defines a trust store or trust-all. Otherwise the channel is plaintext.
+
+`plain-text=false` requires TLS. Without a named configuration or a usable registry default, the channel uses TLS
+with the default JVM trust store. It never falls back to plaintext. A TLS configuration name that the registry
+does not know fails startup.
+
+The client sends `quarkus.topaz.api-key` as `authorization: basic <key>` on every call. A per-service `api-key`
+overrides it for one service. `quarkus.topaz.tenant-id` adds an `aserto-tenant-id` header for legacy Aserto
+deployments. Topaz ignores this header.
 
 == Blocking facade
 
-`topaz.blocking()` exposes `authorizer()` and `directory()` with the same methods returning plain values. It shares
-the channels of the reactive client. Each call waits at most the configured deadline plus one second (so the gRPC
-deadline fires first), or 30 seconds without one. Failures, including an exceeded wait, are thrown as
-`io.grpc.StatusRuntimeException` (`DEADLINE_EXCEEDED` for a timeout).
-Call it from worker threads only, never from the event loop.
+`topaz.blocking()` exposes `authorizer()` and `directory()`. They have the same methods as the reactive clients and
+return plain values. The facade shares the channels of the reactive client. Call it from worker threads only, never
+from the event loop.
+
+Each call waits at most the configured deadline plus one second. The extra second lets the gRPC deadline fire first.
+Without a deadline, a call waits at most 30 seconds. The facade throws every failure as
+`io.grpc.StatusRuntimeException`, an exceeded wait included. A timeout carries the status `DEADLINE_EXCEEDED`.
 
 [source,java]
 ----
@@ -130,8 +149,8 @@ boolean allowed = topaz.blocking().authorizer()
 
 == Building a client outside CDI
 
-`TopazClient.builder()` works without a running Quarkus application, for example in a test JVM seeding data into a
-native binary or to reach a second Topaz:
+`TopazClient.builder()` works without a running Quarkus application. A test JVM can use it to seed data into a native
+binary. An application can use it to reach a second Topaz:
 
 [source,java]
 ----
@@ -145,6 +164,7 @@ try (TopazClient client = TopazClient.builder()
 }
 ----
 
-The builder also takes `tenantId`, `deadline`, `tlsConfiguration`, extra `interceptors`, an existing `vertx`, or
-ready-made `authorizerChannel` / `directoryChannel`. Without a `vertx`, the client creates its own Vert.x instance.
-`close()` closes the channels and the Vert.x instance it created, never ones that were passed in.
+The builder also takes `tenantId`, `deadline`, `tlsConfiguration` and extra `interceptors`. It also takes an existing
+`vertx`, or a ready-made `authorizerChannel` and `directoryChannel`. Without a `vertx`, the client creates its own
+Vert.x instance. `close()` closes the channels and the Vert.x instance that the client created. It never closes the
+ones you passed in.

@@ -1,26 +1,32 @@
 = Dev Services
 include::./includes/attributes.adoc[]
 
-In dev and test mode the extension starts a Topaz container and points the client at it. It needs a container
-runtime (Docker or Podman).
+In dev and test mode, the extension starts a Topaz container and points the client at it. The Dev Service needs a
+container runtime, such as Docker or Podman.
 
 == When it starts
 
 The Dev Service runs unless one of these holds:
 
-* `quarkus.topaz.devservices.enabled=false`;
-* `quarkus.topaz.authorizer.host` or `quarkus.topaz.directory.host` is set, meaning you point at your own Topaz;
-* no container runtime is available (a warning is logged).
+* `quarkus.topaz.devservices.enabled=false`.
+* `quarkus.topaz.authorizer.host` or `quarkus.topaz.directory.host` is set. This means that you point at your own
+Topaz.
+* No container runtime is available. The extension then logs a warning.
 
-Once the container is up, the application receives `quarkus.topaz.authorizer.host` and `.port`,
-`quarkus.topaz.directory.host` and `.port`, `quarkus.topaz.plain-text=true`, `quarkus.topaz.api-key` when
-`quarkus.topaz.devservices.api-key` is set, and `quarkus.topaz.console-url` when the console is enabled. The
-container listens in plaintext, so no trust store is needed.
+Once the container is up, the application receives these properties:
+
+* `quarkus.topaz.authorizer.host` and `.port`.
+* `quarkus.topaz.directory.host` and `.port`.
+* `quarkus.topaz.plain-text=true`.
+* `quarkus.topaz.api-key`, when `quarkus.topaz.devservices.api-key` is set.
+* `quarkus.topaz.console-url`, when the console is enabled.
+
+The container listens in plaintext, so the application needs no trust store.
 
 == Settings
 
-All keys are fixed at build time. The xref:configuration.adoc[configuration reference] lists their types and
-defaults.
+Quarkus fixes all these keys at build time. The xref:configuration.adoc[configuration reference] lists their types
+and defaults.
 
 [cols="2,3"]
 |===
@@ -35,8 +41,8 @@ tested with.
 |`quarkus.topaz.devservices.manifest-location` |Directory manifest YAML loaded after start.
 |`quarkus.topaz.devservices.data-location` |Directory with `objects.json` and/or `relations.json` imported after
 the manifest.
-|`quarkus.topaz.devservices.api-key` |Makes the container require this API key (except for `Info` and gRPC
-reflection) and configures the client to send it.
+|`quarkus.topaz.devservices.api-key` |Makes the container require this API key and configures the client to send
+it. `Info` and gRPC reflection work without the key.
 |`quarkus.topaz.devservices.container-env."env-name"` |Extra environment variables for the container.
 |`quarkus.topaz.devservices.console-enabled` |Exposes the Topaz console and sets `quarkus.topaz.console-url`.
 |`quarkus.topaz.devservices.shared` |Shares the container between applications in dev mode.
@@ -44,24 +50,24 @@ reflection) and configures the client to send it.
 container.
 |===
 
-Locations accept `classpath:` (copied under the build output directory, also from jars), `filesystem:` or a plain
-path. A location that does not exist fails the build.
+Locations accept `classpath:`, `filesystem:` or a plain path. The extension copies a `classpath:` location under the
+build output directory, also from a jar. A location that does not exist fails the build.
 
 == Policies: directory or image
 
-Set at most one of the two policy keys; setting both fails the build.
+Set at most one of the two policy keys. Setting both fails the build.
 
-`policy.directory` is the choice for policies that live in your repository: the Rego files are copied into the
-container when it starts and loaded as a local bundle without signature verification.
+Use `policy.directory` for policies that live in your repository. The extension copies the Rego files into the
+container when it starts. Topaz loads them as a local bundle and does not verify a signature.
 
-`policy.image` is the choice for a policy already published as an OCI image, the way Topaz templates ship theirs.
+Use `policy.image` for a policy that is already published as an OCI image, the way Topaz templates ship theirs.
 Topaz pulls it from `ghcr.io` at start.
 
-With neither, Topaz starts without a policy and authorizer `Is` calls fail until one is loaded.
+With neither key, Topaz starts without a policy. Authorizer `Is` calls then fail until you load one.
 
 == Manifest and data formats
 
-The manifest is a Topaz directory manifest (model version 3):
+The manifest is a Topaz directory manifest with model version 3:
 
 [source,yaml]
 ----
@@ -101,21 +107,24 @@ The data directory holds Topaz's export format: `objects.json` as `{"objects": [
 ]}
 ----
 
-The files are parsed strictly when the application builds: an unknown field or a malformed entry fails the build
-rather than the first request. Objects are imported before relations. An import error reported by Topaz fails
-startup.
+The extension parses the files strictly when the application builds. An unknown field or a malformed entry fails
+the build rather than the first request. The extension imports objects before relations. An import error that Topaz
+reports fails startup.
 
-The `identity` objects with `identifier` relations are what lets `IdentityContexts.subject(...)` resolve a caller;
-see xref:client.adoc#identity-contexts[identity contexts].
+The `identity` objects with `identifier` relations let `IdentityContexts.subject(...)` resolve a caller. See
+xref:client.adoc#identity-contexts[identity contexts].
 
 == Shared containers
 
-In dev mode with `shared=true`, an application first looks for a running container labelled
-`quarkus-dev-service-topaz` with its `service-name` and reuses it instead of starting one. A reused container is not
-re-seeded. If a `manifest-location` is configured and the shared container's manifest differs from it, a warning is
-logged and the shared manifest stays as it is. Stop the shared container, or set
-`quarkus.topaz.devservices.shared=false`, to load yours. A Topaz service started by Compose Dev Services is
-discovered the same way.
+In dev mode with `shared=true`, an application first looks for a running shared container. That container carries
+the label `quarkus-dev-service-topaz` with the value of `service-name`. The application reuses it instead of starting
+one. The extension does not seed a reused container again.
+
+A configured `manifest-location` may differ from the manifest of the shared container. The extension then logs a warning
+and leaves the shared manifest as it is. To load yours, stop the shared container or set
+`quarkus.topaz.devservices.shared=false`.
+
+The application finds a Topaz service that Compose Dev Services started in the same way.
 
 == Rootless Podman
 
@@ -128,5 +137,5 @@ export TESTCONTAINERS_RYUK_DISABLED=true
 systemctl --user enable --now podman.socket
 ----
 
-Scratch files of the Dev Service (the generated Topaz config, copies of classpath locations) go under the build
-output directory in `topaz-devservices/`.
+The Dev Service writes its scratch files under the build output directory in `topaz-devservices/`. These files are
+the generated Topaz config and the copies of `classpath:` locations.

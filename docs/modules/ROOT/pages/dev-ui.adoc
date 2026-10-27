@@ -1,11 +1,11 @@
 = Dev UI
 
-In dev mode the Dev UI (`/q/dev-ui`) shows a Topaz card with:
+In dev mode, the Dev UI at `/q/dev-ui` shows a Topaz card with these pages:
 
-Topaz console:: A link to the console of the Dev Services container, present when the Dev Service runs with
-`quarkus.topaz.devservices.console-enabled=true` (the default).
+Topaz console:: A link to the console of the Dev Service container. The link shows when the Dev Service runs with
+`quarkus.topaz.devservices.console-enabled=true`, which is the default.
 Policies:: The policy modules loaded in the authorizer, by id and package path, from `ListPolicies`.
 Manifest:: The directory manifest YAML, from `GetManifest`.
 
-The policies and manifest pages call Topaz through the application's own client, so they also work against a Topaz
-you configured yourself.
+The policies and manifest pages call Topaz through the client of the application. They also work against a Topaz
+that you configured yourself.
