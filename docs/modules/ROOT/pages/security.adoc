@@ -198,7 +198,7 @@ public Todo update(@PathParam("id") String id, @TopazResource("todo") Todo todo)
 
 * `path`: the policy path. When `path` is empty, the `PolicyPathMapper` derives it from the current request. A
 derived path always means "the policy of the HTTP request being served". Only resource methods may therefore omit
-`path`. The build fails on any other method, so set `path` there. The build accepts these resource methods:
+`path`. The build fails on any other method, so set `path` there. The build accepts an empty `path` in two places:
 ** On a method, the method has an HTTP method annotation, such as `@GET` or `@POST`, or one meta-annotated
 `@HttpMethod`.
 ** On a class, the class is a JAX-RS resource. The class or an interface that it implements carries `@Path`.
@@ -309,7 +309,7 @@ subject type. Each part:
 The rule matches Topaz 0.33.22. Quarkus builds the permission when the secured method runs. Any other name fails at
 that point, and Quarkus denies the call with 403.
 
-Quarkus does not augment anonymous callers, so they get a 401. An error or a timeout denies.
+The bridge does not augment anonymous callers, so they get a 401. An error or a timeout denies.
 
 Quarkus grants a permission when any permission of the identity implies it. Another `SecurityIdentityAugmentor` or a
 role mapping may grant a `StringPermission` of the same name. That permission then bypasses Topaz for that name. Nothing
