@@ -2,12 +2,15 @@ package org.sitenetsoft.quarkus.topaz.security;
 
 import java.security.Permission;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * A Topaz directory relation check usable with {@code @PermissionsAllowed}, for example
  * {@code @PermissionsAllowed(value = "todo#owner", permission = TopazRelation.class, params = "id")}.
  * <p>
- * The name is {@code objectType#relation} or {@code objectType#relation@subjectType}; the subject type defaults to
+ * The name is {@code objectType#relation} or {@code objectType#relation@subjectType}. Each part is a Topaz identifier,
+ * 3 to 64 ASCII letters, digits, dots, underscores or dashes that start with a letter and end with a letter or digit.
+ * The subject type defaults to
  * {@code user}. The object id is the second constructor parameter, {@code id}: Quarkus matches constructor parameters
  * to the secured method's parameters by name, so the secured method needs a parameter named {@code id}, or
  * {@code params} must name the parameter (or a {@code param.property} expression) that supplies it.
@@ -25,6 +28,8 @@ public final class TopazRelation extends Permission {
 
     private static final String DEFAULT_SUBJECT_TYPE = "user";
 
+    private static final Pattern IDENTIFIER = Pattern.compile("[a-zA-Z][a-zA-Z0-9._-]{1,62}[a-zA-Z0-9]");
+
     private final String objectType;
     private final String relation;
     private final String subjectType;
@@ -40,9 +45,6 @@ public final class TopazRelation extends Permission {
         if (name == null) {
             throw new IllegalArgumentException("TopazRelation name must not be null");
         }
-        if (name.chars().anyMatch(Character::isWhitespace)) {
-            throw malformed(name);
-        }
         int hash = name.indexOf('#');
         if (hash < 0) {
             throw malformed(name);
@@ -52,14 +54,28 @@ public final class TopazRelation extends Permission {
         this.objectType = name.substring(0, hash);
         this.relation = at < 0 ? rest : rest.substring(0, at);
         this.subjectType = at < 0 ? DEFAULT_SUBJECT_TYPE : rest.substring(at + 1);
-        if (objectType.isBlank() || relation.isBlank() || subjectType.isBlank() || relation.indexOf('#') >= 0
-                || subjectType.indexOf('@') >= 0) {
-            throw malformed(name);
-        }
+        checkPart("objectType", objectType, name);
+        checkPart("relation", relation, name);
+        checkPart("subjectType", subjectType, name);
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("TopazRelation '" + name + "' has no object id");
         }
         this.objectId = id;
+    }
+
+    /**
+     * Check that a name part is a Topaz identifier.
+     *
+     * @param part the part label used in the message
+     * @param value the part value
+     * @param name the full permission name
+     * @throws IllegalArgumentException if the value is not a Topaz identifier
+     */
+    private static void checkPart(String part, String value, String name) {
+        if (!IDENTIFIER.matcher(value).matches()) {
+            throw new IllegalArgumentException(part + " '" + value + "' in TopazRelation name '" + name
+                    + "' must match " + IDENTIFIER.pattern());
+        }
     }
 
     private static IllegalArgumentException malformed(String name) {
