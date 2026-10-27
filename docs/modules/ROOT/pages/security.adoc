@@ -384,8 +384,11 @@ while it waits for the check. When the pool has no other free thread, the mapper
 happens when the pool is exhausted or has one thread. The check then times out, and the bridge denies the call.
 
 Each mapper interface has a `blocking()` method. It returns `true` by default, so a custom mapper runs on a thread
-that may block. The four default mappers return `false`. No mapper may use `@RequestScoped` beans. A mapper whose
-`blocking()` method returns `false` must not block. A mapper opts in to the fast path when it overrides `blocking()`:
+that may block. The four default mappers return `false`. A subclass of a default mapper counts as custom unless it
+overrides `blocking()`.
+
+No mapper may use `@RequestScoped` beans. A mapper whose `blocking()` method returns `false` must not block. A mapper
+opts in to the fast path when it overrides `blocking()`:
 
 [source,java]
 ----
