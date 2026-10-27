@@ -371,6 +371,23 @@ remote calls. This is the lowest-priority piece of the security module and ships
 - Runtime packages (`*.runtime`) are internal and may change without notice; the extension points are the interfaces
   and annotations in the API packages.
 
+### As built for 0.2.0
+
+This note records where the code differs from the text above. The security hardening design of 2026-10-25 gives the
+reasons.
+
+- The runtime-init recorder detects a custom `PolicyPathMapper` from the bean that Arc resolves.
+- One threading rule covers the four enforcement points. A mapper runs on a thread that may block, under the timeout.
+- A blocking method under `@TopazAuthorize` or `@TopazCheck` runs its mappers on the calling thread, not on a second worker.
+- Each mapper has a `blocking()` method. When no component of an enforcement point blocks, the mappers run on the calling thread.
+- The fast path needs the built-in `DecisionCache` and a built-in `ResourceMethodInfoResolver`.
+- Each part of a `TopazRelation` name follows the Topaz 0.33.22 identifier rule `[a-zA-Z][a-zA-Z0-9._-]{1,62}[a-zA-Z0-9]`.
+- The mappers are `@DefaultBean`s, and the extension validates its configuration at startup.
+- `IdentityMapper` takes a `SecurityIdentity` and an `Optional<RoutingContext>`.
+- `TopazRelation` takes a name and an id, and `ResourceMethodInfo` is a record.
+- `@TopazCheck` always answers 401 to an anonymous caller.
+- A `CompletionStage` method counts as blocking, and cache keys are hashes.
+
 ## 6. Dev Services
 
 In `quarkus-topaz-deployment`, `@BuildSteps(onlyIf = {IsDevServicesSupportedByLaunchMode.class, DevServicesConfig.Enabled.class})`,
