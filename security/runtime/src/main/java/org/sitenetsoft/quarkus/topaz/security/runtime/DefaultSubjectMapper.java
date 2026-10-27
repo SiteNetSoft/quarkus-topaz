@@ -43,6 +43,16 @@ public class DefaultSubjectMapper implements SubjectMapper {
         }
     }
 
+    /**
+     * Report that this mapper never blocks.
+     *
+     * @return {@code false}
+     */
+    @Override
+    public boolean blocking() {
+        return false;
+    }
+
     private static boolean isJwtPresent() {
         try {
             Class.forName("org.eclipse.microprofile.jwt.JsonWebToken", false, DefaultSubjectMapper.class.getClassLoader());

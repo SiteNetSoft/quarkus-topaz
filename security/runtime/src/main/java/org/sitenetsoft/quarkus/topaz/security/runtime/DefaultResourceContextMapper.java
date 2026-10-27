@@ -45,4 +45,14 @@ public class DefaultResourceContextMapper implements ResourceContextMapper {
             return Uni.createFrom().failure(e);
         }
     }
+
+    /**
+     * Report that this mapper never blocks.
+     *
+     * @return {@code false}
+     */
+    @Override
+    public boolean blocking() {
+        return false;
+    }
 }

@@ -1,10 +1,20 @@
 package org.sitenetsoft.quarkus.topaz.security.runtime;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import org.sitenetsoft.quarkus.topaz.security.DecisionCache;
+import org.sitenetsoft.quarkus.topaz.security.IdentityMapper;
+import org.sitenetsoft.quarkus.topaz.security.PolicyPathMapper;
+import org.sitenetsoft.quarkus.topaz.security.ResourceContextMapper;
+import org.sitenetsoft.quarkus.topaz.security.ResourceMethodInfoResolver;
+import org.sitenetsoft.quarkus.topaz.security.SubjectMapper;
 
 import io.quarkus.runtime.BlockingOperationControl;
 import io.smallrye.mutiny.Uni;
@@ -15,8 +25,8 @@ import io.vertx.core.Vertx;
 /**
  * A dispatcher that runs the mapper calls of an enforcement point under the enforcement timeout.
  * <p>
- * Every enforcement point calls its mappers through {@link #run}. A mapper may block. The timeout bounds the whole
- * assembly, mappers included.
+ * Every enforcement point calls its mappers through {@link #run}. A mapper may block, unless it returns {@code false}
+ * from {@code blocking()}. The timeout bounds the whole assembly, mappers included.
  */
 @Singleton
 final class MapperDispatch {
@@ -52,26 +62,62 @@ final class MapperDispatch {
         BRIDGE_RELATION
     }
 
+    private static final String REST_RESOLVER = "org.sitenetsoft.quarkus.topaz.security.runtime.rest"
+            + ".RestResourceMethodInfoResolver";
+
     private final TopazEnforcementConfig config;
+    private final Set<Point> fastPath;
 
     /**
-     * Create the dispatcher.
+     * Create the dispatcher and decide which enforcement points run their mappers on the calling thread.
      *
      * @param config the enforcement configuration that holds the timeout
+     * @param identityMapper the identity mapper in use
+     * @param policyPathMapper the policy path mapper in use
+     * @param resourceContextMapper the resource context mapper in use
+     * @param subjectMapper the subject mapper in use
+     * @param cache the decision cache in use
+     * @param resolver the resource method resolver in use
      */
     @Inject
-    MapperDispatch(TopazEnforcementConfig config) {
+    MapperDispatch(TopazEnforcementConfig config, IdentityMapper identityMapper, PolicyPathMapper policyPathMapper,
+            ResourceContextMapper resourceContextMapper, SubjectMapper subjectMapper, DecisionCache cache,
+            ResourceMethodInfoResolver resolver) {
         this.config = config;
+        boolean identity = !identityMapper.blocking();
+        boolean path = !policyPathMapper.blocking();
+        boolean resource = !resourceContextMapper.blocking();
+        boolean subject = !subjectMapper.blocking();
+        boolean noCache = cache instanceof NoopDecisionCache;
+        // Referenced by name so this class never loads the REST resolver, which needs quarkus-rest on the classpath.
+        boolean builtInResolver = resolver instanceof NoopResourceMethodInfoResolver
+                || resolver.getClass().getName().equals(REST_RESOLVER);
+        Set<Point> points = EnumSet.noneOf(Point.class);
+        if (builtInResolver && path && identity && resource && noCache) {
+            points.add(Point.ROUTE);
+            points.add(Point.AUTHORIZE);
+        }
+        if (subject) {
+            points.add(Point.CHECK);
+            points.add(Point.BRIDGE_RELATION);
+        }
+        if (identity && noCache) {
+            points.add(Point.BRIDGE_DECISION);
+        }
+        this.fastPath = Collections.unmodifiableSet(points);
     }
 
     /**
      * Run the assembly of an enforcement point under the enforcement timeout.
      * <p>
-     * When the caller cannot block, the assembly runs on a worker thread through the current Vert.x context. The
-     * duplicated context then stays current on the worker. The item comes back on the caller's Vert.x context when
-     * there is one. When the caller may block, the assembly runs on the subscribing thread. The timeout still turns the
-     * result into a denial. Nothing interrupts a blocking assembly, so on a blocking method the 403 waits for it to
-     * return. A subscribing thread that may not block takes the worker hop even when the caller passes {@code true}.
+     * The subscribing thread picks one of three branches. When no component of the point blocks, the assembly runs on
+     * the subscribing thread. Otherwise, when the caller and the subscribing thread may both block, the assembly also
+     * runs on the subscribing thread. Otherwise the assembly runs on a worker thread through the current Vert.x
+     * context, so the duplicated context stays current on the worker.
+     * <p>
+     * The timeout turns a late result into a denial in every branch. Nothing interrupts an assembly that blocks on the
+     * subscribing thread, so on a blocking method the 403 waits for it to return. The item comes back on the
+     * subscriber's Vert.x context when there is one.
      *
      * @param <T> the item type
      * @param assembly the supplier that calls the mappers and returns the result
@@ -80,21 +126,19 @@ final class MapperDispatch {
      * @return the item of the assembly, or a {@link io.smallrye.mutiny.TimeoutException} failure on a timeout
      */
     <T> Uni<T> run(Supplier<Uni<T>> assembly, Point point, boolean callerMayBlock) {
-        if (callerMayBlock && BlockingOperationControl.isBlockingAllowed()) {
-            return Uni.createFrom().voidItem()
-                    .chain(assembly::get)
+        return Uni.createFrom().deferred(() -> {
+            Context context = Vertx.currentContext();
+            Uni<Void> start = Uni.createFrom().voidItem();
+            if (!fastPath.contains(point) && !(callerMayBlock && BlockingOperationControl.isBlockingAllowed())) {
+                start = start.emitOn(executor(context));
+            }
+            // The assembly runs after the subscription. The timeout is then armed while the mappers run, so it
+            // bounds a mapper that blocks or throws instead of emitting.
+            Uni<T> result = start.chain(assembly::get)
                     .ifNoItem().after(config.timeout()).fail();
-        }
-        Context context = Vertx.currentContext();
-        // The assembly runs on a worker after the subscription. The timeout is then armed while the mappers run,
-        // so it bounds a mapper that blocks or throws instead of emitting. A deferred supplier would run before the
-        // timer starts. On the event loop, a blocking mapper would also stop the timer.
-        Uni<T> result = Uni.createFrom().voidItem()
-                .emitOn(executor(context))
-                .chain(assembly::get)
-                .ifNoItem().after(config.timeout()).fail();
-        // A cache hit completes on the worker and a timeout on the timer thread. Resume on the caller's context.
-        return context == null ? result : result.emitOn(task -> context.runOnContext(v -> task.run()));
+            // A cache hit can complete on the worker and a timeout on the timer thread. Resume on the caller's context.
+            return context == null ? result : result.emitOn(task -> context.runOnContext(v -> task.run()));
+        });
     }
 
     // Blocking work runs through the current Vert.x context, so the duplicated context stays current on the worker.

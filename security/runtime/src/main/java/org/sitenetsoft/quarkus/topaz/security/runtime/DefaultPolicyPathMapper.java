@@ -48,6 +48,16 @@ public class DefaultPolicyPathMapper implements PolicyPathMapper {
         return PolicyPaths.of(root, request.request().method().name(), path);
     }
 
+    /**
+     * Report that this mapper never blocks.
+     *
+     * @return {@code false}
+     */
+    @Override
+    public boolean blocking() {
+        return false;
+    }
+
     // Before REST matching the path comes straight from the caller. A '.' would add Rego package segments, and a
     // segment starting with '__' or '{' would name a template policy, so the caller could pick the package.
     private static void checkRawSegments(String path) {
