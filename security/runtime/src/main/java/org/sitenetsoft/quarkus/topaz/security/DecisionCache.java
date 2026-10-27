@@ -9,6 +9,8 @@ import java.util.Optional;
  * resource context. They never contain the identity, a token or the resource in clear. They still identify a caller's
  * decision, so keep them private to the cache. The default caches nothing. Provide a CDI bean of this type to enable
  * caching. Only successful decisions are stored. Errors are never cached.
+ * <p>
+ * Threading: {@code get} and {@code put} can run on the event loop, so a cache must not block.
  */
 public interface DecisionCache {
 
