@@ -1,12 +1,18 @@
 = Quarkus Topaz
 include::./includes/attributes.adoc[]
 
-https://github.com/aserto-dev/topaz[Topaz] is an open-source authorizer: an OPA policy engine (Rego) next to a
-Zanzibar-style directory of objects and relations, both served over gRPC. This extension gives a Quarkus
-application a reactive client for both services, a Dev Service that starts a Topaz container seeded with your
-policies and data, a readiness health check and a Dev UI card. An optional security extension enforces Topaz
-decisions on HTTP routes and CDI bean methods, and an optional connector lets quarkus-zanzibar's annotations be
-answered by the Topaz Directory.
+https://github.com/aserto-dev/topaz[Topaz] is an open-source authorizer. It runs an OPA policy engine for Rego next
+to a Zanzibar-style directory of objects and relations. It serves both over gRPC.
+
+This extension gives a Quarkus application these parts:
+
+* A reactive client for both services.
+* A Dev Service that starts a Topaz container seeded with your policies and data.
+* A readiness health check.
+* A Dev UI card.
+
+An optional security extension enforces Topaz decisions on HTTP routes and CDI bean methods. An optional connector
+lets the Topaz directory answer the annotations of quarkus-zanzibar.
 
 The client talks to Topaz through the Vert.x gRPC client and Mutiny stubs generated from the pinned Topaz protos.
 It does not depend on the Aserto Java SDK.
@@ -20,11 +26,11 @@ It does not depend on the Aserto Java SDK.
 |`quarkus-topaz` |The client, the Dev Service, the health check and the Dev UI card.
 |`quarkus-topaz-security` |Enforcement: the `topaz` HTTP security policy, `@TopazAuthorize`, `@TopazCheck` and the
 `@PermissionsAllowed` bridge. Includes `quarkus-topaz`. See xref:security.adoc[Security].
-|`quarkus-topaz-zanzibar` |The quarkus-zanzibar `RelationshipManager` backed by the Topaz Directory. Includes
+|`quarkus-topaz-zanzibar` |The quarkus-zanzibar `RelationshipManager` backed by the Topaz directory. Includes
 `quarkus-topaz`. See xref:zanzibar-connector.adoc[Zanzibar connector].
 |===
 
-Add the runtime artifact; the deployment artifact is resolved by Quarkus.
+Add the runtime artifact. Quarkus resolves the deployment artifact.
 
 [source,xml,subs=attributes+]
 ----
@@ -37,8 +43,8 @@ Add the runtime artifact; the deployment artifact is resolved by Quarkus.
 
 == Quick start
 
-This is the todo application from this repository's `integration-tests` module, cut down to one endpoint. Put a
-policy, a directory manifest and seed data under `src/main/resources/topaz/` and point the Dev Service at them:
+This is the todo application from the `integration-tests` module of this repository, cut down to one endpoint. Put
+a policy, a directory manifest and seed data under `src/main/resources/topaz/`. Point the Dev Service at them:
 
 [source,properties]
 ----

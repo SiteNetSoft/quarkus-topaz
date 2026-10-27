@@ -1,10 +1,13 @@
 = Configuration reference
 
-Runtime properties configure the connection to Topaz. Properties marked with a lock are fixed at build time: the
-health check switch, the Dev Service settings, and the security `read-body` and `permissions.enabled` switches.
+Runtime properties configure the connection to Topaz. A lock marks the properties that Quarkus fixes at build time:
 
-`api-key`, `tls-configuration-name`, `plain-text` and `deadline` can be set once under `quarkus.topaz.*` and
-overridden per service under `quarkus.topaz.authorizer.*` or `quarkus.topaz.directory.*`.
+* The health check switch.
+* The Dev Service settings.
+* The security `read-body` and `permissions.enabled` switches.
+
+Set `api-key`, `tls-configuration-name`, `plain-text` and `deadline` once under `quarkus.topaz.*`. Override them per
+service under `quarkus.topaz.authorizer.*` or `quarkus.topaz.directory.*`.
 
 == Client, Dev Service and health
 
@@ -12,13 +15,13 @@ include::includes/quarkus-topaz.adoc[leveloffset=+1]
 
 == Security
 
-The `quarkus.topaz.enforcement.*` properties come from `quarkus-topaz-security`; see xref:security.adoc[Security].
+The `quarkus.topaz.enforcement.*` properties come from `quarkus-topaz-security`. See xref:security.adoc[Security].
 
 include::includes/quarkus-topaz-security.adoc[leveloffset=+1]
 
 == Zanzibar connector
 
-The `quarkus.topaz.zanzibar.*` property comes from `quarkus-topaz-zanzibar`; see
+The `quarkus.topaz.zanzibar.*` property comes from `quarkus-topaz-zanzibar`. See
 xref:zanzibar-connector.adoc[Zanzibar connector].
 
 include::includes/quarkus-topaz-zanzibar.adoc[leveloffset=+1]
