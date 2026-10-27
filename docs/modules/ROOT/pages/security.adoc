@@ -413,6 +413,9 @@ built-in cache that caches nothing. The `ResourceMethodInfoResolver` is free of 
 built-in resolvers. A custom cache or resolver therefore rules out the fast path only for the enforcement points whose
 row lists it.
 
+`DecisionCache.get` and `put` can run on the event loop, whether or not the mappers run on a worker thread. `put` runs
+on the thread that receives the Topaz answer. A custom cache must therefore not block.
+
 [cols="1,2"]
 |===
 |Enforcement point |Components
