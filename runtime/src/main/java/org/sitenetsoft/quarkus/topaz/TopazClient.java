@@ -18,8 +18,9 @@ import io.quarkus.tls.TlsConfiguration;
 import io.vertx.core.Vertx;
 
 /**
- * Entry point of the Topaz client API: reactive {@link #authorizer()} and {@link #directory()} clients and a
- * {@link #blocking()} view of both.
+ * Entry point of the Topaz client API.
+ * It offers the reactive {@link #authorizer()} and {@link #directory()} clients.
+ * It also offers a {@link #blocking()} view of both.
  */
 public final class TopazClient implements AutoCloseable {
 
@@ -39,30 +40,48 @@ public final class TopazClient implements AutoCloseable {
         this.ownedVertx = ownedVertx;
     }
 
-    /** Creates a builder with defaults: authorizer {@code localhost:8282}, directory {@code localhost:9292}. */
+    /**
+     * Create a builder with defaults.
+     * The authorizer defaults to {@code localhost:8282} and the directory to {@code localhost:9292}.
+     *
+     * @return a new builder
+     */
     public static Builder builder() {
         return new Builder();
     }
 
-    /** The reactive authorizer client. */
+    /**
+     * Get the reactive authorizer client.
+     *
+     * @return the reactive authorizer client
+     */
     public AuthorizerClient authorizer() {
         return authorizer;
     }
 
-    /** The reactive directory client. */
+    /**
+     * Get the reactive directory client.
+     *
+     * @return the reactive directory client
+     */
     public DirectoryClient directory() {
         return directory;
     }
 
-    /** A blocking view of the authorizer and directory clients. */
+    /**
+     * Get a blocking view of the authorizer and directory clients.
+     *
+     * @return the blocking view
+     */
     public BlockingTopazClient blocking() {
         return blocking;
     }
 
     /**
-     * Closes the channels this client created, and the Vert.x instance if the builder created it. Channels passed
-     * to {@link Builder#authorizerChannel} / {@link Builder#directoryChannel} belong to the caller and are not
-     * closed. Idempotent.
+     * Close the channels this client created, and the Vert.x instance if the builder created it.
+     * Channels passed to {@link Builder#authorizerChannel} and {@link Builder#directoryChannel} belong to the caller.
+     * This method does not close them.
+     * Calling it again has no effect.
      */
     @Override
     public void close() {
@@ -71,7 +90,12 @@ public final class TopazClient implements AutoCloseable {
         }
     }
 
-    /** The channel holders this client owns; exposed for tests. */
+    /**
+     * Get the channel holders this client owns.
+     * Tests use it.
+     *
+     * @return the channel holders
+     */
     List<ManagedChannelHolder> holders() {
         return holders;
     }
@@ -85,6 +109,9 @@ public final class TopazClient implements AutoCloseable {
         }
     }
 
+    /**
+     * Builder of {@link TopazClient}.
+     */
     public static final class Builder {
 
         private ResolvedServiceSettings authorizerSettings = defaults("localhost", 8282);
@@ -125,79 +152,149 @@ public final class TopazClient implements AutoCloseable {
                     s.plainText(), deadline);
         }
 
-        /** Sets the authorizer endpoint. */
+        /**
+         * Set the authorizer endpoint.
+         *
+         * @param host the host name
+         * @param port the port
+         * @return this builder
+         */
         public Builder authorizer(String host, int port) {
             authorizerSettings = withEndpoint(authorizerSettings, host, port);
             return this;
         }
 
-        /** Sets the directory endpoint. */
+        /**
+         * Set the directory endpoint.
+         *
+         * @param host the host name
+         * @param port the port
+         * @return this builder
+         */
         public Builder directory(String host, int port) {
             directorySettings = withEndpoint(directorySettings, host, port);
             return this;
         }
 
-        /** Applies to both services. */
+        /**
+         * Set whether both services use a plaintext connection.
+         *
+         * @param v {@code true} for plaintext, {@code false} to require TLS
+         * @return this builder
+         */
         public Builder plainText(boolean v) {
             authorizerSettings = withPlainText(authorizerSettings, Optional.of(v));
             directorySettings = withPlainText(directorySettings, Optional.of(v));
             return this;
         }
 
-        /** Applies to both services; sent as {@code authorization: basic <key>}. */
+        /**
+         * Set the API key of both services.
+         * The client sends it as {@code authorization: basic <key>}.
+         *
+         * @param k the API key, or {@code null} for none
+         * @return this builder
+         */
         public Builder apiKey(String k) {
             authorizerSettings = withApiKey(authorizerSettings, Optional.ofNullable(k));
             directorySettings = withApiKey(directorySettings, Optional.ofNullable(k));
             return this;
         }
 
-        /** Sent as {@code aserto-tenant-id} together with the API key. */
+        /**
+         * Set the tenant id.
+         * The client sends it as {@code aserto-tenant-id} together with the API key.
+         *
+         * @param t the tenant id, or {@code null} for none
+         * @return this builder
+         */
         public Builder tenantId(String t) {
             tenantId = Optional.ofNullable(t);
             return this;
         }
 
-        /** Per-call deadline for both services; also bounds the blocking facade's wait. */
+        /**
+         * Set the per-call deadline of both services.
+         * The deadline also bounds the wait of the blocking view.
+         *
+         * @param d the deadline, or {@code null} for none
+         * @return this builder
+         */
         public Builder deadline(Duration d) {
             authorizerSettings = withDeadline(authorizerSettings, Optional.ofNullable(d));
             directorySettings = withDeadline(directorySettings, Optional.ofNullable(d));
             return this;
         }
 
-        /** TLS configuration for both services. */
+        /**
+         * Set the TLS configuration of both services.
+         *
+         * @param tls the TLS configuration, or {@code null} for none
+         * @return this builder
+         */
         public Builder tlsConfiguration(TlsConfiguration tls) {
             this.authorizerTls = Optional.ofNullable(tls);
             this.directoryTls = this.authorizerTls;
             return this;
         }
 
-        /** Vert.x instance to create channels with; not closed by {@link TopazClient#close()}. */
+        /**
+         * Set the Vert.x instance that creates the channels.
+         * {@link TopazClient#close()} does not close it.
+         *
+         * @param vertx the Vert.x instance
+         * @return this builder
+         */
         public Builder vertx(Vertx vertx) {
             this.vertx = vertx;
             return this;
         }
 
-        /** Extra interceptors, applied after the API key interceptor. */
+        /**
+         * Set extra interceptors.
+         * The client applies them after the API key interceptor.
+         *
+         * @param extra the interceptors
+         * @return this builder
+         */
         public Builder interceptors(List<ClientInterceptor> extra) {
             this.interceptors = List.copyOf(extra);
             return this;
         }
 
-        /** Uses this channel for the authorizer instead of creating one; the caller keeps ownership. */
+        /**
+         * Use this channel for the authorizer instead of creating one.
+         * The caller keeps ownership of the channel.
+         *
+         * @param ch the channel
+         * @return this builder
+         */
         public Builder authorizerChannel(Channel ch) {
             this.authorizerChannel = ch;
             return this;
         }
 
-        /** Uses this channel for the directory instead of creating one; the caller keeps ownership. */
+        /**
+         * Use this channel for the directory instead of creating one.
+         * The caller keeps ownership of the channel.
+         *
+         * @param ch the channel
+         * @return this builder
+         */
         public Builder directoryChannel(Channel ch) {
             this.directoryChannel = ch;
             return this;
         }
 
         /**
-         * Internal: used by the extension's recorder. Not API. Replaces both services' settings and their TLS
-         * configurations at once.
+         * Replace the settings and the TLS configurations of both services at once.
+         * This method is internal to the extension recorder and is not API.
+         *
+         * @param authorizer the settings of the authorizer
+         * @param authorizerTls the TLS configuration of the authorizer
+         * @param directory the settings of the directory
+         * @param directoryTls the TLS configuration of the directory
+         * @return this builder
          */
         public Builder settings(ResolvedServiceSettings authorizer, Optional<TlsConfiguration> authorizerTls,
                 ResolvedServiceSettings directory, Optional<TlsConfiguration> directoryTls) {
@@ -208,7 +305,12 @@ public final class TopazClient implements AutoCloseable {
             return this;
         }
 
-        /** Builds the client. Channels created here are closed by {@link TopazClient#close()}. */
+        /**
+         * Build the client.
+         * {@link TopazClient#close()} closes the channels created here.
+         *
+         * @return the client
+         */
         public TopazClient build() {
             List<ManagedChannelHolder> holders = new ArrayList<>();
             Vertx owned = null;

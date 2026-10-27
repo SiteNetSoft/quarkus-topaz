@@ -46,7 +46,9 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 /**
- * Reactive client of the Topaz directory services (reader, writer, model, importer, exporter).
+ * Reactive client of the Topaz directory services: reader, writer, model, importer and exporter.
+ * Every call applies the configured deadline, if any.
+ * A failed call fails the returned {@link Uni} or {@link Multi} with a {@link io.grpc.StatusRuntimeException}.
  */
 public final class DirectoryClient {
 
@@ -60,6 +62,12 @@ public final class DirectoryClient {
     private final MutinyExporterGrpc.MutinyExporterStub exporter;
     private final Optional<Duration> deadline;
 
+    /**
+     * Create a client.
+     *
+     * @param channel the channel to the directory services
+     * @param deadline the deadline of each call, if any
+     */
     DirectoryClient(Channel channel, Optional<Duration> deadline) {
         this.reader = MutinyReaderGrpc.newMutinyStub(channel);
         this.writer = MutinyWriterGrpc.newMutinyStub(channel);
@@ -69,6 +77,11 @@ public final class DirectoryClient {
         this.deadline = deadline;
     }
 
+    /**
+     * Get the configured deadline.
+     *
+     * @return the deadline, if any
+     */
     Optional<Duration> deadline() {
         return deadline;
     }
@@ -77,55 +90,88 @@ public final class DirectoryClient {
         return deadline.map(d -> stub.withDeadlineAfter(d.toMillis(), TimeUnit.MILLISECONDS)).orElse(stub);
     }
 
-    /**
-     * Defers stub acquisition to subscription time, so each subscription (including retries and late
-     * subscriptions) gets a deadline that starts when the call is actually made. The deadline is also enforced
-     * here with a Mutiny timeout: the gRPC deadline alone does not end a call on a connection that never
-     * completes its HTTP/2 handshake.
-     */
+    // Defer stub acquisition to subscription time.
+    // Each subscription, including a retry or a late one, then gets a deadline that starts when the call is made.
+    // A Mutiny timeout enforces the deadline too, because the gRPC deadline alone does not end a call
+    // on a connection that never completes its HTTP/2 handshake.
     private <S, T> Uni<T> uni(java.util.function.Supplier<S> stub, Function<S, Uni<T>> f) {
         Uni<T> call = Uni.createFrom().deferred(() -> f.apply(stub.get()));
         return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
     }
 
-    /** Same as {@link #uni}; for a stream the guard is an inactivity timeout between items, not a first-item timeout. */
+    // Same as uni(). For a stream the guard is an inactivity timeout between items, not a first-item timeout.
     private <S, T> Multi<T> multi(java.util.function.Supplier<S> stub, Function<S, Multi<T>> f) {
         Multi<T> call = Multi.createFrom().deferred(() -> f.apply(stub.get()));
         return deadline.map(d -> call.ifNoItem().after(d).failWith(() -> deadlineExceeded(d))).orElse(call);
     }
 
+    /**
+     * Create the failure for an exceeded deadline.
+     *
+     * @param deadline the deadline that passed
+     * @return a {@code DEADLINE_EXCEEDED} {@link io.grpc.StatusRuntimeException}
+     */
     static Throwable deadlineExceeded(Duration deadline) {
         return Status.DEADLINE_EXCEEDED
                 .withDescription("Topaz call exceeded the configured deadline of " + deadline).asRuntimeException();
     }
 
-    /** The raw reader stub, with the configured deadline (if any) starting now; likewise for the others. */
+    /**
+     * Get the raw reader stub, with the configured deadline, if any, starting now.
+     *
+     * @return the raw reader stub
+     */
     public MutinyReaderGrpc.MutinyReaderStub reader() {
         return withDeadline(reader);
     }
 
-    /** The raw writer stub, with the configured deadline (if any) starting now. */
+    /**
+     * Get the raw writer stub, with the configured deadline, if any, starting now.
+     *
+     * @return the raw writer stub
+     */
     public MutinyWriterGrpc.MutinyWriterStub writer() {
         return withDeadline(writer);
     }
 
-    /** The raw model stub, with the configured deadline (if any) starting now. */
+    /**
+     * Get the raw model stub, with the configured deadline, if any, starting now.
+     *
+     * @return the raw model stub
+     */
     public MutinyModelGrpc.MutinyModelStub model() {
         return withDeadline(model);
     }
 
-    /** The raw importer stub, with the configured deadline (if any) starting now. */
+    /**
+     * Get the raw importer stub, with the configured deadline, if any, starting now.
+     *
+     * @return the raw importer stub
+     */
     public MutinyImporterGrpc.MutinyImporterStub importer() {
         return withDeadline(importer);
     }
 
-    /** The raw exporter stub, with the configured deadline (if any) starting now. */
+    /**
+     * Get the raw exporter stub, with the configured deadline, if any, starting now.
+     *
+     * @return the raw exporter stub
+     */
     public MutinyExporterGrpc.MutinyExporterStub exporter() {
         return withDeadline(exporter);
     }
 
     /**
-     * Calls the directory reader {@code Check} RPC; emits the check result, failing with a {@link io.grpc.StatusRuntimeException} on any error, never a default {@code true}.
+     * Call the directory reader {@code Check} RPC.
+     * The call fails closed.
+     * An error fails with a {@link io.grpc.StatusRuntimeException} and never yields a default {@code true}.
+     *
+     * @param objectType the object type
+     * @param objectId the object id
+     * @param relation the relation name
+     * @param subjectType the subject type
+     * @param subjectId the subject id
+     * @return the check result
      */
     public Uni<Boolean> check(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
@@ -135,32 +181,65 @@ public final class DirectoryClient {
                 .build())).map(CheckResponse::getCheck);
     }
 
-    /** Runs several checks in one call; results are in request order. */
+    /**
+     * Run several checks in one call.
+     *
+     * @param checks the checks to run
+     * @return the results, in request order
+     */
     public Uni<List<Boolean>> checks(List<CheckRequest> checks) {
         return uni(this::reader, s -> s.checks(ChecksRequest.newBuilder().addAllChecks(checks).build()))
                 .map(r -> r.getChecksList().stream().map(CheckResponse::getCheck).toList());
     }
 
-    /** Calls the directory reader {@code GetObject} RPC. */
+    /**
+     * Call the directory reader {@code GetObject} RPC.
+     *
+     * @param type the object type
+     * @param id the object id
+     * @return the object
+     */
     public Uni<aserto.directory.common.v3.Object> getObject(String type, String id) {
         return uni(this::reader, s -> s.getObject(GetObjectRequest.newBuilder().setObjectType(type).setObjectId(id).build()))
                 .map(GetObjectResponse::getResult);
     }
 
-    /** Calls the directory writer {@code SetObject} RPC and emits the stored object. */
+    /**
+     * Call the directory writer {@code SetObject} RPC.
+     *
+     * @param o the object to store
+     * @return the stored object
+     */
     public Uni<aserto.directory.common.v3.Object> setObject(aserto.directory.common.v3.Object o) {
         return uni(this::writer, s -> s.setObject(SetObjectRequest.newBuilder().setObject(o).build()))
                 .map(SetObjectResponse::getResult);
     }
 
-    /** Calls the directory writer {@code DeleteObject} RPC, optionally deleting the object's relations too. */
+    /**
+     * Call the directory writer {@code DeleteObject} RPC.
+     * It can delete the relations of the object too.
+     *
+     * @param type the object type
+     * @param id the object id
+     * @param withRelations whether to delete the relations of the object too
+     * @return a {@link Uni} that completes when the object is deleted
+     */
     public Uni<Void> deleteObject(String type, String id, boolean withRelations) {
         return uni(this::writer, s -> s.deleteObject(DeleteObjectRequest.newBuilder()
                 .setObjectType(type).setObjectId(id).setWithRelations(withRelations).build()))
                 .replaceWithVoid();
     }
 
-    /** Calls the directory reader {@code GetRelation} RPC. */
+    /**
+     * Call the directory reader {@code GetRelation} RPC.
+     *
+     * @param objectType the object type
+     * @param objectId the object id
+     * @param relation the relation name
+     * @param subjectType the subject type
+     * @param subjectId the subject id
+     * @return the relation
+     */
     public Uni<Relation> getRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
         return uni(this::reader, s -> s.getRelation(GetRelationRequest.newBuilder()
@@ -169,13 +248,27 @@ public final class DirectoryClient {
                 .build())).map(GetRelationResponse::getResult);
     }
 
-    /** Calls the directory writer {@code SetRelation} RPC and emits the stored relation. */
+    /**
+     * Call the directory writer {@code SetRelation} RPC.
+     *
+     * @param r the relation to store
+     * @return the stored relation
+     */
     public Uni<Relation> setRelation(Relation r) {
         return uni(this::writer, s -> s.setRelation(SetRelationRequest.newBuilder().setRelation(r).build()))
                 .map(SetRelationResponse::getResult);
     }
 
-    /** Calls the directory writer {@code DeleteRelation} RPC. */
+    /**
+     * Call the directory writer {@code DeleteRelation} RPC.
+     *
+     * @param objectType the object type
+     * @param objectId the object id
+     * @param relation the relation name
+     * @param subjectType the subject type
+     * @param subjectId the subject id
+     * @return a {@link Uni} that completes when the relation is deleted
+     */
     public Uni<Void> deleteRelation(String objectType, String objectId, String relation, String subjectType,
             String subjectId) {
         return uni(this::writer, s -> s.deleteRelation(DeleteRelationRequest.newBuilder()
@@ -184,7 +277,13 @@ public final class DirectoryClient {
                 .build())).replaceWithVoid();
     }
 
-    /** The manifest YAML: the UTF-8 decoding of all {@code Body} chunks; metadata/model messages are ignored. */
+    /**
+     * Get the manifest YAML.
+     * The YAML is the UTF-8 decoding of all {@code Body} chunks.
+     * The call ignores metadata and model messages.
+     *
+     * @return the manifest YAML
+     */
     public Uni<String> getManifest() {
         return multi(this::model, s -> s.getManifest(GetManifestRequest.getDefaultInstance()))
                 .filter(GetManifestResponse::hasBody)
@@ -193,7 +292,13 @@ public final class DirectoryClient {
                 .map(chunks -> ByteString.copyFrom(chunks).toString(StandardCharsets.UTF_8));
     }
 
-    /** Uploads the manifest YAML in {@code Body} chunks of at most 64 KiB (one chunk for small manifests). */
+    /**
+     * Upload the manifest YAML in {@code Body} chunks of at most 64 KiB.
+     * A small manifest travels in one chunk.
+     *
+     * @param yaml the manifest YAML
+     * @return a {@link Uni} that completes when the upload ends
+     */
     public Uni<Void> setManifest(String yaml) {
         byte[] bytes = yaml.getBytes(StandardCharsets.UTF_8);
         List<SetManifestRequest> requests = new ArrayList<>();
@@ -208,20 +313,34 @@ public final class DirectoryClient {
         return uni(this::model, s -> s.setManifest(Multi.createFrom().iterable(requests))).replaceWithVoid();
     }
 
-    /** Calls the directory model {@code DeleteManifest} RPC. */
+    /**
+     * Call the directory model {@code DeleteManifest} RPC.
+     *
+     * @return a {@link Uni} that completes when the manifest is deleted
+     */
     public Uni<Void> deleteManifest() {
         return uni(this::model, s -> s.deleteManifest(DeleteManifestRequest.getDefaultInstance())).replaceWithVoid();
     }
 
     /**
-     * Streams {@code requests} to the importer and sums the counters it reports. Typed {@code counter} messages
-     * (oneof {@code msg}) are preferred; the deprecated {@code object}/{@code relation} fields are used only if
-     * no typed counter was received, so a server sending both is not double counted.
+     * Stream {@code requests} to the importer and sum the counters it reports.
+     * The sum prefers the typed {@code counter} messages, which are the {@code msg} oneof.
+     * It uses the deprecated {@code object} and {@code relation} fields only if no typed counter arrived.
+     * A server that sends both is therefore not double counted.
+     *
+     * @param requests the import requests
+     * @return the import totals
      */
     public Uni<ImportSummary> importData(Multi<ImportRequest> requests) {
         return multi(this::importer, s -> s.import_(requests)).collect().asList().map(DirectoryClient::summarise);
     }
 
+    /**
+     * Sum the counters of the importer responses.
+     *
+     * @param responses the importer responses
+     * @return the import totals
+     */
     static ImportSummary summarise(List<ImportResponse> responses) {
         long objectsSet = 0, objectsDeleted = 0, relationsSet = 0, relationsDeleted = 0;
         List<String> errors = new ArrayList<>();
@@ -257,7 +376,12 @@ public final class DirectoryClient {
         return new ImportSummary(objectsSet, objectsDeleted, relationsSet, relationsDeleted, errors);
     }
 
-    /** Calls the directory exporter {@code Export} RPC and streams its responses. */
+    /**
+     * Call the directory exporter {@code Export} RPC.
+     *
+     * @param r the export request
+     * @return the stream of export responses
+     */
     public Multi<ExportResponse> export(ExportRequest r) {
         return multi(this::exporter, s -> s.export(r));
     }

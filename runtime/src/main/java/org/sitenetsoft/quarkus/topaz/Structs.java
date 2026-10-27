@@ -8,16 +8,25 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 
 /**
- * Builds protobuf {@link Struct}/{@link Value} instances from plain Java values: {@code String}, {@code Number}
- * (converted to {@code double}), {@code Boolean}, {@code null}, {@code Map} (keys converted with
- * {@code String.valueOf}), {@code Iterable}, and already-built {@code Value}/{@code Struct}/{@code ListValue}.
+ * Builder of protobuf {@link Struct} and {@link Value} instances from plain Java values.
+ * It accepts {@code String}, {@code Boolean}, {@code null} and {@code Iterable}.
+ * It converts a {@code Number} to {@code double}.
+ * It converts a {@code Map} and converts its keys with {@code String.valueOf}.
+ * It also accepts an already built {@code Value}, {@code Struct} or {@code ListValue}.
  */
 public final class Structs {
 
     private Structs() {
     }
 
-    /** Converts a map to a {@link Struct}; {@code null} yields an empty struct. */
+    /**
+     * Convert a map to a {@link Struct}.
+     * A {@code null} map yields an empty struct.
+     *
+     * @param map the map to convert
+     * @return the struct
+     * @throws IllegalArgumentException if a value has an unsupported type
+     */
     public static Struct of(Map<String, ?> map) {
         if (map == null) {
             return Struct.getDefaultInstance();
@@ -26,8 +35,13 @@ public final class Structs {
     }
 
     /**
-     * Converts a Java value (null, String, Boolean, Number, Map, Iterable, Struct, ListValue or Value) to a protobuf
-     * {@link Value}. Other types throw {@link IllegalArgumentException}.
+     * Convert a Java value to a protobuf {@link Value}.
+     * The value is null, String, Boolean, Number, Map, Iterable, Struct, ListValue or Value.
+     * Other types throw {@link IllegalArgumentException}.
+     *
+     * @param o the value to convert
+     * @return the protobuf value
+     * @throws IllegalArgumentException if the type is unsupported
      */
     public static Value value(Object o) {
         if (o == null) {

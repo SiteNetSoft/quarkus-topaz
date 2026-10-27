@@ -24,15 +24,31 @@ import io.quarkus.tls.TlsConfiguration;
 import io.quarkus.tls.TlsConfigurationRegistry;
 import io.vertx.core.Vertx;
 
+/**
+ * Recorder that creates the Topaz client beans at run time.
+ */
 @Recorder
 public class TopazRecorder {
 
     private final RuntimeValue<TopazConfig> runtimeConfig;
 
+    /**
+     * Create the recorder.
+     *
+     * @param runtimeConfig the run-time configuration
+     */
     public TopazRecorder(RuntimeValue<TopazConfig> runtimeConfig) {
         this.runtimeConfig = runtimeConfig;
     }
 
+    /**
+     * Create the Topaz client and register its shutdown.
+     *
+     * @param vertx the Vert.x instance
+     * @param tls supplier of the TLS configuration registry
+     * @param shutdown the shutdown context that closes the client
+     * @return the client
+     */
     public RuntimeValue<TopazClient> createClient(RuntimeValue<Vertx> vertx, Supplier<TlsConfigurationRegistry> tls,
             ShutdownContext shutdown) {
         TopazConfig config = runtimeConfig.getValue();
@@ -52,10 +68,22 @@ public class TopazRecorder {
         return new RuntimeValue<>(client);
     }
 
+    /**
+     * Get the authorizer client of a Topaz client.
+     *
+     * @param client the Topaz client
+     * @return the authorizer client
+     */
     public RuntimeValue<AuthorizerClient> authorizer(RuntimeValue<TopazClient> client) {
         return new RuntimeValue<>(client.getValue().authorizer());
     }
 
+    /**
+     * Get the directory client of a Topaz client.
+     *
+     * @param client the Topaz client
+     * @return the directory client
+     */
     public RuntimeValue<DirectoryClient> directory(RuntimeValue<TopazClient> client) {
         return new RuntimeValue<>(client.getValue().directory());
     }
@@ -76,8 +104,8 @@ public class TopazRecorder {
         if (named.isPresent()) {
             return named;
         }
-        // The registry default is used only if it is usable (trust store or trust-all); otherwise TLS, when
-        // required by plain-text=false, falls back to the JVM default trust in TopazChannels.
+        // Use the registry default only if it has a trust store or trusts all.
+        // Otherwise TLS, if plain-text=false requires it, falls back to the JVM default trust in TopazChannels.
         Optional<TlsConfiguration> def = registry.getDefault();
         return usable(def) ? def : Optional.empty();
     }
@@ -87,12 +115,18 @@ public class TopazRecorder {
     }
 
     /**
-     * Applies Quarkus gRPC's global client interceptors. They are resolved on first call because the interceptor
-     * storage bean is not initialized yet while this recorder runs.
+     * Interceptor that applies the global client interceptors of Quarkus gRPC.
+     * It resolves them on the first call, because the interceptor storage bean is not initialized while this
+     * recorder runs.
      */
     static final class LazyGlobalInterceptors implements ClientInterceptor {
         private volatile List<ClientInterceptor> resolved;
 
+        /** Create an interceptor that has not resolved the global interceptors yet. */
+        LazyGlobalInterceptors() {
+        }
+
+        /** {@inheritDoc} */
         @Override
         public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
                 CallOptions options, Channel next) {
@@ -104,7 +138,7 @@ public class TopazRecorder {
                     list = container.get().getSortedGlobalInterceptors();
                     resolved = list;
                 } else {
-                    // Not available yet: no global interceptors for this call, retry on the next one.
+                    // Not available yet. Apply no global interceptors to this call and retry on the next one.
                     list = List.of();
                 }
             }

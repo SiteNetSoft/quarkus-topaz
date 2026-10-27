@@ -18,24 +18,37 @@ import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.mutiny.Uni;
 
 /**
- * Readiness check: the authorizer answers {@code info} and the directory answers {@code getManifest}
- * (a directory without a manifest, NOT_FOUND, is still reachable).
+ * Readiness check of Topaz.
+ * It is ready when the authorizer answers {@code info} and the directory answers {@code getManifest}.
+ * A directory without a manifest answers NOT_FOUND and still counts as reachable.
  */
 @Readiness
 @ApplicationScoped
 public class TopazHealthCheck implements AsyncHealthCheck {
+
+    /** Create the health check. The container injects its fields. */
+    public TopazHealthCheck() {
+    }
 
     /**
      * The time Topaz has to answer a health probe before the probe fails.
      */
     public static final Duration HEALTH_TIMEOUT = Duration.ofSeconds(10);
 
+    /** The Topaz client that probes the services. */
     @Inject
     TopazClient client;
 
+    /** The configuration that names the services. */
     @Inject
     TopazConfig config;
 
+    /**
+     * Probe the authorizer and the directory.
+     * The response is down if Topaz does not answer within {@link #HEALTH_TIMEOUT} or fails.
+     *
+     * @return the readiness response
+     */
     @Override
     public Uni<HealthCheckResponse> call() {
         try {

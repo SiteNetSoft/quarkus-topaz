@@ -13,21 +13,31 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 
 /**
- * Adds the Topaz API key ({@code authorization: basic <key>}) and optional tenant id to outgoing calls.
+ * Client interceptor that adds the Topaz API key and the optional tenant id to outgoing calls.
+ * The API key travels as {@code authorization: basic <key>}.
  */
 final class ApiKeyClientInterceptor implements ClientInterceptor {
 
+    /** Metadata key of the API key header. */
     static final Metadata.Key<String> AUTHORIZATION = Metadata.Key.of("authorization", ASCII_STRING_MARSHALLER);
+    /** Metadata key of the tenant id header. */
     static final Metadata.Key<String> TENANT_ID = Metadata.Key.of("aserto-tenant-id", ASCII_STRING_MARSHALLER);
 
     private final String authorization;
     private final Optional<String> tenantId;
 
+    /**
+     * Create an interceptor.
+     *
+     * @param apiKey the API key, never {@code null}
+     * @param tenantId the tenant id to send, if any
+     */
     ApiKeyClientInterceptor(String apiKey, Optional<String> tenantId) {
         this.authorization = "basic " + java.util.Objects.requireNonNull(apiKey, "apiKey");
         this.tenantId = tenantId;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
             CallOptions callOptions, Channel next) {
