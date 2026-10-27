@@ -22,15 +22,33 @@ import io.grpc.StatusRuntimeException;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 
+/**
+ * Todo endpoints that call the Topaz client directly.
+ */
 @Path("/todos/{id}")
 @Produces(MediaType.APPLICATION_JSON)
 public class TodoResource {
 
+    /** The policy path that decides whether a user can delete a todo. */
     static final String DELETE_POLICY = "todoApp.DELETE.todos.__id";
 
+    /** The Topaz client. */
     @Inject
     TopazClient topaz;
 
+    /**
+     * Create the resource.
+     */
+    public TodoResource() {
+    }
+
+    /**
+     * Ask the authorizer whether a user can delete a todo.
+     *
+     * @param id the todo id
+     * @param user the user id
+     * @return {@code allowed}, or 400 without a user, or 403 when Topaz rejects the identity
+     */
     @GET
     @Path("can-delete")
     public Uni<RestResponse<Map<String, Object>>> canDelete(@PathParam("id") String id, @QueryParam("user") String user) {
@@ -40,7 +58,7 @@ public class TodoResource {
         }
         return topaz.authorizer().isAllowed(subject(user), DELETE_POLICY, "allowed", Map.of("id", id))
                 .map(allowed -> RestResponse.ok(Map.<String, Object> of("allowed", allowed)))
-                // Topaz rejects identities it cannot resolve; surface that as 403 with the gRPC status code
+                // Topaz rejects identities it cannot resolve. Answer 403 with the gRPC status code.
                 .onFailure(StatusRuntimeException.class)
                 .recoverWithItem(e -> {
                     var status = ((StatusRuntimeException) e).getStatus();
@@ -50,6 +68,13 @@ public class TodoResource {
                 });
     }
 
+    /**
+     * Check whether a user owns a todo.
+     *
+     * @param id the todo id
+     * @param user the user id
+     * @return {@code owner}, true when the user owns the todo
+     */
     @GET
     @Path("owner/{user}")
     public Uni<Map<String, Boolean>> isOwner(@PathParam("id") String id, @PathParam("user") String user) {
@@ -57,6 +82,13 @@ public class TodoResource {
                 .map(owner -> Map.of("owner", owner));
     }
 
+    /**
+     * Make a user the owner of a todo.
+     *
+     * @param id the todo id
+     * @param user the user id
+     * @return completion of the Directory write
+     */
     @POST
     @Path("owner/{user}")
     public Uni<Void> setOwner(@PathParam("id") String id, @PathParam("user") String user) {

@@ -21,20 +21,34 @@ import io.quarkus.security.identity.SecurityIdentityAugmentor;
 import io.quarkus.vertx.http.runtime.security.HttpSecurityPolicy;
 
 /**
- * Guarded by the interceptors instead of the route policy ({@code /annotated} is outside its paths).
+ * Todo endpoints guarded by the Topaz annotations instead of the route policy.
+ * The path {@code /annotated} is outside the policy paths.
  */
 @Path("/annotated")
 @Produces(MediaType.APPLICATION_JSON)
 public class AnnotatedTodoResource {
 
+    /** The installed identity augmentors. */
     @Inject
     @Any
     Instance<SecurityIdentityAugmentor> augmentors;
 
+    /** The installed HTTP security policies. */
     @Inject
     @Any
     Instance<HttpSecurityPolicy> policies;
 
+    /**
+     * Create the resource.
+     */
+    public AnnotatedTodoResource() {
+    }
+
+    /**
+     * List the todos, allowed by the policy path {@code todoApp.GET.todos}.
+     *
+     * @return the todo ids
+     */
     @GET
     @Path("todos")
     @TopazAuthorize(path = "todoApp.GET.todos")
@@ -42,16 +56,25 @@ public class AnnotatedTodoResource {
         return List.of("todo-1");
     }
 
+    /**
+     * Delete a todo, allowed when the caller has the {@code owner} relation on it.
+     *
+     * @param id the todo id
+     */
     @DELETE
     @Path("todos/{id}")
     @TopazCheck(objectType = "todo", relation = "owner")
     public void delete(@TopazObjectId @PathParam("id") String id) {
-        // no-op: the test asserts the authorization outcome, not the deletion
+        // No-op. The test asserts the authorization outcome, not the deletion.
     }
 
     /**
-     * Test-only, unauthenticated introspection endpoint: the bean classes of the installed augmentors and HTTP security
-     * policies, so tests (including the native IT, which cannot use Arc) can assert which are present.
+     * Report the bean classes of the installed augmentors and HTTP security policies.
+     * <p>
+     * This endpoint is for tests and needs no authentication.
+     * Tests, including the native IT that cannot use Arc, use it to assert which beans are present.
+     *
+     * @return the sorted class names, under the keys {@code augmentors} and {@code policies}
      */
     @GET
     @Path("augmentors")
@@ -59,6 +82,12 @@ public class AnnotatedTodoResource {
         return Map.of("augmentors", beanClasses(augmentors), "policies", beanClasses(policies));
     }
 
+    /**
+     * Get the sorted class names of the beans in an instance.
+     *
+     * @param beans the instance to read
+     * @return the sorted class names
+     */
     private static List<String> beanClasses(Instance<?> beans) {
         return beans.handlesStream().map(h -> h.getBean().getBeanClass().getName()).sorted().toList();
     }

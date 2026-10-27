@@ -21,14 +21,31 @@ import io.quarkiverse.zanzibar.annotations.FGARelation;
 import io.quarkiverse.zanzibar.annotations.FGAUserType;
 import io.smallrye.mutiny.Uni;
 
+/**
+ * Todo endpoints guarded by the Quarkus Zanzibar annotations.
+ * The filter checks each relation through the Topaz relationship manager.
+ */
 @Path("/fga/todos")
 @ApplicationScoped
 @FGAUserType("user")
 public class FgaTodoResource {
 
+    /** The relationship manager, backed by the Topaz Directory. */
     @Inject
     RelationshipManager manager;
 
+    /**
+     * Create the resource.
+     */
+    public FgaTodoResource() {
+    }
+
+    /**
+     * Get a todo, allowed for an owner.
+     *
+     * @param id the todo id
+     * @return the todo id
+     */
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,6 +55,12 @@ public class FgaTodoResource {
         return Map.of("id", id);
     }
 
+    /**
+     * Delete a todo, allowed when the caller has the {@code can_delete} relation.
+     *
+     * @param id the todo id
+     * @return an empty 204 response
+     */
     @DELETE
     @Path("/{id}")
     @FGAPathObject(param = "id", type = "todo")
@@ -46,6 +69,13 @@ public class FgaTodoResource {
         return Response.noContent().build();
     }
 
+    /**
+     * Make a user an owner of a todo, allowed for an owner.
+     *
+     * @param id the todo id
+     * @param user the user id
+     * @return an empty 204 response
+     */
     @PUT
     @Path("/{id}/owners/{user}")
     @FGAPathObject(param = "id", type = "todo")
@@ -55,6 +85,13 @@ public class FgaTodoResource {
                 .map(v -> Response.noContent().build());
     }
 
+    /**
+     * Remove an owner from a todo, allowed for an owner.
+     *
+     * @param id the todo id
+     * @param user the user id
+     * @return an empty 204 response
+     */
     @DELETE
     @Path("/{id}/owners/{user}")
     @FGAPathObject(param = "id", type = "todo")
