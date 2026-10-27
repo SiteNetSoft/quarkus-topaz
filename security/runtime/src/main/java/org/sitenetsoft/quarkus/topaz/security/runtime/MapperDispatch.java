@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import io.quarkus.runtime.BlockingOperationControl;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.core.Context;
@@ -70,16 +71,16 @@ final class MapperDispatch {
      * duplicated context then stays current on the worker. The item comes back on the caller's Vert.x context when
      * there is one. When the caller may block, the assembly runs on the subscribing thread. The timeout still turns the
      * result into a denial. Nothing interrupts a blocking assembly, so on a blocking method the 403 waits for it to
-     * return.
+     * return. A subscribing thread that may not block takes the worker hop even when the caller passes {@code true}.
      *
      * @param <T> the item type
      * @param assembly the supplier that calls the mappers and returns the result
      * @param point the enforcement point that calls the mappers
-     * @param callerMayBlock whether the subscribing thread may block
+     * @param callerMayBlock whether the caller allows the assembly to run on the subscribing thread
      * @return the item of the assembly, or a {@link io.smallrye.mutiny.TimeoutException} failure on a timeout
      */
     <T> Uni<T> run(Supplier<Uni<T>> assembly, Point point, boolean callerMayBlock) {
-        if (callerMayBlock) {
+        if (callerMayBlock && BlockingOperationControl.isBlockingAllowed()) {
             return Uni.createFrom().voidItem()
                     .chain(assembly::get)
                     .ifNoItem().after(config.timeout()).fail();

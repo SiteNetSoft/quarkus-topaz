@@ -73,14 +73,14 @@ public class TopazAuthorizeInterceptor {
         Uni<SecurityIdentity> identity = support.identity();
         Object[] args = ctx.getParameters();
         Method method = ctx.getMethod();
-        boolean callerMayBlock = InterceptorSupport.blockingDispatch(method);
         // failClosed covers the identity lookup too: a failing or hanging identity denies within the timeout
         Uni<Void> check = InterceptorSupport.failClosed(identity.chain(id -> {
             if (id.isAnonymous() && config.anonymous() == TopazEnforcementConfig.Anonymous.DENY) {
                 return Uni.createFrom().failure(new UnauthorizedException());
             }
+            // the inline assembly runs on this thread, so this thread decides whether it may block
             return dispatch.run(() -> authorize(binding, id, request, method, args), MapperDispatch.Point.AUTHORIZE,
-                    callerMayBlock);
+                    InterceptorSupport.blockingDispatch(method));
         }), method.getDeclaringClass().getName() + "#" + method.getName(), config.timeout());
         return InterceptorSupport.dispatch(ctx, check, config.timeout());
     }
