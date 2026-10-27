@@ -80,7 +80,7 @@ checks answer `false`.
 Topaz, the subject type is a directory object type such as `user`, not a role. Every check of that caller answers 403.
 * A principal name with one `:` chooses its own type and id. quarkus-zanzibar checks an identity-provider subject such
 as `google-oauth2:123` as type `google-oauth2` with id `123`. Where users pick their own names, a user who registers
-`user:rick@the-citadel.com` passes the checks as Rick.
+`user:rick@the-citadel.com` is checked as Rick.
 
 Turn both extractions off and put `@FGAUserType("user")` on the resources. Keep them on only if your principal names
 are `type:id` by design:
@@ -175,7 +175,7 @@ Use it only on endpoints that are safe for everyone, never on one that writes re
 
 The `topaz` route policy secures the other endpoints of the application. Its `application.properties` therefore sets
 `quarkus.zanzibar.filter.deny-unannotated-resource-methods=false`. Its embedded users have no roles and no `:` in
-their names. The application therefore leaves both user-type extractions at their defaults.
+their names. So the application leaves both user-type extractions at their defaults.
 
 == Errors
 

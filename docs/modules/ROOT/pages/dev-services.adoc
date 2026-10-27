@@ -124,7 +124,7 @@ A configured `manifest-location` may differ from the manifest of the shared cont
 and leaves the shared manifest as it is. To load yours, stop the shared container or set
 `quarkus.topaz.devservices.shared=false`.
 
-The application finds a Topaz service that Compose Dev Services started in the same way.
+The same lookup also finds a Topaz service that Compose Dev Services started.
 
 == Rootless Podman
 

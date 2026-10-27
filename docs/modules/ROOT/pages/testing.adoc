@@ -5,8 +5,8 @@ This page describes how the tests of this repository run.
 == Layout
 
 `deployment`:: `QuarkusUnitTest` classes against the Dev Service. They cover the beans, the global interceptors and
-the health check when up, down and disabled. They also cover a TLS misconfiguration and the API key check. Other
-classes test the seeding of the Dev Service, its failure modes and the Dev UI JSON-RPC service.
+the health check when up, down and disabled. They also cover a TLS misconfiguration and the API key check. They also
+test the seeding of the Dev Service, its failure modes and the Dev UI JSON-RPC service.
 
 `runtime`:: Plain unit tests of the client against in-process gRPC servers.
 
