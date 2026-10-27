@@ -41,8 +41,8 @@ import io.vertx.ext.web.RoutingContext;
  * Evaluates Topaz decisions for a request. Every enforcement point delegates here.
  * <p>
  * Fails closed: an authorizer error, a timeout, a mapper failure or a response without the configured decision yields
- * a denying {@link Outcome} and a WARN log naming the policy path. The mappers run on a worker thread under the
- * request's Vert.x context and are bounded by the enforcement timeout. Successful decisions go through the
+ * a denying {@link Outcome} and a WARN log naming the policy path. The mappers run through {@link MapperDispatch}
+ * under the request's Vert.x context and are bounded by the enforcement timeout. Successful decisions go through the
  * {@link DecisionCache}; errors are never cached.
  */
 @Singleton
@@ -89,7 +89,8 @@ public final class DecisionEvaluator {
     /**
      * Evaluate the configured decision and the additional decisions for an HTTP request.
      * <p>
-     * The resolver and the three mappers run through {@link MapperDispatch} on a worker thread. A mapper may block.
+     * The resolver and the three mappers run through {@link MapperDispatch}. A mapper may block, unless it returns
+     * {@code false} from {@code blocking()}.
      * The enforcement timeout bounds the whole evaluation, mappers included, and a timeout denies. Mappers must not
      * hand the {@code RoutingContext} to other threads, because it is not thread-safe. The outcome comes back on
      * the caller's Vert.x context when there is one.
