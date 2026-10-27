@@ -4,6 +4,8 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import jakarta.inject.Singleton;
@@ -48,17 +50,20 @@ public class RoutePolicySlowMapperTest {
                     .anyMatch(r -> ((ExtLogRecord) r).getFormattedMessage().contains("todoApp.GET.todos")
                             && ((ExtLogRecord) r).getFormattedMessage().contains("TimeoutException")));
 
+    static final CountDownLatch DONE = new CountDownLatch(1);
+
     @BeforeAll
     static void identities() {
         TestIdentities.register();
     }
 
     @Test
-    void slowMapperIsDeniedWithinTheTimeout() {
+    void slowMapperIsDeniedWithinTheTimeout() throws InterruptedException {
         long start = System.nanoTime();
         given().auth().preemptive().basic("rick@the-citadel.com", "rick")
                 .get("/todos").then().statusCode(403);
         assertThat((System.nanoTime() - start) / 1_000_000).isLessThan(1500);
+        assertThat(DONE.await(3, TimeUnit.SECONDS)).isTrue();
     }
 
     @Singleton
@@ -67,9 +72,11 @@ public class RoutePolicySlowMapperTest {
         @Override
         public Uni<IdentityContext> map(SecurityIdentity identity, Optional<RoutingContext> request) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } finally {
+                DONE.countDown();
             }
             return Uni.createFrom().item(org.sitenetsoft.quarkus.topaz.IdentityContexts.subject(
                     identity.getPrincipal().getName()));
