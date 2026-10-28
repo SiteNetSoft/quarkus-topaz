@@ -5,7 +5,7 @@
 
   <groupId>org.sitenetsoft</groupId>
   <artifactId>quarkus-topaz-parent</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Topaz - Parent</name>
   <description>Quarkus extensions for the Topaz authorizer and directory</description>

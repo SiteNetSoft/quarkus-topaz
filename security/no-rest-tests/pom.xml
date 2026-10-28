@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sitenetsoft</groupId>
     <artifactId>quarkus-topaz-security-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>quarkus-topaz-security-no-rest-tests</artifactId>
   <name>Topaz Security - No REST Tests</name>
