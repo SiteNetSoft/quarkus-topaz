@@ -53,7 +53,7 @@ jobs:
           cache: maven
 
       - name: Build and test native image
-        run: mvn -B -ntp -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+        run: mvn -B -ntp -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true
 
   # The deployment tests again against the previous Topaz release, to catch protocol or behaviour drift.
   topaz-previous:
