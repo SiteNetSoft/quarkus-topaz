@@ -56,8 +56,7 @@
     <topaz.image>ghcr.io/aserto-dev/topaz:0.33.22</topaz.image>
     <pb-authorizer.tag>v0.24.0</pb-authorizer.tag>
     <pb-directory.tag>v0.34.1</pb-directory.tag>
-    <!-- host rule: fork JVMs run C1 only -->
-    <test.argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:TieredStopAtLevel=1</test.argLine>
+    <test.argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</test.argLine>
     <!-- empty default so @{argLine} resolves where nothing (e.g. the Quarkus Maven extension) sets it -->
     <argLine></argLine>
   </properties>

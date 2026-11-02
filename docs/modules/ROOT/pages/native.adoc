@@ -8,13 +8,8 @@ Build the todo application of the integration tests natively with a container bu
 
 [source,shell]
 ----
-mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true \
-    -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true
 ----
-
-The `additional-build-args` keep the native-image compiler at C1 and eight threads. The build then fits on ordinary
-CI runners and workstations. These arguments cost build time, not correctness. You can drop them on a large build
-host. If your project already sets `quarkus.native.additional-build-args`, append to its value.
 
 == Security
 
