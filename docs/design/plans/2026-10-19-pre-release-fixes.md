@@ -15,7 +15,6 @@
 - `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`; no `com.aserto:*` dependency; no `grpc-netty-shaded`.
 - Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
-- Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build. The host logged machine-check events on 2026-10-19 during builds: keep to one build at a time.
 - Fail closed: no convenience method returns `true` on an error; client errors are `io.grpc.StatusRuntimeException`; every security denial logs at WARN naming the policy path.
 - Public API after this plan: in `org.sitenetsoft.quarkus.topaz`: `TopazClient` and its `Builder` (except `settings`, which is internal), `AuthorizerClient`, `DirectoryClient`, `BlockingTopazClient`, `BlockingAuthorizerClient`, `BlockingDirectoryClient`, `IdentityContexts`, `Structs`, `ImportSummary`; in `org.sitenetsoft.quarkus.topaz.security`: everything already there; in `org.sitenetsoft.quarkus.topaz.zanzibar`: `ZanzibarTopazRelationshipManager`. Every `*.runtime` and `*.deployment` package is internal and says so in a `package-info.java`.
 - Module-scoped builds: `-pl deployment -am`, `-pl security/deployment -am`, `-pl zanzibar/deployment -am`, `-pl integration-tests -am`.
@@ -376,7 +375,7 @@ Expected: BUILD SUCCESS; no `Port already bound`; no new WARN categories compare
 git add docs security/runtime
 git commit -m "Record the security and zanzibar drift in the spec and complete the mapper Javadoc"
 ```
-Run: `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee target/logs/pre-release-native.log`
+Run: `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true 2>&1 | tee target/logs/pre-release-native.log`
 Expected: BUILD SUCCESS, Failsafe all green (the client's new deadline guard and the moved interceptor class are exercised natively).
 
 ---

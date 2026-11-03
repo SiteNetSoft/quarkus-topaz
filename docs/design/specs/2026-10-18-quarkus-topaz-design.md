@@ -69,9 +69,6 @@ service is reachable through the client, and convenience methods sit on top rath
 - Protos pinned to published tags: `pb-authorizer` v0.24.0 and `pb-directory` v0.34.1 (buf modules
   `buf.build/aserto-dev/authorizer` and `buf.build/aserto-dev/directory`). Topaz image pinned to
   `ghcr.io/aserto-dev/topaz:0.33.22`. Both bump by PR, never floating.
-- Build rules: native builds always run with
-  `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`, Maven `-T 4`
-  at most, one heavy job at a time.
 
 ## 3. Module and artifact layout
 
@@ -402,7 +399,7 @@ Container: `GenericContainer` on `ghcr.io/aserto-dev/topaz:<pinned>`, exposing 8
 but unused by the wait strategy) and 8080 (console). On the shared network when required. Startup:
 
 1. The Dev Service writes a **version 2 `config.yaml`** into a temp directory under the project
-   `target/` (not `/tmp`, per host rules) and copies it into the container at `/config`. The config enables the
+   `target/` (not `/tmp`) and copies it into the container at `/config`. The config enables the
    authorizer, the directory with a BoltDB edge store under `/db`, the console, API key auth only when
    `devservices.api-key` is set, and **plaintext gRPC and gateway listeners**. Topaz's bundled
    self-signed certificates are not used, so tests need no trust-store gymnastics.
