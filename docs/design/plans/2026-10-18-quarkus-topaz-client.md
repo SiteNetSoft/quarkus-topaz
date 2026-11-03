@@ -16,7 +16,6 @@
 - Protos pinned: `buf.build/aserto-dev/authorizer:v0.24.0`, `buf.build/aserto-dev/directory:v0.34.1`. Topaz image pinned: `ghcr.io/aserto-dev/topaz:0.33.22`.
 - No dependency on any `com.aserto:*` artifact. No `grpc-netty-shaded`.
 - Container runtime is rootless Podman. Every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`. `docker` is not installed; the proto export script uses `podman run docker.io/bufbuild/buf`.
-- Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Scratch files from the Dev Service go under the build output directory, never `/tmp`.
 - Fail closed: no convenience method returns `true` on an error; errors propagate as `io.grpc.StatusRuntimeException`.
 - Package root `org.sitenetsoft.quarkus.topaz`; runtime internals in `org.sitenetsoft.quarkus.topaz.runtime`; deployment in `org.sitenetsoft.quarkus.topaz.deployment`. Generated stubs keep proto packages (`aserto.authorizer.v2`, `aserto.directory.reader.v3`, ...).
@@ -56,7 +55,7 @@ The plugin writes into a `quarkus-topaz/` subdirectory when run from an existing
 
 - [ ] **Step 2: Fix the root pom**
 
-Set `<version>0.1.0-SNAPSHOT</version>`, artifactId `quarkus-topaz-parent`, `maven.compiler.release` `21`, properties `topaz.image`, `pb-authorizer.tag=v0.24.0`, `pb-directory.tag=v0.34.1`. Modules: `runtime`, `deployment` only for now. Surefire and failsafe `argLine` must include `-Djava.util.logging.manager=org.jboss.logmanager.LogManager` and `-XX:TieredStopAtLevel=1` (host rule for forks). The Podman environment variables come from the shell, not the pom.
+Set `<version>0.1.0-SNAPSHOT</version>`, artifactId `quarkus-topaz-parent`, `maven.compiler.release` `21`, properties `topaz.image`, `pb-authorizer.tag=v0.24.0`, `pb-directory.tag=v0.34.1`. Modules: `runtime`, `deployment` only for now. Surefire and failsafe `argLine` must include `-Djava.util.logging.manager=org.jboss.logmanager.LogManager`. The Podman environment variables come from the shell, not the pom.
 
 - [ ] **Step 3: Write the extension metadata**
 
@@ -589,8 +588,7 @@ Test archive contains `@GlobalInterceptor @ApplicationScoped class RecordingInte
 ```bash
 git add -A && git commit -m "Add integration tests with a todo sample application"
 DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 \
-mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
-  -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8
+mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman
 ```
 
 Expected: `TodoResourceIT` passes against the native binary. Fix native registrations in `TopazProcessor` if the binary fails at runtime (typical cause: a protobuf class missing from the Jandex index).
@@ -608,7 +606,7 @@ Expected: `TodoResourceIT` passes against the native binary. Fix native registra
 
 - [ ] **Step 1: Write the pages.** `index`: what Topaz is, which artifact to add, 20-line quick start with the todo policy; `client`: `TopazClient` API table, identity contexts, `isAllowed` semantics (false when decision absent, errors propagate), blocking facade, builder outside CDI; `dev-services`: every `quarkus.topaz.devservices.*` key with the policy directory versus image choice, manifest and data formats, shared container drift, Podman note; `configuration`: `include::includes/quarkus-topaz.adoc[]` generated; `testing`: how this repo's tests run (env vars, `-T 4`, native args). Every config key named in a page must exist in the generated reference.
 - [ ] **Step 2: Build the docs** `mvn -q -Pdocs -pl docs package` → `docs/target/generated-docs/index.html` exists; `grep -c "quarkus.topaz.devservices.policy.directory" docs/target/generated-docs/configuration.html` ≥ 1.
-- [ ] **Step 3: Write `ci.yml`**: on push and PR; job `build` on `ubuntu-latest`, `actions/setup-java@v6` Temurin 25, `mvn -B -T 4 verify`; job `native` needing `build`, `mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; job `topaz-previous` running `mvn -B -pl deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21`. `pages.yml` builds `-Pdocs` and publishes `docs/target/generated-docs` to GitHub Pages. GitHub runners have Docker, so no Podman env vars there.
+- [ ] **Step 3: Write `ci.yml`**: on push and PR; job `build` on `ubuntu-latest`, `actions/setup-java@v6` Temurin 25, `mvn -B -T 4 verify`; job `native` needing `build`, `mvn -B -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true`; job `topaz-previous` running `mvn -B -pl deployment -am test -Dquarkus.topaz.devservices.image-name=ghcr.io/aserto-dev/topaz:0.33.21`. `pages.yml` builds `-Pdocs` and publishes `docs/target/generated-docs` to GitHub Pages. GitHub runners have Docker, so no Podman env vars there.
 - [ ] **Step 4: Update `README.md`** with installation snippet (Maven and Gradle), the three-property Dev Service quick start, and links to docs and the design spec.
 - [ ] **Step 5: Full build and commit**
 

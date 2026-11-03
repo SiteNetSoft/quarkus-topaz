@@ -14,7 +14,7 @@
 - GroupId `org.sitenetsoft`, version `0.1.0-SNAPSHOT` stays as is in this plan; no license headers in files.
 - `maven.compiler.release=21`; build with `JAVA_HOME=/path/to/jdk-25`.
 - Container runtime is rootless Podman: commands that start containers run with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
-- Maven parallelism at most `-T 4` locally; one heavy job at a time; no native build in this plan.
+- No native build in this plan.
 - Published artifact ids are exactly: `quarkus-topaz-parent`, `quarkus-topaz-grpc-parent`, `quarkus-topaz-grpc`, `quarkus-topaz`, `quarkus-topaz-deployment`, `quarkus-topaz-security-parent`, `quarkus-topaz-security`, `quarkus-topaz-security-deployment`, `quarkus-topaz-zanzibar-parent`, `quarkus-topaz-zanzibar`, `quarkus-topaz-zanzibar-deployment`. Nothing else is deployed.
 - No credentials, keys or `<distributionManagement>` in any committed file. Signing only under `-Prelease`.
 - Scripts: bash, `set -euo pipefail`, executable, in the style of `bin/generate.sh`.

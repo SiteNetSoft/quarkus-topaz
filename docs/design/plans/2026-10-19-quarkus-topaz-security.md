@@ -16,7 +16,6 @@
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`. No dependency on any `com.aserto:*` artifact.
 - `quarkus-topaz-security` depends on `quarkus-topaz`, `quarkus-vertx-http`, `quarkus-security`, `quarkus-jackson`, and `quarkus-rest` in `provided` scope. `quarkus-topaz` itself must not gain a `quarkus-security` dependency.
 - Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
-- Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Fail closed: a Topaz error, timeout, unresolved user, missing decision or missing policy path denies. Nothing is enforced unless the user binds the `topaz` policy or uses an annotation; no global policy.
 - Package roots: public API in `org.sitenetsoft.quarkus.topaz.security`, internals in `org.sitenetsoft.quarkus.topaz.security.runtime`, build steps in `org.sitenetsoft.quarkus.topaz.security.deployment`.
 - Feature name `topaz-security`. Config prefix `quarkus.topaz.enforcement`. Identity attribute key `topaz.decisions`.
@@ -490,7 +489,7 @@ git add integration-tests
 git commit -m "Add secured todo endpoints to the integration tests"
 ```
 
-Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8` (after `mvn -T 4 -pl security/deployment -am install -DskipTests` so the native run sees fresh jars)
+Run: `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=/path/to/jdk-25 mvn -pl integration-tests verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman` (after `mvn -T 4 -pl security/deployment -am install -DskipTests` so the native run sees fresh jars)
 Expected: BUILD SUCCESS with `SecuredTodoResourceIT` 7/7 and `TodoResourceIT` 6/6. A reflection failure in `@TopazObjectId` resolution or Jackson conversion is fixed in the deployment processor (`ReflectiveClassBuildItem`) and committed before a second, final native run.
 
 ---

@@ -16,7 +16,6 @@
 - Topaz image `ghcr.io/aserto-dev/topaz:0.33.22`. No dependency on any `com.aserto:*` artifact.
 - `quarkus-topaz-zanzibar` depends on `quarkus-topaz`, `quarkus-arc` and `io.quarkiverse.zanzibar:quarkus-zanzibar`. It is the only module that touches Quarkiverse artifacts; `quarkus-topaz` and `quarkus-topaz-security` must not gain one.
 - Container runtime is rootless Podman: every test or build command that starts containers runs with `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock TESTCONTAINERS_RYUK_DISABLED=true`.
-- Maven parallelism at most `-T 4` locally; one heavy job at a time; native builds always pass `-Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8`; commit before any native build.
 - Module-scoped builds use `-pl zanzibar/deployment -am` (building `zanzibar/runtime` alone fails the extension-descriptor check, as it does for `security/runtime`).
 - Fail closed: `check` never completes with `true` on an error. A `NOT_FOUND` from the Directory on `check` means "no such relationship" and completes with `false`; every other `StatusRuntimeException` propagates unchanged (quarkus-zanzibar's filter turns it into a 500, which is its decision, not ours).
 - Package roots: public API in `org.sitenetsoft.quarkus.topaz.zanzibar`, config in `org.sitenetsoft.quarkus.topaz.zanzibar.runtime`, build steps in `org.sitenetsoft.quarkus.topaz.zanzibar.deployment`.
@@ -375,7 +374,7 @@ git add integration-tests
 git commit -m "Add the FGA-annotated todo endpoints to the integration tests"
 ```
 
-Run (one heavy job, nothing else building): `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.additional-build-args=-J-XX:TieredStopAtLevel=1,--parallelism=8 2>&1 | tee target/logs/zanzibar-native.log`
+Run: `DOCKER_HOST=... TESTCONTAINERS_RYUK_DISABLED=true JAVA_HOME=... mvn -pl integration-tests -am verify -Dnative -Dquarkus.native.container-build=true 2>&1 | tee target/logs/zanzibar-native.log`
 Expected: BUILD SUCCESS; Failsafe runs `FgaTodoResourceIT` 7/7 alongside the existing ITs. If the native image fails on a missing reflection registration for a `quarkus-zanzibar` class, add a `ReflectiveClassBuildItem` for it in `TopazZanzibarProcessor` and commit that separately.
 
 ---
