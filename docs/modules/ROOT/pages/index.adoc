@@ -1,6 +1,24 @@
 = Quarkus Topaz
 include::./includes/attributes.adoc[]
 
+[IMPORTANT]
+====
+*This project moved to Quarkiverse: https://github.com/quarkiverse/quarkus-topaz.* This repository is archived. New
+releases, starting with 0.2.0, come from there. The current documentation is at
+https://docs.quarkiverse.io/quarkus-topaz/dev/index.html.
+
+Update the dependency from `org.sitenetsoft:quarkus-topaz:0.1.0` to `io.quarkiverse.topaz:quarkus-topaz:0.2.0`. The
+same change applies to `quarkus-topaz-security` and `quarkus-topaz-zanzibar`. The Java packages moved too:
+
+[source,java]
+----
+// before
+import org.sitenetsoft.quarkus.topaz.TopazClient;
+// after
+import io.quarkiverse.topaz.TopazClient;
+----
+====
+
 https://github.com/aserto-dev/topaz[Topaz] is an open-source authorizer. It runs an OPA policy engine for Rego next
 to a Zanzibar-style directory of objects and relations. It serves both over gRPC.
 
