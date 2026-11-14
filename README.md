@@ -1,3 +1,30 @@
+> [!IMPORTANT]
+> **This project moved to Quarkiverse: https://github.com/quarkiverse/quarkus-topaz.** This repository is archived. New releases, starting with 0.2.0, come from there.
+>
+> Update the dependency:
+>
+> ```xml
+> <!-- before -->
+> <groupId>org.sitenetsoft</groupId>
+> <artifactId>quarkus-topaz</artifactId>
+> <version>0.1.0</version>
+> <!-- after -->
+> <groupId>io.quarkiverse.topaz</groupId>
+> <artifactId>quarkus-topaz</artifactId>
+> <version>0.2.0</version>
+> ```
+>
+> The same change applies to `quarkus-topaz-security` and `quarkus-topaz-zanzibar`. The Java packages moved too:
+>
+> ```java
+> // before
+> import org.sitenetsoft.quarkus.topaz.TopazClient;
+> // after
+> import io.quarkiverse.topaz.TopazClient;
+> ```
+>
+> The documentation is at https://docs.quarkiverse.io/quarkus-topaz/dev/index.html.
+
 # quarkus-topaz
 
 Quarkus extension for [Topaz](https://github.com/aserto-dev/topaz), the aserto-dev/topaz authorizer. It provides a reactive gRPC client for the authorizer and the directory. It also adds a Dev Service, a readiness health check and a Dev UI card.
